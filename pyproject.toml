@@ -1,0 +1,17 @@
+[project]
+name = "hcm-mcp-server"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = [
+    "faiss-cpu>=1.10.0",
+    "fastapi[all]>=0.115.12",
+    "fastapi-mcp>=0.2.0",
+    "langchain>=0.3.23",
+    "mcp[cli]>=1.6.0",
+    "numpy>=2.2.4",
+    "pymupdf>=1.25.5",
+    "pymupdf4llm>=0.0.21",
+    "sentence-transformers>=4.0.2",
+]
