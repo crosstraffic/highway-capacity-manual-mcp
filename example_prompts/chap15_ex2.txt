@@ -1,0 +1,42 @@
+For two lane highway segments, can you calculate level of service on this section?
+
+Description: Passing Constrained segment with horizontal curves
+Type of Analysis: Operational analysis
+
+This example problem illustrates the computation of LOS in a single direction of a curving, 0.75 mi-long Passing Constrained segment in level terrain.
+
+The Facts
+The segment to be evaluated has the same general demand and geometric characteristics as the segment evaluated in Example Problem 1. 
+The difference is that this segment has horizontal curvature instead of being straight; otherwise, the same inputs are used as for Example Problem 1.
+The segment is split into 11 subsegments, with each subsegment being either straight (tangent) or curved. Horizontal curvature data for each subsegment is provided below.
+
+Configuration from Exmaple Problem 1
+- Segment length = 3,960 ft (0.75 mi);
+- Segment type = Passing Constrained;
+- No upstream passing lanes;
+- Vehicle count in the analysis direction = 752 veh/h;
+- PHF = 0.94;
+- Posted speed limit: 50 mi/h;
+- Percent heavy vehicles (%HV) = 5%;
+- Percent grade = 0%;
+- Horizontal curvature = none;
+- Lane width = 12 ft;
+- Shoulder width = 6 ft; and
+- Access points = 0.
+
+Subsegment Type, Length (ft), Superelevation (%), Radius (ft), Central Angle (deg), Horizontal Class
+1 Tangent 280 -- -- -- --
+2 Horizontal curve 432 3 450 55 3
+3 Tangent 260 -- -- -- --
+4 Horizontal curve 366.5 2 300 70 4
+5 Tangent 250 -- -- -- --
+6 Horizontal curve 216 5 275 45 5
+7 Tangent 275.6 -- -- -- --
+8 Horizontal curve 458 0 750 35 2
+9 Tangent 285 -- -- -- --
+10 Horizontal curve 767.9 4 1,100 40 1
+11 Tangent 369 -- -- -- --
+Total 3,960
+
+Objective
+Estimate the average speed in the subject direction on the two-lane highway segment, taking into account the effects of horizontal alignment on the average speed.

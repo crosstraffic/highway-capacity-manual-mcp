@@ -1,0 +1,33 @@
+For two lane highway segments, can you calculate level of service on this section?
+
+This example problem illustrates the computation of LOS in the
+eastbound direction of a straight, 5.5-mi-long two-lane highway in level
+terrain. The study facility includes a 1.5-mi-long passing lane and a 0.5-milong
+passing zone.
+
+Description: Facility analysis in level terrain
+Type of Analysis: Operational analysis
+
+The Facts
+The input data for the eastbound direction of the facility are provided in the table below.
+
+This section is composed of 5 segments: Passing Constrained (3960ft), Passing Lane (7920ft), Passing Constrained (5280ft), Passing Zone (2640ft), Passing Constrained (9240ft)
+
+Segment, Horizontal Class, Vertical Class, Posted Speed Limit (mi/h), Directional Volume (veh/h), Opposing Volume (veh/h), Peak Hour Factor, Heavy Vehicles (%)
+1 1 1 55 850 * 0.94 8
+2 1 1 55 825 * 0.95 8
+3 1 1 55 820 * 0.95 8
+4 1 1 55 800 500 0.94 7.5
+5 1 1 55 795 * 0.935 8
+
+The facility has the following additional characteristics:
+- Facility length = 29,040 ft (5.5 mi);
+- No upstream passing lanes;
+- Percent grade = 0%;
+- Horizontal curvature = none;
+- Lane width = 12 ft in all segments;
+- Paved shoulder width = 6 ft in all segments; and
+- Access points = 0 in all segments (for simplification of this problem, despite variation in segment volume).
+
+Objective
+Estimate the LOS in the subject direction on the two-lane highway segment, taking into account the effects of the passing lane and the passing zone.

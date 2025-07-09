@@ -1,0 +1,27 @@
+For two lane highway segments, can you calculate level of service on this section?
+
+The problems demonstrate the computational steps involved in applying the two-lane highway automobile and bicycle methodologies.
+
+Description: Level, straight, Passing Constrained segment
+Type of Analysis: Operational analysis
+
+CONSTRAINED SEGMENT
+This example problem illustrates the computation of the LOS in a single direction on a straight, 0.75 mi-long Passing Constrained segment in level terrain.
+
+The Facts
+The segment has the following known characteristics:
+- Segment length = 3,960 ft (0.75 mi);
+- Segment type = Passing Constrained;
+- No upstream passing lanes;
+- Vehicle count in the analysis direction = 752 veh/h;
+- PHF = 0.94;
+- Posted speed limit: 50 mi/h;
+- Percent heavy vehicles (%HV) = 5%;
+- Percent grade = 0%;
+- Horizontal curvature = none;
+- Lane width = 12 ft;
+- Shoulder width = 6 ft; and
+- Access points = 0.
+
+Objective
+Estimate the LOS in the subject direction on the two-lane highway segment as described.

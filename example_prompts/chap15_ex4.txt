@@ -1,0 +1,50 @@
+For two lane highway segments, can you calculate level of service on this section?
+
+Description: Facility analysis in mountainous terrain
+Type of Description: Operational analysis
+
+This example problem illustrates the computation of the LOS in the eastbound direction of a 5.1 mi-long two-lane highway in mountainous terrain with two 0.5-mi-long passing lanes. Grades reach 6% and there are a series of reverse curves that constrain speeds.
+
+This highway is a popular summer and winter recreational area access route. It experiences heavy snowfall each winter. The road is extensively plowed during winter and chains are required during winter storms. 
+The Chapter 15 method is not appropriate for the analysis of winter operations. This analysis focuses on summer, dry weather operations. Summer volumes are higher than winter volumes.
+
+
+The Facts
+A diagram of the study facility, showing its six segments The study direction (eastbound) starts in the top left of the section and proceeds to the bottom center.
+
+Below table provides volume and speed data for the facility, while bottom table provides grade and horizontal curve data. Tangent sections are either straight or have horizontal curves with radii greater than 2,550 ft.
+Segment 2 has a series of seven reverse curves of similar radius and central angle. To reduce repetitive computations that would produce the same estimated speed, they have been combined into a single long, curved subsegment.
+Segment 3 contains a short passing lane 910 ft (0.17 mi) in length. 
+Because this length is shorter than the minimum passing lane lengths (i.e., is too short to be effectively used as a passing lane), the passing lane is ignored.
+Segment 3 is treated as a Passing Constrained segment instead.
+
+Segment, Segment Type, Length (mi), Posted Speed Limit (mi/h), Directional Volume (veh/h), Peak Hour Factor, Heavy Vehicles (%)
+1 Passing Constrained 1.3 55 1,100 0.90 8
+2 Passing Constrained 1.0 55 1,100 0.90 8
+3 Passing Constrained 0.5 55 1,100 0.90 8
+4 Passing Constrained 1.3 55 1,100 0.90 8
+5 Passing Lane 0.5 55 1,100 0.90 8
+6 Passing Constrained 0.5 55 1,100 0.90 8
+
+Horizontal Curvature
+Segment, Segment Length (mi), Grade (%), Subsegment Horizontal Alignment, Length (ft), Superelevation (%), Curve Radius (ft)
+1 1.3 4 a Tangent 5,964 — —
+        b Curve 900 2 350
+2 1.0 6 a Tangent 1,000 — —
+        b 7 curves 4,280 2 500
+3 0.5 6 Tangent 2,640 — —
+4 1.3 4 a Tangent 3,864 — —
+        b Curve 3,000 2 850
+5 0.5 −3 Tangent 2,640 — —
+6 0.5 −3 Tangent 2,640 — —
+
+The facility has the following additional characteristics:
+- Facility length = 26,928 ft (5.1 mi);
+- Not within the effective length of upstream passing lanes;
+- No turnouts;
+- Lane width = 12 ft in all segments;
+- Paved shoulder width = 6 ft in all segments; and
+- Access points = 0 in all segments.
+
+Objective
+Estimate the LOS in the eastbound direction of the two-lane highway facility, taking into account the effects of the passing lanes.
