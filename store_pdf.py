@@ -2,8 +2,8 @@ import numpy as np
 import pickle
 from pathlib import Path
 
-import faiss
-import pymupdf
+import chromadb
+from chromadb.config import Settings
 import pymupdf4llm
 from langchain.text_splitter import MarkdownTextSplitter
 from sentence_transformers import SentenceTransformer
@@ -20,10 +20,46 @@ Chap1: 147-180
 Chap15: 1048-1141
 """
 
+def setup_chroma_index():
+    # Create persistent client
+    client = chromadb.PersistentClient(path="./chroma_db")
+    
+    # Create or get collection
+    collection = client.get_or_create_collection(
+        name="hcm_documents",
+        metadata={"hnsw:space": "cosine"}  # or "l2" for L2 distance
+    )
+    
+    return client, collection
+
+def add_to_chroma(collection, embeddings, text_chunks, all_metadata):
+    # Chroma expects embeddings as list of lists
+    embeddings_list = embeddings.tolist()
+    
+    # Create unique IDs
+    ids = [f"chunk_{i}" for i in range(len(text_chunks))]
+    
+    # Add to collection
+    collection.add(
+        embeddings=embeddings_list,
+        documents=text_chunks,
+        metadatas=all_metadata,
+        ids=ids
+    )
+
+def search_chroma(collection, query_embedding, k=5):
+    results = collection.query(
+        query_embeddings=[query_embedding.tolist()],
+        n_results=k
+    )
+    return results
+
 # Load embedding model
 model = SentenceTransformer(embedding_model_name) # fast and good enough
-dimension = model.get_sentence_embedding_dimension()
-index = faiss.IndexFlatL2(dimension) # L2 distance index
+# dimension = model.get_sentence_embedding_dimension()
+# index = faiss.IndexFlatL2(dimension) # L2 distance index
+# Setup Chroma
+client, collection = setup_chroma_index()
 
 all_chunks = []
 all_metadata = []
@@ -40,7 +76,6 @@ for pdf_file in folder_path.glob("*.pdf"):
     splitter = MarkdownTextSplitter(chunk_size=token_chunk_size, chunk_overlap=token_chunk_overlap)
     documents = splitter.create_documents([md_text])
     text_chunks = [doc.page_content for doc in documents]
-
     print(f"{chapter_name}: {len(text_chunks)} chunks")
 
     # Embed chunks
@@ -60,18 +95,21 @@ for pdf_file in folder_path.glob("*.pdf"):
     # if buffer:
     #     text_chunks.append(buffer)
 
-    index.add(embeddings)
+    # Add to Chroma
+    chunk_metadata = [{"chapter": chapter_name} for _ in text_chunks]
+    add_to_chroma(collection, embeddings, text_chunks, chunk_metadata)
+
     all_chunks.extend(text_chunks)
     all_metadata.extend({"chapter": chapter_name, "text": chunk} for chunk in text_chunks)
 
-# Save the index and chunks
-faiss.write_index(index, "hcm_index.faiss")
 
-# Save the corresponding texts
-with open("hcm_chunks.pkl", "wb") as f:
-    pickle.dump(text_chunks, f)
+def search_documents(query, k=5):
+    query_embedding = model.encode([query])[0]
+    results = search_chroma(collection, query_embedding, k)
+    return results
 
-with open("hcm_metadata.pkl", "wb") as f:
-    pickle.dump(all_metadata, f)
-
-print(f"Total Chunks: {len(all_chunks)}")
+results = search_documents("human resource management", k=3)
+for doc, metadata in zip(results['documents'][0], results['metadatas'][0]):
+    print(f"Chapter: {metadata['chapter']}")
+    print(f"Text: {doc[:200]}...")
+    print("---")

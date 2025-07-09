@@ -6,6 +6,10 @@ dist/
 wheels/
 *.egg-info
 
+# Data
+chroma_db/
+hcm_files/
+
 # Virtual environments
 .venv
 .env

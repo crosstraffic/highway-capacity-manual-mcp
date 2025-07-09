@@ -1,0 +1,10 @@
+transportations_library==0.1.4
+dotenv==0.9.9
+chroma==0.2.0
+chromadb==1.0.13
+fastapi==0.115.14
+fastapi==0.3.4
+langchain==0.3.26
+sentence_transformers==4.1.0
+pymupdf==1.26.1
+pymupdf4llm==0.0.25
