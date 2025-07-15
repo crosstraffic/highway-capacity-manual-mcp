@@ -11,7 +11,7 @@ from sentence_transformers import SentenceTransformer
 
 import chromadb
 from chromadb.config import Settings
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI
 from fastapi.responses import StreamingResponse
 from fastapi_mcp import FastApiMCP
 from fastapi.middleware.cors import CORSMiddleware
@@ -58,101 +58,6 @@ app.add_middleware(
 
 # Create endpoints dynamically based on registry
 create_endpoints(app)
-
-# MCP Protocol Endpoints
-# @app.get("/mcp")
-# async def mcp_root():
-#     """MCP root endpoint."""
-#     return {
-#         "name": "HCM-LLM",
-#         "version": "0.2.0",
-#         "protocol_version": "1.0.0",
-#         "capabilities": ["tools", "resources", "prompts"]
-#     }
-
-# @app.post("/mcp")
-# async def mcp_handle_request(request: Dict[str, Any]):
-#     """Handle MCP protocol requests."""
-#     try:
-#         method = request.get("method")
-#         params = request.get("params", {})
-#         req_id = request.get("id")
-
-#         def wrap_result(result):
-#             return {
-#                 "jsonrpc": "2.0",
-#                 "id": req_id,
-#                 "result": result
-#             }
-
-#         def wrap_error(message, code=400):
-#             return {
-#                 "jsonrpc": "2.0",
-#                 "id": req_id,
-#                 "error": {
-#                     "code": code,
-#                     "message": message
-#                 }
-#             }
-
-        
-#         if method == "tools/list":
-#             registry = app.state.function_registry
-#             if not registry:
-#                 return {"tools": []}
-                
-#             tools = []
-#             for name, info in registry.get_all_functions().items():
-#                 tools.append({
-#                     "name": name,
-#                     "description": info["description"],
-#                     "inputSchema": info["parameters"]
-#                 })
-#             return {"tools": tools}
-            
-#         elif method == "tools/call":
-#             tool_name = params.get("name")
-#             arguments = params.get("arguments", {})
-            
-#             registry = app.state.function_registry
-#             if not registry:
-#                 raise HTTPException(status_code=500, detail="Registry not available")
-                
-#             function_impl = registry.get_function(tool_name)
-#             if not function_impl:
-#                 raise HTTPException(status_code=404, detail=f"Tool {tool_name} not found")
-            
-#             # Execute function
-#             if asyncio.iscoroutinefunction(function_impl):
-#                 result = await function_impl(arguments)
-#             else:
-#                 result = function_impl(arguments)
-            
-#             return {"content": [{"type": "text", "text": json.dumps(result)}]}
-            
-#         elif method == "resources/list":
-#             return {
-#                 "resources": [
-#                     {
-#                         "uri": "hcm://chapter/15",
-#                         "name": "HCM Chapter 15",
-#                         "description": "Two-Lane Highways"
-#                     }
-#                 ]
-#             }
-#         elif method == "initialize":
-#             return wrap_result({
-#                 "name": "HCM-LLM",
-#                 "version": "0.2.0",
-#                 "protocol_version": "1.0.0",
-#                 "capabilities": ["tools", "resources", "prompts"]
-#             })
-#         else:
-#             raise HTTPException(status_code=400, detail=f"Unknown method: {method}")
-            
-#     except Exception as e:
-#         raise HTTPException(status_code=500, detail=str(e))
-
 
 # MCP discovery endpoint
 @app.get("/mcp/discovery")
