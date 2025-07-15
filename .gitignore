@@ -8,7 +8,7 @@ wheels/
 
 # Data
 chroma_db/
-hcm_files/
+data/hcm_files/*.pdf
 
 # Virtual environments
 .venv

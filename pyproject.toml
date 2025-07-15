@@ -1,17 +1,20 @@
 [project]
 name = "hcm-mcp-server"
-version = "0.1.0"
-description = "Add your description here"
+version = "0.2.0"
+description = "A FastAPI-based Model Context Protocol (MCP) server for Highway Capacity Manual (HCM) analysis and transportation engineering calculations."
 readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
-    "faiss-cpu>=1.10.0",
-    "fastapi[all]>=0.115.12",
-    "fastapi-mcp>=0.2.0",
-    "langchain>=0.3.23",
-    "mcp[cli]>=1.6.0",
+    "faiss-cpu==1.11.0",
+    "fastapi==0.116.1",
+    "fastapi-mcp==0.3.6",
+    "langchain==0.3.26",
+    "mcp[cli]==1.11.0",
     "numpy>=2.2.4",
-    "pymupdf>=1.25.5",
-    "pymupdf4llm>=0.0.21",
-    "sentence-transformers>=4.0.2",
+    "pymupdf>=1.26.1",
+    "pymupdf4llm>=0.0.25",
+    "sentence-transformers==5.0.0",
+    "transportations_library==0.1.4",
+    "python-dotenv==1.1.1",
+    "chromadb==1.0.15",
 ]
