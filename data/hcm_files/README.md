@@ -3,7 +3,7 @@ The script `import_hcm_docs.py` is designed to read the HCM documents, split the
 
 For local usage of this mcp server, you need to have the HCM documents in the `data/hcm_files` directory. And make sure to split it into each chapter as a separate PDF file. I used 128 texts as chunk size for RAG usage.
 
-It takes approximately 20 minutes to embed and store all HCM documents in the ChromaDB database.
+It takes approximately <=30 minutes to embed and store all HCM documents in the ChromaDB database.
 
 ## Content
 

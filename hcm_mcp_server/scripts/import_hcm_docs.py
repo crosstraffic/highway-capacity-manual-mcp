@@ -23,13 +23,6 @@ def generate_id_from_text(text: str) -> str:
     return hashlib.md5(text.encode("utf-8")).hexdigest()
 
 def add_to_chroma(collection, embeddings, text_chunks, all_metadata):
-    # # Chroma expects embeddings as list of lists
-    # embeddings_list = embeddings.tolist()
-    
-    # # Create unique IDs
-    # # ids = [f"chunk_{i}" for i in range(len(text_chunks))]
-    # ids = [generate_id_from_text(chunk) for chunk in text_chunks]
-    # Skip duplicate chunks
     seen_ids = set()
     unique_chunks = []
     unique_embeddings = []
@@ -47,7 +40,6 @@ def add_to_chroma(collection, embeddings, text_chunks, all_metadata):
             unique_ids.append(chunk_id)
         else:
             skip_chunk += 1
-        #     print(f"Skipping duplicate chunk: {chunk[:60]}...")
 
     # Add to collection
     collection.upsert(
@@ -58,14 +50,6 @@ def add_to_chroma(collection, embeddings, text_chunks, all_metadata):
     )
 
     print(f"The number of skipping duplicate chunk: {skip_chunk}")
-    
-    # # Add to collection
-    # collection.upsert(
-    #     embeddings=embeddings_list,
-    #     documents=text_chunks,
-    #     metadatas=all_metadata,
-    #     ids=ids
-    # )
 
 def search_chroma(collection, query_embedding, k=5):
     results = collection.query(
