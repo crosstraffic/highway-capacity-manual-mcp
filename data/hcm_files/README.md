@@ -1,10 +1,11 @@
 # Content
 
-| Chapter | Page Range  | Title                                                  |
-|---------|-------------|--------------------------------------------------------|
-| 1       | 147–180     | HCM User's Guide                                       |
+| Chapter | Page Range  | Title                                                 |
+|---------|-------------|-------------------------------------------------------|
+| Misc    | 1-146       | Preface                                               |
+| 1       | 147–180     | HCM User's Guide                                      |
 | 2       | 181–210     | Applications                                          |
-| 3       | 211–277     | Modal Characteristics                                  |
+| 3       | 211–277     | Modal Characteristics                                 |
 | 4       | 278–353     | Traffic Operations and Capacity Concepts              |
 | 5       | 354–377     | Quality and Level-of-Service Concepts                 |
 | 6       | 378–428     | HCM and Alternative Analysis Tools                    |
@@ -13,7 +14,7 @@
 | 9       | 527–625     | Glossary and Symbols                                  |
 | 10      | 626–722     | Freeway Facilities Core Methodology                   |
 | 11      | 723–800     | Freeway Reliability Analysis                          |
-| 12      | 801–902     | Basic Freeway and Multilane Highway Segments         |
+| 12      | 801–902     | Basic Freeway and Multilane Highway Segments          |
 | 13      | 903–969     | Freeway Weaving Segments                              |
 | 14      | 970–1047    | Freeway Merge and Diverge Segments                    |
 | 15      | 1048–1141   | Two-Lane Highways                                     |

@@ -40,7 +40,6 @@ def search_chroma(collection, query_embedding, k=5):
     )
     return results
 
-
 def search_documents(query, model, collection, k=5):
     query_embedding = model.encode([query])[0]
     results = search_chroma(collection, query_embedding, k)
@@ -65,27 +64,9 @@ def process_hcm_documents(docs_dir: Path, collection, model):
         text_chunks = [doc.page_content for doc in documents]
         print(f"{chapter_name}: {len(text_chunks)} chunks")
 
-        for i, chunk in enumerate(text_chunks):
-            doc_id = f"{chapter_name}_{i:03d}"
-            metadata = {
-                "chapter": chapter_name,
-                "source_file": pdf_file.name,
-                "chunk_index": i,
-                "total_chunks": len(text_chunks)
-            }
-
-            # Embed chunks
-            embeddings = model.encode(text_chunks, show_progress_bar=True)[0]
-            
-            # Add to collection
-            collection.add(
-                documents=[chunk],
-                metadatas=[metadata],
-                ids=[doc_id],
-                embeddings=[embeddings.tolist()]
-            )
-
-            doc_count += 1
+        embeddings = model.encode(text_chunks, show_progress_bar=True)
+        chunk_metadata = [{"chapter": chapter_name, "source_file": pdf_file.name} for _ in text_chunks]
+        add_to_chroma(collection, embeddings, text_chunks, chunk_metadata)
     
     print(f"Processed {doc_count} document chunks")
 
