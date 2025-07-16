@@ -1,5 +1,6 @@
 from pathlib import Path
 
+import hashlib
 import chromadb
 from chromadb.config import Settings
 import pymupdf4llm
@@ -18,20 +19,53 @@ def setup_chroma_index():
     
     return client, collection
 
+def generate_id_from_text(text: str) -> str:
+    return hashlib.md5(text.encode("utf-8")).hexdigest()
+
 def add_to_chroma(collection, embeddings, text_chunks, all_metadata):
-    # Chroma expects embeddings as list of lists
-    embeddings_list = embeddings.tolist()
+    # # Chroma expects embeddings as list of lists
+    # embeddings_list = embeddings.tolist()
     
-    # Create unique IDs
-    ids = [f"chunk_{i}" for i in range(len(text_chunks))]
-    
+    # # Create unique IDs
+    # # ids = [f"chunk_{i}" for i in range(len(text_chunks))]
+    # ids = [generate_id_from_text(chunk) for chunk in text_chunks]
+    # Skip duplicate chunks
+    seen_ids = set()
+    unique_chunks = []
+    unique_embeddings = []
+    unique_metadata = []
+    unique_ids = []
+    skip_chunk = 0
+
+    for i, chunk in enumerate(text_chunks):
+        chunk_id = hashlib.md5(chunk.encode("utf-8")).hexdigest()
+        if chunk_id not in seen_ids:
+            seen_ids.add(chunk_id)
+            unique_chunks.append(chunk)
+            unique_embeddings.append(embeddings[i])
+            unique_metadata.append(all_metadata[i])
+            unique_ids.append(chunk_id)
+        else:
+            skip_chunk += 1
+        #     print(f"Skipping duplicate chunk: {chunk[:60]}...")
+
     # Add to collection
-    collection.add(
-        embeddings=embeddings_list,
-        documents=text_chunks,
-        metadatas=all_metadata,
-        ids=ids
+    collection.upsert(
+        embeddings=unique_embeddings,
+        documents=unique_chunks,
+        metadatas=unique_metadata,
+        ids=unique_ids
     )
+
+    print(f"The number of skipping duplicate chunk: {skip_chunk}")
+    
+    # # Add to collection
+    # collection.upsert(
+    #     embeddings=embeddings_list,
+    #     documents=text_chunks,
+    #     metadatas=all_metadata,
+    #     ids=ids
+    # )
 
 def search_chroma(collection, query_embedding, k=5):
     results = collection.query(
@@ -48,16 +82,17 @@ def search_documents(query, model, collection, k=5):
 def process_hcm_documents(docs_dir: Path, collection, model):
     """Process HCM documents and add to collection."""
     doc_count = 0
-    token_chunk_size = 40
+    token_chunk_size = 128
     token_chunk_overlap = 0
+
     # Process each PDF
     for pdf_file in docs_dir.glob("*.pdf"):
         chapter_name = pdf_file.stem.replace('chapter', '')
         print(f"Processing {chapter_name}...")
 
-        # doc = pymupdf.open(pdf_file)
         md_text = pymupdf4llm.to_markdown(str(pdf_file))
 
+        print(f"Markdown text length: {len(md_text)} characters")
         # Split Markdown into token-based chunks
         splitter = MarkdownTextSplitter(chunk_size=token_chunk_size, chunk_overlap=token_chunk_overlap)
         documents = splitter.create_documents([md_text])
@@ -68,8 +103,6 @@ def process_hcm_documents(docs_dir: Path, collection, model):
         chunk_metadata = [{"chapter": chapter_name, "source_file": pdf_file.name} for _ in text_chunks]
         add_to_chroma(collection, embeddings, text_chunks, chunk_metadata)
     
-    print(f"Processed {doc_count} document chunks")
-
 
 def main():
     print("HCM Document Import")

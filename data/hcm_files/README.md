@@ -1,4 +1,13 @@
-# Content
+## Overview
+The script `import_hcm_docs.py` is designed to read the HCM documents, split them into chunks, generate embeddings, and store them in a ChromaDB collection.
+
+For local usage of this mcp server, you need to have the HCM documents in the `data/hcm_files` directory. And make sure to split it into each chapter as a separate PDF file. I used 128 texts as chunk size for RAG usage.
+
+It takes approximately 20 minutes to embed and store all HCM documents in the ChromaDB database.
+
+## Content
+
+This is what separated files expected to be within this folder from the HCM documents and associated pages.
 
 | Chapter | Page Range  | Title                                                 |
 |---------|-------------|-------------------------------------------------------|
@@ -41,3 +50,6 @@
 | 36      | 3527-3609   | Concepts: Supplemental                                |
 | 37      | 3610–3653   | ATDM: Supplemental                                    |
 | 38      | 3654–3957   | Network Analysis                                      |
+
+## Note
+Note that the splitted PDF must be readable format. Sometime, they are converted to images, which are not readable by the text extraction tools. In that case, you can use OCR tools like Tesseract to convert them to text (not implemented yet).
