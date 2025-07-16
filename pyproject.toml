@@ -1,9 +1,27 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
 [project]
 name = "hcm-mcp-server"
 version = "0.2.0"
 description = "A FastAPI-based Model Context Protocol (MCP) server for Highway Capacity Manual (HCM) analysis and transportation engineering calculations."
 readme = "README.md"
 requires-python = ">=3.12"
+license = {file = "LICENSE"}
+authors = [
+    {name = "raynbowy23", email = "tamaru@wisc.edu"},
+]
+
+keywords = [
+    "fastapi",
+    "mcp",
+    "transportation",
+    "hcm",
+    "server",
+    "api",
+]
+
 dependencies = [
     "faiss-cpu==1.11.0",
     "fastapi==0.116.1",
@@ -18,3 +36,29 @@ dependencies = [
     "python-dotenv==1.1.1",
     "chromadb==1.0.15",
 ]
+
+
+[dependency-groups]
+dev = [
+    "ruff>=0.9.10",
+    "types-setuptools>=75.8.2.20250305",
+    "pytest>=8.3.5"
+]
+
+[project.urls]
+Homepage = "https://github.com/crosstraffic/highway-capacity-manual-mcp"
+Documentation = "https://crosstraffic.github.io/highway-capacity-manual-mcp/#readme"
+"Bug Tracker" = "https://github.com/crosstraffic/highway-capacity-manual-mcp/issues"
+"Source Code" = "https://github.com/crosstraffic/highway-capacity-manual-mcp"
+
+[tool.hatch.build.targets.wheel]
+packages = ["hcm_mcp_server"]
+
+[tool.ruff]
+line-length = 120
+target-version = ["py312"]
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+testpaths = ["tests"]
+python_files = "test_*.py"
