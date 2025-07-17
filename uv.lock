@@ -510,7 +510,7 @@ requires-dist = [
     { name = "pymupdf4llm", specifier = ">=0.0.25" },
     { name = "python-dotenv", specifier = "==1.1.1" },
     { name = "sentence-transformers", specifier = "==5.0.0" },
-    { name = "transportations-library", specifier = "==0.1.4" },
+    { name = "transportations-library", specifier = ">=0.1.5" },
 ]
 
 [package.metadata.requires-dev]
@@ -2229,11 +2229,9 @@ wheels = [
 
 [[package]]
 name = "transportations-library"
-version = "0.1.4"
+version = "0.1.5"
 source = { registry = "https://pypi.org/simple" }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/6c/91/78593b810de3ff53d993550139b2a3d59e9d2f3172a47aed5f7188dbba6e/transportations_library-0.1.4-cp312-cp312-win_amd64.whl", hash = "sha256:ece23f29961f997b171ea8eaf6047dc064ecf84af91fbbb03b5011a7bf42e99e", size = 178331 },
-]
+sdist = { url = "https://files.pythonhosted.org/packages/e3/c0/501267cfb7ac132b70152e4b33904ce34d4670ed7c69ee7daebd03c87a8e/transportations_library-0.1.5.tar.gz", hash = "sha256:338becf073677ee9f4195c864b9fef4ff59c07e4c8a333c076a1b8fe15ad412a", size = 47603 }
 
 [[package]]
 name = "triton"
