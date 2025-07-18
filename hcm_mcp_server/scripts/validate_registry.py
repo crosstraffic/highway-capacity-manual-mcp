@@ -44,7 +44,7 @@ def validate_registry(registry_file: Path = Path("functions_registry.yaml")):
                     if not hasattr(module, function_name):
                         errors.append(f"{chapter}.{func_name}: Function '{function_name}' not found in module '{module_path}'")
                     else:
-                        print(f"    ✓ Module and function found")
+                        print("    ✓ Module and function found")
                 except ImportError as e:
                     warnings.append(f"{chapter}.{func_name}: Could not import module '{module_path}': {e}")
             
@@ -56,7 +56,7 @@ def validate_registry(registry_file: Path = Path("functions_registry.yaml")):
                 warnings.append(f"{chapter}.{func_name}: Parameters should have 'type' field")
     
     # Print results
-    print(f"\nValidation Results:")
+    print("\nValidation Results:")
     print(f"Errors: {len(errors)}")
     print(f"Warnings: {len(warnings)}")
     

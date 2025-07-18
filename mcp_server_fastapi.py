@@ -17,7 +17,7 @@ from fastapi_mcp import FastApiMCP
 from fastapi.middleware.cors import CORSMiddleware
 
 from hcm_mcp_server.core.registry import FunctionRegistry
-from hcm_mcp_server.core.models import *
+from hcm_mcp_server.core.models import ChatCompletionRequest, ChatCompletionResponse, ChatCompletionResponseChoice
 from hcm_mcp_server.core.endpoints import create_endpoints
 
 load_dotenv()

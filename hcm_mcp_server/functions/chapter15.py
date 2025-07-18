@@ -361,17 +361,17 @@ def complete_highway_analysis_function(data: Dict[str, Any]) -> Dict[str, Any]:
                         "fd": fd_results[0],
                         "fd_mid": fd_results[1]
                     }
-                    fd_for_los = fd_results[1]
+                    # fd_for_los = fd_results[1]
                 else:  # PC or PZ
                     fd_value = highway.determine_follower_density_pc_pz(seg_idx)
                     seg_results["step_8"] = {
                         "type": "pc_or_pz",
                         "fd": fd_value
                     }
-                    fd_for_los = fd_value
+                    # fd_for_los = fd_value
             except Exception as fd_error:
                 seg_results["step_8"] = {"error": str(fd_error)}
-                fd_for_los = 0.0
+                # fd_for_los = 0.0
             
             # Step 9: Segment LOS
             try:

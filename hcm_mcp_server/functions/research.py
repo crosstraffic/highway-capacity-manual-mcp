@@ -5,8 +5,6 @@ async def query_hcm_function(data: Dict[str, Any]) -> Dict[str, Any]:
     try:
         # This would typically be injected via dependency injection
         # For now, we'll access via the app state (not ideal but works)
-        from fastapi import FastAPI
-        import asyncio
         
         # Get current app instance (this is a workaround)
         # In production, you'd use proper dependency injection
@@ -64,7 +62,7 @@ async def query_hcm_function(data: Dict[str, Any]) -> Dict[str, Any]:
                 "result_count": len(results)
             }
             
-        except Exception as search_error:
+        except Exception:
             # Fallback to mock results for development
             mock_results = [
                 {

@@ -65,7 +65,6 @@ def search_documents(query, model, collection, k=5):
 
 def process_hcm_documents(docs_dir: Path, collection, model):
     """Process HCM documents and add to collection."""
-    doc_count = 0
     token_chunk_size = 128
     token_chunk_overlap = 0
 
@@ -111,7 +110,7 @@ def main():
     # Process documents
     process_hcm_documents(docs_dir, collection, model)
     
-    print(f"\nImport complete!")
+    print("\nImport complete!")
     print(f"Total documents in collection: {collection.count()}")
 
     results = search_documents("human resource management", model, collection, k=3)

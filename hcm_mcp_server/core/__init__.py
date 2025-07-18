@@ -1,7 +1,6 @@
 try:
     from .registry import FunctionRegistry
-    from .models import *
-    
+
     __all__ = [
         'FunctionRegistry',
         'TwoLaneHighwaysInput',
