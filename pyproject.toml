@@ -28,7 +28,7 @@ dependencies = [
     "fastapi-mcp==0.3.6",
     "langchain==0.3.26",
     "mcp[cli]==1.11.0",
-    "torch>=2.5.1",
+    "torch>=2.6.0",
     "numpy>=2.2.4",
     "pymupdf>=1.26.1",
     "pymupdf4llm>=0.0.25",
@@ -47,8 +47,8 @@ dev = [
 ]
 
 [[tool.uv.index]]
-name = "pytorch-cpu"
-url = "https://download.pytorch.org/whl/cpu"
+name = "pytorch-cu126"
+url = "https://download.pytorch.org/whl/cu126"
 explicit = true
 
 [project.urls]
