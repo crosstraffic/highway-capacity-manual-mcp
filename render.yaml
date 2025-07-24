@@ -1,0 +1,26 @@
+services:
+  - type: web
+    name: highway-capacity-manual-mcp
+    runtime: python
+    repo: https://github.com/crosstraffic/highway-capacity-manual-mcp
+    region: oregon
+    plan: starter
+    branch: main
+    buildCommand: |
+      export CARGO_HOME=/tmp/cargo
+      export CARGO_TARGET_DIR=/tmp/target
+      uv sync --frozen
+    startCommand: uv mcp_server_fastapi --host 0.0.0.0 --port $PORT
+    autoDeploy: true
+    envVars:
+      - key: CARGO_HOME
+        value: /tmp/cargo
+      - key: CARGO_TARGET_DIR
+        value: /tmp/target
+      - key: ENV
+        value: production
+      - key: PORT
+        value: 10000
+      
+
+      
