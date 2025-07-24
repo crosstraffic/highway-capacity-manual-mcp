@@ -10,7 +10,7 @@ services:
       export CARGO_HOME=/tmp/cargo
       export CARGO_TARGET_DIR=/tmp/target
       uv sync --frozen
-    startCommand: uv mcp_server_fastapi --host 0.0.0.0 --port $PORT
+    startCommand: uv run mcp_server_fastapi.py --host 0.0.0.0 --port $PORT
     autoDeploy: true
     envVars:
       - key: CARGO_HOME

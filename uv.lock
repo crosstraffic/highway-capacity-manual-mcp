@@ -487,7 +487,6 @@ dependencies = [
     { name = "pymupdf4llm" },
     { name = "python-dotenv" },
     { name = "sentence-transformers" },
-    { name = "torch" },
     { name = "transportations-library" },
 ]
 
@@ -511,7 +510,6 @@ requires-dist = [
     { name = "pymupdf4llm", specifier = ">=0.0.25" },
     { name = "python-dotenv", specifier = "==1.1.1" },
     { name = "sentence-transformers", specifier = "==5.0.0" },
-    { name = "torch", specifier = ">=2.5.1" },
     { name = "transportations-library", specifier = ">=0.1.5" },
 ]
 
