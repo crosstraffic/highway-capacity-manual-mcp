@@ -4,7 +4,7 @@ services:
     runtime: python
     repo: https://github.com/crosstraffic/highway-capacity-manual-mcp
     region: oregon
-    plan: starter
+    plan: free
     branch: main
     buildCommand: |
       export CARGO_HOME=/tmp/cargo
