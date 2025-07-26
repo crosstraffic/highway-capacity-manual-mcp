@@ -66,31 +66,128 @@ async def mcp_discovery():
     registry = app.state.function_registry
 
     tools = []
+    resources = []
+    prompts = []
+
     if registry:
+        # Build tools from registry
         for name, func_info in registry.get_all_functions().items():
             tools.append({
                 "name": name,
                 "description": func_info["description"],
-                "category": func_info.get("category", "general")
+                "category": func_info.get("category", "general"),
+                "chapter": func_info.get("chapter", None),
+                "step": func_info.get("step", None),
+                "inputSchema": func_info.get("parameters", {}),
             })
+
+        # Add HCM resources
+        chapters = registry.list_chapters()
+        for chapter in chapters:
+            if chapter: # Skip None chapter
+                resources.append({
+                    "uri": f"hcm://chapter/{chapter}",
+                    "name": f"HCM Chapter {chapter}",
+                    "description": f"Highway Capacity Manual Chapter {chapter} content",
+                    "mimetype": "text/plain"
+                })
+
+        # Add research specific resources
+        resources.extend([
+            {
+                "uri": "hcm://database/search",
+                "name": "HCM Database Search",
+                "description": "Searchable HCM database content",
+                "mimetype": "application/json"
+            },
+            {
+                "uri": "hcm://analytics/database",
+                "name": "HCM Database Analytics",
+                "description": "Database statistics and capabilities",
+                "mimetype": "application/json"
+            }
+        ])
+
+        # Add prompts
+        categories = registry.list_categories()
+        for category in categories:
+            if category == "research":
+                prompts.extend([
+                    {
+                        "name": "hcm-research-query",
+                        "description": "Generate an effective HCM database query",
+                        "arguments": [{
+                                "name": "topic",
+                                "description": "Research topic or question",
+                                "required": True
+                            },
+                            {
+                                "name": "chapter",
+                                "description": "Specific chapter to focus on (optional)",
+                                "required": False,
+                            }
+                        ]
+                    },
+                    {
+                        "name": "hcm-content-summarize",
+                        "description": "Summarize HCM content for a given topic",
+                        "arguments": [{
+                                "name": "topic",
+                                "description": "Topic to summarize",
+                                "required": True
+                            },
+                            {
+                                "name": "detail_level",
+                                "description": "Level of detail for summary (brief, detailed, comprehensive)",
+                                "required": False,
+                            }
+                        ]
+                    }
+                ])
+            elif category == "transportation":
+                prompts.append({
+                    "name": "highway-analysis-setup",
+                    "description": "Generate a prompt for highway capacity analysis",
+                    "arguments": [{
+                            "name": "highway_type",
+                            "description": "Type of highway facility",
+                            "required": True
+                        },
+                        {
+                            "name": "analysis_scope",
+                            "description": "Scope of analysis to perform (e.g., speed, LOS, facility)",
+                            "required": True,
+                        }
+                    ]
+                })
     
     return {
         "name": "HCM-LLM",
         "version": "0.2.0",
+        "description": "Highway Capacity Manual Analysis and research API with LLM integration",
+        "author": "CrossTraffic",
+        "license": "MIT",
         "capabilities": {
-            "tools": tools,
-            # "resources": [
-            #     {
-            #         "uri": "manual/hcm/chapter15",
-            #         "description": "Highway Capacity Manual Chapter 15 content"
-            #     }
-            # ],
-            # "prompts": [
-            #     {
-            #         "name": "summarize-section",
-            #         "description": "Generates a prompt to summarize an HCM section"
-            #     }
-            # ]
+            "tools": {
+                "listChanged": True,
+                "supportsProgress": False
+            },
+            "resources": {
+                "supportsSubscribe": False,
+                "listChanged": True
+            },
+            "prompts": {
+                "listChanged": True
+            }
+        },
+        "tools": tools,
+        "resources": resources,
+        "prompts": prompts,
+        "metadata": {
+            "total_functions": len(tools),
+            "categories": list(registry.list_categories()) if registry else [],
+            "chapters": list(registry.list_chapters()) if registry else [],
+            "last_updated": time.time()
         }
     }
 
