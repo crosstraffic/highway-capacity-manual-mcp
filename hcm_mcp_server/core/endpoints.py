@@ -6,7 +6,8 @@ from fastapi import FastAPI, HTTPException
 from .models import (
     ToolCallRequest, ListToolsRequest, FunctionListResponse,
     QueryHCMRequest, TwoLaneHighwaysInput, SegmentAnalysisRequest,
-    StandardResponse
+    StandardResponse, SummarizeRequest, BatchQueryRequest,
+    SearchByChapterRequest, GetSectionRequest
 )
 
 
@@ -106,7 +107,116 @@ def create_endpoints(app: FastAPI) -> None:
             return result
         except Exception as e:
             raise HTTPException(status_code=500, detail=str(e))
+
+    # Research function endpoints
+    @app.post("/research/search-by-chapter", tags=["research"], operation_id="search_hcm_by_chapter")
+    async def search_hcm_by_chapter(request: SearchByChapterRequest) -> Dict[str, Any]:
+        """Search HCM content by specific chapter."""
+        registry = app.state.function_registry
+        search_function = registry.get_function("search_hcm_by_chapter")
+        
+        if search_function is None:
+            raise HTTPException(status_code=404, detail="HCM search function not available")
+        
+        try:
+            result = await search_function(request.dict())
+            return result
+        except Exception as e:
+            raise HTTPException(status_code=500, detail=str(e))
     
+    @app.post("/research/get-section", tags=["research"], operation_id="get_hcm_section")
+    async def get_hcm_section(request: GetSectionRequest) -> Dict[str, Any]:
+        """Get specific HCM section content."""
+        registry = app.state.function_registry
+        section_function = registry.get_function("get_hcm_section")
+        
+        if section_function is None:
+            raise HTTPException(status_code=404, detail="HCM section retrieval function not available")
+        
+        try:
+            result = await section_function(request.dict())
+            return result
+        except Exception as e:
+            raise HTTPException(status_code=500, detail=str(e))
+
+    @app.post("/research/summarize", tags=["research"], operation_id="summarize_hcm_content")
+    async def summarize_hcm_content(request: SummarizeRequest) -> Dict[str, Any]:
+        """Summarize HCM content for a given topic."""
+        registry = app.state.function_registry
+        summarize_function = registry.get_function("summarize_hcm_content")
+        
+        if summarize_function is None:
+            raise HTTPException(status_code=404, detail="HCM summarization function not available")
+
+        try:
+            result = await summarize_function(request.dict())
+            return result
+        except Exception as e:
+            raise HTTPException(status_code=500, detail=str(e))
+    
+    # Batch research endpoint for multiple queries
+    @app.post("/research/batch-query", tags=["research"], operation_id="batch_query_hcm")
+    async def batch_query_hcm(request: BatchQueryRequest) -> Dict[str, Any]:
+        """Perform a batch query on HCM content."""
+        registry = app.state.function_registry
+        query_function = registry.get_function("query_hcm")
+
+        if query_function is None:
+            raise HTTPException(status_code=404, detail="HCM query function not available")
+
+        try:
+            results = []
+            for i, query in enumerate(request.queries):
+                try:
+                    result = await query_function({
+                        "question": query.question,
+                        "top_k": query.top_k
+                    })
+                    results.append({
+                        "query_index": i,
+                        "query": query,
+                        "result": result
+                    })
+                except Exception as e:
+                    results.append({
+                        "query_index": i,
+                        "query": query,
+                        "result": {
+                            "success": False,
+                            "error": str(e)
+                        }
+                    })
+            return {
+                "success": True,
+                "batch_size": len(request.queries),
+                "results": results,
+                "completed_queries": len([r for r in results if r["result"].get("success", False)])
+            }
+        except Exception as e:
+            raise HTTPException(status_code=500, detail=str(e))
+
+    @app.get("/research/analytics", tags=["research"], operation_id="research_analytics")
+    async def research_analytics() -> Dict[str, Any]:
+        """Get analytics about HCM research database."""
+        try:
+            # This would typically access app.state to get database stats
+            # For now, we will simulate with a placeholder
+            return {
+                "success":  True,
+                "database_status": "available",
+                "supported_chapters": ["misc", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15", "16", "17", 
+                            "18", "19", "20", "21", "22", "23", "24", "25", "26", "27", "28", "29", "30", "31", "32", "33", "34", "35", "36", "37", "38"],
+                "search_functions": [
+                    "query_hcm",
+                    "search_hcm_by_chapter",
+                    "get_hcm_section",
+                    "summarize_hcm_content"
+                ],
+                "last_updated": time.time()
+            }
+        except Exception as e:
+            raise HTTPException(status_code=500, detail=str(e))
+
     # Chapter 15 specific endpoints
     @app.post("/analysis/chapter15/complete", tags=["chapter15"], operation_id="chapter15_complete")
     async def chapter15_complete_analysis(request: TwoLaneHighwaysInput) -> Dict[str, Any]:
@@ -122,7 +232,7 @@ def create_endpoints(app: FastAPI) -> None:
             return result
         except Exception as e:
             raise HTTPException(status_code=500, detail=str(e))
-    
+
     @app.post("/analysis/chapter15/segment", tags=["chapter15"], operation_id="chapter15_segment")
     async def chapter15_segment_analysis(request: SegmentAnalysisRequest) -> Dict[str, Any]:
         """Analyze a specific segment using Chapter 15 methodology."""

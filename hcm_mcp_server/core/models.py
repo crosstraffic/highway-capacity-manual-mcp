@@ -114,6 +114,27 @@ class QueryHCMRequest(BaseModel):
     top_k: int = 5
 
 
+class SearchByChapterRequest(BaseModel):
+    chapter: str
+    query: Optional[str] = ""
+    top_k: Optional[int] = 5
+
+
+class GetSectionRequest(BaseModel):
+    chapter: str
+    section: Optional[str] = ""
+
+
+class SummarizeRequest(BaseModel):
+    topic: str
+    max_length: Optional[int] = 500
+    
+
+class BatchQueryRequest(BaseModel):
+    queries: List[str]
+    top_k: Optional[int] = 5
+
+
 # Response models
 class StandardResponse(BaseModel):
     success: bool

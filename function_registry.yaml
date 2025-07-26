@@ -223,6 +223,56 @@ functions:
             default: 5
         required: ["question"]
 
+    search_hcm_by_chapter:
+      module: "hcm_mcp_server.functions.research"
+      function: "search_hcm_by_chapter_function"
+      description: "Search HCM content by chapter"
+      category: "research"
+      parameters:
+        type: "object"
+        properties:
+          chapter:
+            type: "string"
+            description: "Chapter to search in HCM database"
+          top_k:
+            type: "integer"
+            description: "Number of results to return"
+            default: 5
+        required: ["chapter"]
+
+    get_hcm_section:
+      module: "hcm_mcp_server.functions.research"
+      function: "get_hcm_section_function"
+      description: "Retrieve a specific section from the Highway Capacity Manual"
+      category: "research"
+      parameters:
+        type: "object"
+        properties:
+          chapter:
+            type: "string"
+            description: "Chapter to retrieve section from"
+          section:
+            type: "string"
+            description: "Section number to retrieve"
+        required: ["chapter"]
+
+    summarize_hcm_content:
+      module: "hcm_mcp_server.functions.research"
+      function: "summarize_hcm_content_function"
+      description: "Summarize HCM content for a given topic"
+      category: "research"
+      parameters:
+        type: "object"
+        properties:
+          topic:
+            type: "string"
+            description: "Topic to summarize from HCM content"
+          top_k:
+            type: "integer"
+            description: "Number of results to return"
+            default: 5
+        required: ["topic"]
+
   # Future chapters can be added here
   # chapter16:
   #   function_name:
