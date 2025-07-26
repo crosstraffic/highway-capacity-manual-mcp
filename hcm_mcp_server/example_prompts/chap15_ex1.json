@@ -1,0 +1,39 @@
+{
+  "lane_width": 12,
+  "shoulder_width": 6,
+  "apd": 0,
+  "pmhvfl": 0,
+  "l_de": 0,
+  "segments": [
+    {
+      "passing_type": 0,
+      "length": "0.75",
+      "grade": "0",
+      "spl": "50",
+      "is_hc": false,
+      "volume": "752",
+      "volume_op": "0",
+      "vertical_class": "1",
+      "phf": "0.94",
+      "phv": "5",
+      "flow_rate": 0,
+      "flow_rate_o": 0,
+      "capacity": 0,
+      "ffs": 0,
+      "avg_speed": 0,
+      "pf": 0,
+      "fd": 0,
+      "fd_mid": 0,
+      "hor_class": 0,
+      "subsegments": [
+        {
+          "length": "0",
+          "design_radius": "0",
+          "superelevation": "0",
+          "avg_speed": 0,
+          "hor_class": 0
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,210 @@
+{
+  "lane_width": 12,
+  "shoulder_width": 6,
+  "apd": 0,
+  "pmhvfl": 0,
+  "l_de": 0,
+  "segments": [
+    {
+      "passing_type": 0,
+      "length": "1.3",
+      "grade": "4",
+      "spl": "55",
+      "is_hc": true,
+      "volume": "1100",
+      "volume_op": "0",
+      "vertical_class": "3",
+      "phf": "0.90",
+      "phv": "8",
+      "flow_rate": 0,
+      "flow_rate_o": 0,
+      "capacity": 0,
+      "ffs": 0,
+      "avg_speed": 0,
+      "pf": 0,
+      "fd": 0,
+      "fd_mid": 0,
+      "hor_class": 2,
+      "subsegments": [
+        {
+          "length": "5964",
+          "design_radius": "0",
+          "superelevation": "0",
+          "avg_speed": 0,
+          "hor_class": 0
+        },
+        {
+          "length": "900",
+          "design_radius": "350",
+          "superelevation": "2",
+          "avg_speed": 0,
+          "hor_class": 3
+        }
+      ]
+    },
+    {
+      "passing_type": 0,
+      "length": "1.0",
+      "grade": "6",
+      "spl": "55",
+      "is_hc": true,
+      "volume": "1100",
+      "volume_op": "0",
+      "vertical_class": "3",
+      "phf": "0.90",
+      "phv": "8",
+      "flow_rate": 0,
+      "flow_rate_o": 0,
+      "capacity": 0,
+      "ffs": 0,
+      "avg_speed": 0,
+      "pf": 0,
+      "fd": 0,
+      "fd_mid": 0,
+      "hor_class": 3,
+      "subsegments": [
+        {
+          "length": "1000",
+          "design_radius": "0",
+          "superelevation": "0",
+          "avg_speed": 0,
+          "hor_class": 0
+        },
+        {
+          "length": "4280",
+          "design_radius": "500",
+          "superelevation": "2",
+          "avg_speed": 0,
+          "hor_class": 3
+        }
+      ]
+    },
+    {
+      "passing_type": 0,
+      "length": "0.5",
+      "grade": "6",
+      "spl": "55",
+      "is_hc": true,
+      "volume": "1100",
+      "volume_op": "0",
+      "vertical_class": "3",
+      "phf": "0.90",
+      "phv": "8",
+      "flow_rate": 0,
+      "flow_rate_o": 0,
+      "capacity": 0,
+      "ffs": 0,
+      "avg_speed": 0,
+      "pf": 0,
+      "fd": 0,
+      "fd_mid": 0,
+      "hor_class": 1,
+      "subsegments": [
+        {
+          "length": "2640",
+          "design_radius": "0",
+          "superelevation": "0",
+          "avg_speed": 0,
+          "hor_class": 1
+        }
+      ]
+    },
+    {
+      "passing_type": 0,
+      "length": "1.3",
+      "grade": "4",
+      "spl": "55",
+      "is_hc": true,
+      "volume": "1100",
+      "volume_op": "0",
+      "vertical_class": "3",
+      "phf": "0.90",
+      "phv": "8",
+      "flow_rate": 0,
+      "flow_rate_o": 0,
+      "capacity": 0,
+      "ffs": 0,
+      "avg_speed": 0,
+      "pf": 0,
+      "fd": 0,
+      "fd_mid": 0,
+      "hor_class": 2,
+      "subsegments": [
+        {
+          "length": "3864",
+          "design_radius": "0",
+          "superelevation": "0",
+          "avg_speed": 0,
+          "hor_class": 1
+        },
+        {
+          "length": "3000",
+          "design_radius": "850",
+          "superelevation": "2",
+          "avg_speed": 0,
+          "hor_class": 2
+        }
+      ]
+    },
+    {
+      "passing_type": 2,
+      "length": "0.5",
+      "grade": "-3",
+      "spl": "55",
+      "is_hc": true,
+      "volume": "1100",
+      "volume_op": "0",
+      "vertical_class": "3",
+      "phf": "0.90",
+      "phv": "8",
+      "flow_rate": 0,
+      "flow_rate_o": 0,
+      "capacity": 0,
+      "ffs": 0,
+      "avg_speed": 0,
+      "pf": 0,
+      "fd": 0,
+      "fd_mid": 0,
+      "hor_class": 1,
+      "subsegments": [
+        {
+          "length": "2640",
+          "design_radius": "0",
+          "superelevation": "0",
+          "avg_speed": 0,
+          "hor_class": 1
+        }
+      ]
+    },
+    {
+      "passing_type": 0,
+      "length": "0.5",
+      "grade": "-3",
+      "spl": "55",
+      "is_hc": true,
+      "volume": "1100",
+      "volume_op": "0",
+      "vertical_class": "3",
+      "phf": "0.90",
+      "phv": "8",
+      "flow_rate": 0,
+      "flow_rate_o": 0,
+      "capacity": 0,
+      "ffs": 0,
+      "avg_speed": 0,
+      "pf": 0,
+      "fd": 0,
+      "fd_mid": 0,
+      "hor_class": 1,
+      "subsegments": [
+        {
+          "length": "2640",
+          "design_radius": "0",
+          "superelevation": "0",
+          "avg_speed": 0,
+          "hor_class": 1
+        }
+      ]
+    }
+  ]
+}
