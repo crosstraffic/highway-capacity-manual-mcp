@@ -221,6 +221,7 @@ def determine_follower_density_pc_pz_function(data: Dict[str, Any]) -> Dict[str,
         highway.estimate_average_speed(segment_index)
         highway.estimate_percent_followers(segment_index)
         
+        # Gotta need to think about adjustment
         follower_density = highway.determine_follower_density_pc_pz(segment_index)
         
         return {
