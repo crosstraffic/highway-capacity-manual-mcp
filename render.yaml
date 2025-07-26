@@ -22,5 +22,3 @@ services:
       - key: PORT
         value: 10000
       
-
-      
