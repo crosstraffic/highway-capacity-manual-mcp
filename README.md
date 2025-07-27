@@ -56,21 +56,13 @@ Open Claude Desktop and add the server as a custom MCP server with the URL `http
 
 Add to your Claude Desktop configuration (`claude_desktop_config.json`):
 
-```bash
-# Claude Desktop configuration file
-# macOS: ~/Library/Application Support/Claude/claude_desktop_config.json
-# Windows: %APPDATA%\Claude\claude_desktop_config.json
+**Note**: Seems like this json settings are not working these days (https://github.com/anthropics/claude-code/issues/4188), and my it did not work in my desktop environment, either.
 
+```bash
 {
   "mcpServers": {
-    "hcm-mcp": {
-      "command": "uv",
-      "args": [
-        "--directory",
-        <"your_project_directory with absolute path">,
-        "run",
-        "mcp_server_fastapi.py"
-      ]
+    "hcm-mcp-local": {
+      "url": "http://127.0.0.1:8000/mcp"
     }
   }
 }
