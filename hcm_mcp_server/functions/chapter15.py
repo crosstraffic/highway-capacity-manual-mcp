@@ -235,6 +235,32 @@ def determine_follower_density_pc_pz_function(data: Dict[str, Any]) -> Dict[str,
         return {"success": False, "error": str(e), "step": 8}
 
 
+def determine_adjustment_to_follower_density_function(data: Dict[str, Any]) -> Dict[str, Any]:
+    """Step 8.5: Calculate adjustment to follower density."""
+    try:
+        segment_index = data["segment_index"]
+        highway_input = TwoLaneHighwaysInput(**data["highway_data"])
+        highway = create_highway_from_input(highway_input)
+        
+        # Run prerequisite steps
+        highway.determine_demand_flow(segment_index)
+        highway.determine_free_flow_speed(segment_index)
+        highway.estimate_average_speed(segment_index)
+        highway.estimate_percent_followers(segment_index)
+        
+        highway.determine_follower_density_pc_pz(segment_index)
+        adjustment = highway.determine_adjustment_to_follower_density(segment_index)
+        
+        return {
+            "success": True,
+            "step": 8.5,
+            "segment_index": segment_index,
+            "follower_density_adjustment": adjustment
+        }
+    except Exception as e:
+        return {"success": False, "error": str(e), "step": 8.5}
+
+
 def determine_segment_los_function(data: Dict[str, Any]) -> Dict[str, Any]:
     """Step 9: Determine segment Level of Service."""
     try:
@@ -280,11 +306,14 @@ def determine_facility_los_function(data: Dict[str, Any]) -> Dict[str, Any]:
             total_length += segment_length
             
             # Calculate follower density based on segment type
-            if highway_input.segments[seg_idx].passing_type == 2:  # Passing lane
+            if highway_input.segments[seg_idx].passing_type == 2: # Passing lane
                 fd_results = highway.determine_follower_density_pl(seg_idx)
-                fd_value = fd_results[1]  # Use fd_mid for passing lanes
-            else:  # PC or PZ
+                fd_value = fd_results[1] # Use fd_mid for passing lanes
+            else: # PC or PZ
                 fd_value = highway.determine_follower_density_pc_pz(seg_idx)
+                fd_adj = highway.determine_adjustment_to_follower_density(seg_idx)
+                if fd_adj > 0.0: # Replace to adjustment if positive
+                    fd_value = fd_adj
             
             weighted_fd += fd_value * segment_length
             weighted_speed += avg_speed_results[0] * segment_length
@@ -369,7 +398,19 @@ def complete_highway_analysis_function(data: Dict[str, Any]) -> Dict[str, Any]:
                         "type": "pc_or_pz",
                         "fd": fd_value
                     }
+
+                    # Step 8.5: Adjustment to follower density
+                    fd_adj = highway.determine_adjustment_to_follower_density(seg_idx)
+                    if fd_adj > 0.0: # Replace to adjustment if positive
+                        fd_value = fd_adj
+
+                    seg_results["step_8"] = {
+                        "type": "fd_adjustment",
+                        "fd": fd_adj,
+                        "fd_adj": fd_adj
+                    }
                     # fd_for_los = fd_value
+
             except Exception as fd_error:
                 seg_results["step_8"] = {"error": str(fd_error)}
                 # fd_for_los = 0.0
