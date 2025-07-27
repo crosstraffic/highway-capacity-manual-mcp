@@ -19,8 +19,4 @@ services:
         value: /tmp/target
       - key: ENV
         value: production
-      - key: PORT
-        value: 10000
-      
-
       
