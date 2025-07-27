@@ -4,72 +4,110 @@ A FastAPI-based Model Context Protocol (MCP) server for Highway Capacity Manual 
 
 ## Features
 
+- Semantic search over HCM documentation
 - Complete HCM Chapter 15 two-lane highway analysis
 - YAML-based function registry for easy extensibility
 - Function calling interface with 15+ transportation analysis functions
-- Semantic search over HCM documentation using ChromaDB
-- MCP server compatibility for integration with AI assistants
+- MCP server compatibility for integration with AI assistants (supporting Claude)
 - RESTful API endpoints for direct access
 - Dynamic endpoint generation based on registry
 - Comprehensive test suite and validation tools
 
-## Installation
+## Connect to Remote MCP Server
+This server can be used as a backend for AI code agents like Claude Desktop, allowing them to perform complex transportation analyses and access HCM documentation dynamically.
+
+To enable this functionality, add the server to your AI assistant's configuration as an MCP server.
+
+### Example: Claude
+From user setting, you can find `Connectors` tab and click `Add custom connector`.
+
+Then add `https://api.hcm-calculator.com/mcp` to you Claude configuration.
+
+<img src="docs/figures/claude_usecase.png" alt="Add MCP server" width="400" style="display: block; margin: 0 auto;">
+
+
+## Connect to Local MCP Server
+You can also run this server locally for development or testing purposes.
+
 ```bash
+uv venv
+
 # Windows
 .venv\Scripts\activate
+# Linux
+source .venv/bin/activate
 
-pip install fastapi uvicorn sentence-transformers chromadb fastapi-mcp transportations-library pyyaml python-dotenv
-
-# OR
-install from requirements.txt:
-
-# Then
-pip install -r requirements.txt
+uv pip install .
 ```
 
-## Quick Start
+Then running the server.
 
 ```bash
-# 1. Setup the database:
+# Setup the database:
 python scripts/setup_database.py
 
-# 2. Validate the registry:
-python scripts/validate_registry.py
+(optional) if you want to change 
 
-# 3. Start the server:
-python main.py
+# Start the server:
+python mcp_server_fastapi.py
 ```
 
-4. Access the API at `http://localhost:8000`
-5. View interactive documentation at `http://localhost:8000/docs`
+Open Claude Desktop and add the server as a custom MCP server with the URL `http://localhost:8000/mcp`.
+
+Add to your Claude Desktop configuration (`claude_desktop_config.json`):
+
+```bash
+# Claude Desktop configuration file
+# macOS: ~/Library/Application Support/Claude/claude_desktop_config.json
+# Windows: %APPDATA%\Claude\claude_desktop_config.json
+
+{
+  "mcpServers": {
+    "hcm-mcp": {
+      "command": "uv",
+      "args": [
+        "--directory",
+        <"your_project_directory with absolute path">,
+        "run",
+        "mcp_server_fastapi.py"
+      ]
+    }
+  }
+}
+```
+
 
 ## Project Structure
 
 ```
-hcm-llm-api/
-├── main.py                     # Main FastAPI application
-├── functions_registry.yaml     # Function registry configuration
+hcm-mcp-server/
+├── mcp_server_fastapi.py        # Main FastAPI application
+├── functions_registry.yaml      # Function registry configuration
 ├── src/
-│   ├── core/                       # Core application modules
-│   │   ├── registry.py             # Function registry implementation
-│   │   ├── models.py               # Pydantic data models
-│   │   └── endpoints.py            # Dynamic endpoint creation
-│   ├── functions/                  # Function implementations by chapter
-│   │   ├── chapter15.py            # Chapter 15: Two-Lane Highways
-│   │   └── research.py             # Research and documentation
-│   └── scripts/                    # Utility scripts
-│       ├── setup_database.py       # ChromaDB setup
-│       └── validate_registry.py    # Registry validation
-└── data/                           # Registry validation
-    ├── hcm_documents/              # HCM documentation files
-    └── chroma_db/                  # ChromaDB storage  
+│   ├── example_prompts/                  
+│   │   ├── *.txt                # Example prompts for function calling
+│   │   └── *.json               # Example json files for web validation
+│   ├── core/                    # Core application modules
+│   │   ├── registry.py          # Function registry implementation
+│   │   ├── models.py            # Pydantic data models
+│   │   └── endpoints.py         # Dynamic endpoint creation
+│   ├── functions/                  
+│   │   ├── chapter15.py         # Chapter 15: Two-Lane Highways
+│   │   └── research.py          # Research and documentation
+│   └── scripts/                    
+│       ├── setup_database.py    # ChromaDB setup
+│       ├── import_hcm_docs.py   # Import HCM documentation
+│       └── validate_registry.py # Registry validation
+└── data/                           
+    ├── hcm_files/               # HCM documentation files
+    └── chroma_db/               # ChromaDB storage  
 
 ```
 
 ## Configuration
 
 ### Environment Variables
-Create a `.env` file based on `.env.example`:
+Create a `.env` file based on `.env.example`. Copy and paste the following content, or `cp .env.example .env`:
 ```
 CHROMA_DB_PATH=./chroma_db
 HOST=127.0.0.1
@@ -190,39 +228,13 @@ curl -X POST "http://localhost:8000/tools/query-hcm" \
 
 ### Research Functions
 - `query_hcm` - Query HCM documentation database
-- `search_hcm_by_chapter` - Search HCM content by specific chapter
-- `get_hcm_section` - Get specific HCM section content
-- `summarize_hcm_content` - Summarize HCM content for a topic
 
-## MCP Server Usage
 
-### Claude Desktop Integration
-
-Add to your Claude Desktop configuration (`claude_desktop_config.json`):
-
-```json
-{
-  "mcpServers": {
-    "hcm-analysis": {
-      "command": "python",
-      "args": ["path/to/main.py"],
-      "env": {
-        "PORT": "8000",
-        "CHROMA_DB_PATH": "./chroma_db"
-      }
-    }
-  }
-}
-```
-
-### Custom AI Assistant Integration
-
-The server exposes MCP discovery at `/mcp/discovery` and implements standard MCP protocols for:
-- Tool discovery and execution via function registry
-- Resource access (HCM documentation)
-- Dynamic capability reporting
 
 ## API Endpoints
+Hit the API endpoints directory to perform analyses or query HCM documentation.
+
+**Note**: /docs for detail api endpoints description is under construction and will be available soon.
 
 ### Core Endpoints
 - `POST /tools/call` - Execute any registered function
@@ -235,6 +247,9 @@ The server exposes MCP discovery at `/mcp/discovery` and implements standard MCP
 
 ### Research
 - `POST /tools/query-hcm` - Query HCM database
+- `POST /research/search_hcm_by_chapter` - Search HCM content by specific chapter
+- `GET /research/get_hcm_section` - Get specific HCM section content
+- `POST /research/summarize_hcm_content` - Summarize HCM content for a topic
 
 ### Utility
 - `GET /health` - Health check
@@ -307,14 +322,17 @@ functions:
 ### 3. Restart Server
 The registry will automatically load the new functions.
 
+
 ## Development
 
 ### Running Tests
+**Note**: Test will be added soon.
 ```bash
 pytest tests/
 ```
 
 ### Validating Registry
+**Note**: Not used yet.
 ```bash
 python scripts/validate_registry.py
 ```
@@ -359,11 +377,10 @@ To add HCM content:
 
 ## Support
 
+This project is beta version and mainly for research purpose for now. It is widely appreciated for any contributions or feedback!
+
 For issues and questions:
 - Open an issue on GitHub
 - Check the API documentation at `/docs`
 - Review function registry at `/registry/info`
 - Validate setup with utility scripts
-
-2. Access the API at `http://localhost:8000`
-3. View interactive documentation at `http://localhost:8000/docs`
