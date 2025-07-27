@@ -404,11 +404,11 @@ def complete_highway_analysis_function(data: Dict[str, Any]) -> Dict[str, Any]:
                     if fd_adj > 0.0: # Replace to adjustment if positive
                         fd_value = fd_adj
 
-                    seg_results["step_8"] = {
-                        "type": "fd_adjustment",
-                        "fd": fd_adj,
-                        "fd_adj": fd_adj
-                    }
+                        seg_results["step_8.5"] = {
+                            "type": "fd_adjustment",
+                            "fd": fd_adj,
+                            "fd_adj": fd_adj
+                        }
                     # fd_for_los = fd_value
 
             except Exception as fd_error:

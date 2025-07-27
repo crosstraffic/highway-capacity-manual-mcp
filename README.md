@@ -364,17 +364,6 @@ To add HCM content:
 2. Run `python scripts/import_hcm_docs.py`
 3. Query using `/tools/query-hcm`
 
-## Contributing
-
-1. Fork the repository
-2. Create a feature branch
-3. Add functions to appropriate chapter module
-4. Update `functions_registry.yaml`
-5. Add tests in `tests/`
-6. Run validation: `python scripts/validate_registry.py`
-7. Ensure all tests pass: `pytest`
-8. Submit a pull request
-
 ## Support
 
 This project is beta version and mainly for research purpose for now. It is widely appreciated for any contributions or feedback!

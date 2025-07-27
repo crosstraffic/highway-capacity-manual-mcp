@@ -8,7 +8,7 @@ wheels/
 .ruff_cache/
 
 # Data
-chroma_db/
+# chroma_db/
 data/hcm_files/*.pdf
 
 # Virtual environments

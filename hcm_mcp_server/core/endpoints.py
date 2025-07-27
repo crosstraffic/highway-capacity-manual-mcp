@@ -245,7 +245,10 @@ def create_endpoints(app: FastAPI) -> None:
             "chapter15_determine_vertical_alignment",
             "chapter15_determine_free_flow_speed",
             "chapter15_estimate_average_speed",
-            "chapter15_estimate_percent_followers"
+            "chapter15_estimate_percent_followers",
+            "chapter15_determine_follower_density_pc_pz_function",
+            "chapter15_determine_follower_density_pl_function",
+            "chapter15_determine_adjustment_to_follower_density"
         ]
         
         results = {}

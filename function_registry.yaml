@@ -149,6 +149,24 @@ functions:
             type: "object"
             description: "Complete highway facility data"
         required: ["segment_index", "highway_data"]
+
+    determine_adjustment_to_follower_density:
+      module: "hcm_mcp_server.functions.chapter15"
+      function: "determine_adjustment_to_follower_density_function"
+      description: "Calculate adjustment to follower density for segments"
+      category: "transportation"
+      chapter: 15
+      step: 8.5
+      parameters:
+        type: "object"
+        properties:
+          segment_index:
+            type: "integer"
+            description: "Segment index to analyze"
+          highway_data:
+            type: "object"
+            description: "Complete highway facility data"
+        required: ["segment_index", "highway_data"]
     
     determine_segment_los:
       module: "hcm_mcp_server.functions.chapter15"
