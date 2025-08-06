@@ -1,7 +1,7 @@
 import asyncio
 import time
 from typing import Dict, Any
-from fastapi import FastAPI, HTTPException, APIRouter, Depends
+from fastapi import HTTPException, APIRouter, Depends
 from hcm_mcp_server.core.dependencies import get_function_registry
 from hcm_mcp_server.core.registry import FunctionRegistry
 
