@@ -1,27 +1,22 @@
+from fastapi import Depends
 from typing import Dict, Any
+from hcm_mcp_server.core.dependencies import get_embedding_model, get_chroma_collection
 
-async def query_hcm_function(data: Dict[str, Any]) -> Dict[str, Any]:
+
+async def query_hcm_function(
+        data: Dict[str, Any],
+        model = Depends(get_embedding_model),
+        collection = Depends(get_chroma_collection)
+    ) -> Dict[str, Any]:
     """Query the Highway Capacity Manual database for relevant information."""
     try:
-        # This would typically be injected via dependency injection
-        # For now, we'll access via the app state (not ideal but works)
-        
-        # Get current app instance (this is a workaround)
-        # In production, you'd use proper dependency injection
         question = data.get("question", "")
         top_k = data.get("top_k", 5)
         
         if not question:
             return {"success": False, "error": "Question parameter is required"}
         
-        # This is a placeholder - in real implementation you'd access the app state
-        # through proper dependency injection
         try:
-            # Access embedding model and collection from app state
-            # Note: This requires the app context to be available
-            model = None  # app.state.embedding_model
-            collection = None  # app.state.chroma_collection
-            
             if model is None or collection is None:
                 return {
                     "success": False,

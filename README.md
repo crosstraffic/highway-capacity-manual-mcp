@@ -44,7 +44,7 @@ Then running the server.
 
 ```bash
 # Setup the database:
-python scripts/setup_database.py
+python scripts/import_hcm_docs.py
 
 (optional) if you want to change 
 
@@ -87,8 +87,7 @@ hcm-mcp-server/
 │   │   ├── chapter15.py         # Chapter 15: Two-Lane Highways
 │   │   └── research.py          # Research and documentation
 │   └── scripts/                    
-│       ├── setup_database.py    # ChromaDB setup
-│       ├── import_hcm_docs.py   # Import HCM documentation
+│       ├── import_hcm_docs.py   # Import HCM documentation and setup ChromaDB
 │       └── validate_registry.py # Registry validation
 └── data/                           
     ├── hcm_files/               # HCM documentation files
@@ -331,7 +330,7 @@ python scripts/validate_registry.py
 
 ### Setting Up Development Database
 ```bash
-python scripts/setup_database.py
+python scripts/import_hcm_docs.py
 ```
 
 ## Customization

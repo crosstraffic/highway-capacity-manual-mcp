@@ -18,7 +18,9 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from hcm_mcp_server.core.registry import FunctionRegistry
 from hcm_mcp_server.core.models import ChatCompletionRequest, ChatCompletionResponse, ChatCompletionResponseChoice
-from hcm_mcp_server.core.endpoints import create_endpoints
+from hcm_mcp_server.core import endpoints
+# from hcm_mcp_server.core.endpoints import create_endpoints
+# from hcm_mcp_server.functions.research import create_research_tools
 
 load_dotenv()
 
@@ -56,8 +58,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Create endpoints dynamically based on registry
-create_endpoints(app)
+app.include_router(endpoints.router)
 
 # MCP discovery endpoint
 @app.get("/mcp/discovery")
@@ -193,8 +194,24 @@ async def mcp_discovery():
 
 async def stream_completion(request: ChatCompletionRequest) -> AsyncGenerator[str, None]:
     """Generate streaming chat completion response."""
+
+    system_instruction = {
+        "role": "system",
+        "content": (
+            "You are an expert transportation engineer specializing in transportation analysis "
+            "Always use retrieved context from the database to answer questions accurately "
+            "and explain calculations when relevant. "
+            "Use the HCM version 7th database to provide detailed, accurate responses. "
+            "If the question is about a specific chapter, focus on that chapter's content. "
+            "If the question is about transportation analysis, provide detailed calculations and explanations. "
+            "If the question is about research, provide relevant HCM database content and analysis. "
+            "If you don't know the answer, say 'I don't know."
+        )
+    }
+    messages = [system_instruction] + request.messages
+
     # Extract the last user message
-    last_user_msg = next((m.content for m in reversed(request.messages) if m.role == "user"), "")
+    last_user_msg = next((m.content for m in reversed(messages) if m.role == "user"), "")
     words = f"This is a streaming response to: {last_user_msg}".split()
     
     # Generate an id for this completion
@@ -254,9 +271,26 @@ async def create_chat_completion(request: ChatCompletionRequest):
                 "Content-Type": "text/event-stream"
             }
         )
+
+    # Add instruction prompt
+    system_instruction = {
+        "role": "system",
+        "content": (
+            "You are an expert transportation engineer specializing in transportation analysis "
+            "Always use retrieved context from the database to answer questions accurately "
+            "and explain calculations when relevant. "
+            "Use the HCM version 7th database to provide detailed, accurate responses. "
+            "If the question is about a specific chapter, focus on that chapter's content. "
+            "If the question is about transportation analysis, provide detailed calculations and explanations. "
+            "If the question is about research, provide relevant HCM database content and analysis. "
+            "If you don't know the answer, say 'I don't know."
+        )
+    }
+    
+    messages = [system_instruction] + request.messages
     
     # Non-streaming response
-    last_user_msg = next((m.content for m in reversed(request.messages) if m.role == "user"), "")
+    last_user_msg = next((m.content for m in reversed(messages) if m.role == "user"), "")
     
     response = ChatCompletionResponse(
         id=f"chatcmpl-{int(time.time())}",
@@ -267,7 +301,7 @@ async def create_chat_completion(request: ChatCompletionRequest):
                 index=0,
                 message={
                     "role": "assistant",
-                    "content": f"This is a response to: {last_user_msg}"
+                    "content": f"(HCM Response) This is a response to: {last_user_msg}"
                 },
                 finish_reason="stop"
             )
