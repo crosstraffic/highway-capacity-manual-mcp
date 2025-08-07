@@ -1,12 +1,12 @@
 from fastapi import Depends
 from typing import Dict, Any
-from hcm_mcp_server.core.dependencies import get_embedding_model, get_chroma_collection
+from hcm_mcp_server.core.dependencies import get_embedding_model, get_document_store
 
 
 async def query_hcm_function(
         data: Dict[str, Any],
         model = Depends(get_embedding_model),
-        collection = Depends(get_chroma_collection)
+        store = Depends(get_document_store)
     ) -> Dict[str, Any]:
     """Query the Highway Capacity Manual database for relevant information."""
     try:
@@ -16,71 +16,79 @@ async def query_hcm_function(
         if not question:
             return {"success": False, "error": "Question parameter is required"}
         
-        try:
-            if model is None or collection is None:
-                return {
-                    "success": False,
-                    "error": "HCM database not properly initialized"
-                }
-            
-            # Encode query
-            query_embedding = model.encode([question])
-            
+        if model is None or store is None:
+            return {
+                "success": False,
+                "error": "HCM database not properly initialized"
+            }
+        
+        # Encode query
+        query_embedding = model.encode([question])
+
+        store_type, client = store
+
+        if store_type == "chroma":
             # Search in Chroma
-            search_results = collection.query(
+            search_results = client.query(
                 query_embeddings=[query_embedding[0].tolist()],
                 n_results=top_k
             )
+            documents = search_results['documents'][0]
+            metadatas = search_results['metadatas'][0]
+        elif store_type == "supabase":
+            # Search in Supabase
+            search_results = client.rpc("search_documents", {
+                "query_embedding": query_embedding[0].tolist(),
+                "top_k": top_k
+            }).execute()
+
+            if not hasattr(search_results, "data"):
+                raise RuntimeError(f"Supabase search failed: {search_results}")
+
             
-            # Check if we got results
-            if not search_results['documents'][0]:
-                return {
-                    "success": True, 
-                    "results": ["No relevant documents found."],
-                    "query": question
-                }
-            
-            # Format results
-            results = []
-            for doc, metadata in zip(search_results['documents'][0], search_results['metadatas'][0]):
-                results.append({
-                    "content": doc.strip(),
-                    "chapter": metadata.get('chapter', 'Unknown'),
-                    "section": metadata.get('section', 'Unknown'),
-                    "source": f"[{metadata.get('chapter', 'Unknown')}] {metadata.get('section', '')}"
-                })
-            
+            documents = [r['content'] for r in search_results.data]
+            metadatas = search_results.data
+        else:
             return {
                 "success": True,
-                "query": question,
-                "results": results,
-                "result_count": len(results)
-            }
-            
-        except Exception:
-            # Fallback to mock results for development
-            mock_results = [
-                {
-                    "content": f"Mock HCM content related to: {question}",
-                    "chapter": "15",
-                    "section": "Two-Lane Highways", 
-                    "source": "[Chapter 15] Two-Lane Highways"
-                }
-            ]
-            
-            return {
-                "success": True,
-                "query": question,
-                "results": mock_results,
-                "result_count": len(mock_results),
-                "note": "Using mock results - HCM database not available"
+                "results": ["No relevant document found."],
+                "query": question
             }
         
-    except Exception as e:
+        # Format results
+        results = []
+        for doc, metadata in zip(documents, metadatas):
+            results.append({
+                "content": doc.strip(),
+                "chapter": metadata.get('chapter', 'Unknown'),
+                "section": metadata.get('section', 'Unknown'),
+                "source": f"[{metadata.get('chapter', 'Unknown')}] {metadata.get('section', '')}"
+            })
+        
         return {
-            "success": False,
-            "error": str(e),
-            "error_type": type(e).__name__
+            "success": True,
+            "query": question,
+            "results": results,
+            "result_count": len(results)
+        }
+            
+    except Exception:
+        # Fallback to mock results for development
+        mock_results = [
+            {
+                "content": f"Mock HCM content related to: {question}",
+                "chapter": "15",
+                "section": "Two-Lane Highways", 
+                "source": "[Chapter 15] Two-Lane Highways"
+            }
+        ]
+        
+        return {
+            "success": True,
+            "query": question,
+            "results": mock_results,
+            "result_count": len(mock_results),
+            "note": "Using mock results - HCM database not available"
         }
 
 

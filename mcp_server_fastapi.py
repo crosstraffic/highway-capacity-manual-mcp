@@ -25,15 +25,22 @@ load_dotenv()
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     model = SentenceTransformer("all-MiniLM-L6-v2")
-
-    chroma_path = os.getenv("CHROMA_DB_PATH", "./chroma_db")
-    client = chromadb.PersistentClient(path=chroma_path, settings=Settings(anonymized_telemetry=False))
-    collection = client.get_collection(name="hcm_documents")
-
-    # Store in app state
     app.state.embedding_model = model
-    app.state.chroma_client = client
-    app.state.chroma_collection = collection
+
+    db_mode = os.getenv("DB_MODE", "local")
+
+    if db_mode == "local":
+        chroma_path = os.getenv("CHROMA_DB_PATH", "./chroma_db")
+        client = chromadb.PersistentClient(path=chroma_path, settings=Settings(anonymized_telemetry=False))
+        collection = client.get_collection(name="hcm_documents")
+        app.state.document_store = ("chroma", collection)
+    else:
+        from supabase import create_client
+        supabase_url = os.getenv("PUBLIC_SUPABASE_URL")
+        supabase_key = os.getenv("PUBLIC_SUPABASE_API")
+        supabase = create_client(supabase_url, supabase_key)
+        app.state.document_store = ("supabase", supabase)
+
 
     # Initialize function registry
     registry_path = Path("function_registry.yaml")
