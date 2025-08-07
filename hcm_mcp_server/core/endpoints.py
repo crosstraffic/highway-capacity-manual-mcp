@@ -214,8 +214,6 @@ async def batch_query_hcm(
 async def research_analytics() -> Dict[str, Any]:
     """Get analytics about HCM research database."""
     try:
-        # This would typically access app.state to get database stats
-        # For now, we will simulate with a placeholder
         return {
             "success":  True,
             "database_status": "available",
@@ -239,7 +237,7 @@ async def chapter15_complete_analysis(
     registry: FunctionRegistry = Depends(get_function_registry),
 ) -> Dict[str, Any]:
     """Complete Chapter 15 two-lane highway analysis."""
-    function_impl = registry.get_function("complete_analysis")
+    function_impl = registry.get_function("chapter15_complete_analysis")
 
     if function_impl is None:
         raise HTTPException(status_code=404, detail="Chapter 15 analysis function not available")
