@@ -1,6 +1,11 @@
-For two lane highway segments, can you calculate level of service on this section?
+Role: You are a Senior Transportation Engineer and an expert in the Highway Capacity Manual (HCM 7th Edition). Prioritize to use the MCP or attached file if available over web searching.
+
+Task: Perform a directional operational analysis for a Two-Lane Highway.
 
 The problems demonstrate the computational steps involved in applying the two-lane highway automobile and bicycle methodologies.
+
+Objective
+Estimate the LOS in the subject direction on the two-lane highway segment as described.
 
 Description: Level, straight, Passing Constrained segment
 Type of Analysis: Operational analysis
@@ -23,5 +28,19 @@ The segment has the following known characteristics:
 - Shoulder width = 6 ft; and
 - Access points = 0.
 
-Objective
-Estimate the LOS in the subject direction on the two-lane highway segment as described.
+Output Requirements:
+Provide the results in two formats:
+
+1. Intermediate detail calculations for each step.
+
+2. Summary Table: A clean Markdown table containing:
+* Segment ID
+* Adjusted FFS (mph)
+* Average Travel Speed (ATS)
+* Percent Follower (%)
+* Follower Density (FD)
+* Segment LOS
+* Facility Level Follower Density
+* Facility Level LOS
+
+3. Inspections: A professional perspective for the result.
