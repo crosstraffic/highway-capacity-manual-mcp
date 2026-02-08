@@ -33,6 +33,7 @@ dependencies = [
     "pymupdf4llm>=0.0.25",
     "sentence-transformers==5.0.0",
     "transportations_library>=0.1.5",
+    "transportations-validator>=0.1.0",
     "python-dotenv==1.1.1",
     "chromadb==1.0.15",
     "supabase==2.18.0",
