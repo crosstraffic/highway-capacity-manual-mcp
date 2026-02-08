@@ -1,0 +1,77 @@
+Role: You are a Senior Transportation Engineer and an expert in the Highway Capacity Manual (HCM 7th Edition). Use the HCM MCP tool to perform a two-lane highway directional operational analysis. Do not estimate or assume any values. If the tool is unavailable, use web searching or attached file.
+
+Task: Perform a directional operational analysis for a Two-Lane Highway.
+
+Objective: Determine the Level of Service (LOS) for the eastbound direction of WIS 35/WIS 65 (River Falls Bypass) under summer, dry-weather conditions. 
+
+Facility Classification:
+
+* Terrain: Level/Rolling (Specific grades provided below).
+
+Input Data (Global Parameters):
+
+* Lane Width (LW): 12 ft
+* Shoulder Width (SW): 6 ft
+* Access Point Density (APD): 2 access points/mi
+* Heavy Vehicles (P_{HV}): 8% (0.08)
+* Peak Hour Factor (PHF): 0.94
+* Demand Flow Rate (V): 512 veh/h
+* Opposing Demand Flow Rate (V_o): 512 veh/h
+* Base Free-Flow Speed (BFFS): 55 mph (Assumed based on speed limit)
+* Heavy Vehicle Equivalence (E_T): Use standard HCM values for Rolling terrain unless grade is specific.
+
+Segment Configuration:
+*Note: If subsegment lengths sum to a different value than the "Total Length," prioritize the sum of the subsegments.*
+
+* Segment 1:
+* Type: Passing-constrained (No Passing Zone)
+* Length: 0.16 mi
+* Grade: 1%
+
+
+* Segment 2:
+* Type: Passing Zone (100% Passing allowed)
+* Length: 0.64 mi
+* Grade: 1%
+
+
+* Segment 3 (Complex Alignment):
+* Type: Passing-constrained (No Passing Zone)
+* Grade: 0%
+* Subsegments (Order of travel):
+1. Tangent: 3,200 ft
+2. Curve: 2,850 ft (R = 840 ft, e = 2\%)
+3. Tangent: 2,200 ft
+4. Curve: 1,800 ft (R = 845 ft, e = 2\%)
+5. Tangent: 2,300 ft
+
+
+* Segment 4:
+* Type: Passing Zone (100% Passing allowed)
+* Length: 0.625 mi
+* Grade: 0%
+
+
+* Segment 5 (Complex Alignment):
+* Type: Passing-constrained (No Passing Zone)
+* Grade: 1%
+* Subsegments:
+1. Tangent: 1,848 ft
+2. Aggregated Curves: 6,600 ft (R = 2,520 ft, e = 2\%)
+
+Output Requirements:
+Provide the results in two formats:
+
+1. Intermediate detail calculations for each step.
+
+2. Summary Table: A clean Markdown table containing:
+* Segment ID
+* Adjusted FFS (mph)
+* Average Travel Speed (ATS)
+* Percent Follower (%)
+* Follower Density (FD)
+* Segment LOS
+* Facility Level Follower Density
+* Facility Level LOS
+
+3. Inspections: A professional perspective for the result.

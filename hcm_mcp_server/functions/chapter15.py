@@ -1,6 +1,7 @@
 from typing import Dict, Any
 from transportations_library import SubSegment, Segment, TwoLaneHighways
 from hcm_mcp_server.core.models import TwoLaneHighwaysInput
+from hcm_mcp_server.core.validation import validate_input
 
 
 def create_highway_from_input(highway_input: TwoLaneHighwaysInput) -> TwoLaneHighways:
@@ -54,6 +55,11 @@ def create_highway_from_input(highway_input: TwoLaneHighwaysInput) -> TwoLaneHig
 def identify_vertical_class_function(data: Dict[str, Any]) -> Dict[str, Any]:
     """Step 1: Identify vertical class range for a segment."""
     try:
+        # Validate input
+        validation_result = validate_input(data["highway_data"])
+        if not validation_result["success"]:
+            return validation_result
+
         segment_index = data["segment_index"]
         highway_input = TwoLaneHighwaysInput(**data["highway_data"])
         highway = create_highway_from_input(highway_input)
@@ -76,6 +82,11 @@ def identify_vertical_class_function(data: Dict[str, Any]) -> Dict[str, Any]:
 def determine_demand_flow_function(data: Dict[str, Any]) -> Dict[str, Any]:
     """Step 2: Determine demand flow rates and capacity."""
     try:
+        # Validate input
+        validation_result = validate_input(data["highway_data"])
+        if not validation_result["success"]:
+            return validation_result
+
         segment_index = data["segment_index"]
         highway_input = TwoLaneHighwaysInput(**data["highway_data"])
         highway = create_highway_from_input(highway_input)
@@ -287,6 +298,11 @@ def determine_segment_los_function(data: Dict[str, Any]) -> Dict[str, Any]:
 def determine_facility_los_function(data: Dict[str, Any]) -> Dict[str, Any]:
     """Step 10: Determine facility Level of Service."""
     try:
+        # Validate input
+        validation_result = validate_input(data["highway_data"])
+        if not validation_result["success"]:
+            return validation_result
+
         highway_input = TwoLaneHighwaysInput(**data["highway_data"])
         highway = create_highway_from_input(highway_input)
         
@@ -337,6 +353,11 @@ def determine_facility_los_function(data: Dict[str, Any]) -> Dict[str, Any]:
 def complete_highway_analysis_function(data: Dict[str, Any]) -> Dict[str, Any]:
     """Perform complete HCM Chapter 15 analysis following standard procedure."""
     try:
+        # Validate input before processing
+        validation_result = validate_input(data["highway_data"])
+        if not validation_result["success"]:
+            return validation_result
+
         highway_input = TwoLaneHighwaysInput(**data["highway_data"])
         highway = create_highway_from_input(highway_input)
         

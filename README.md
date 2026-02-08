@@ -18,13 +18,27 @@ This server can be used as a backend for AI code agents like Claude Desktop, all
 
 To enable this functionality, add the server to your AI assistant's configuration as an MCP server.
 
-### Example: Claude
+### For Claude Desktop Users
 From user setting, you can find `Connectors` tab and click `Add custom connector`.
 
 Then add `https://api.hcm-calculator.com/mcp` to you Claude configuration.
 
 <img src="docs/figures/claude_usecase.png" alt="Add MCP server" width="400" style="display: block; margin: 0 auto;">
 
+### For GitHub Copilot on VSCode Users
+You can also use this server with GitHub Copilot by configuring it as a custom MCP server.
+
+To do this, type Ctrl+p and select `MCP: Open User Configuration` and modify the following to your `mcp.json`:
+
+```json
+{
+	"servers": {
+		"hcm-mcp": {
+			"url": "https://api.hcm-calculator.com/mcp"
+		}
+	}
+}
+```
 
 ## Connect to Local MCP Server
 You can also run this server locally for development or testing purposes.
@@ -43,20 +57,19 @@ uv pip install .
 Then running the server.
 
 ```bash
-# Setup the database:
-python scripts/import_hcm_docs.py
+# Setup the database.
+python hcm_mcp_server/scripts/import_hcm_docs.py
 
-(optional) if you want to change 
-
-# Start the server:
+# Start the server.
 python mcp_server_fastapi.py
 ```
 
+### For Claude Desktop Users
 Open Claude Desktop and add the server as a custom MCP server with the URL `http://localhost:8000/mcp`.
 
 Add to your Claude Desktop configuration (`claude_desktop_config.json`):
 
-**Note**: Seems like this json settings are not working these days (https://github.com/anthropics/claude-code/issues/4188), and my it did not work in my desktop environment, either.
+**Note**: Seems like this json settings are not working these days (https://github.com/anthropics/claude-code/issues/4188), and it did not work in my desktop environment, either.
 
 ```bash
 {
@@ -68,6 +81,23 @@ Add to your Claude Desktop configuration (`claude_desktop_config.json`):
 }
 ```
 
+### For GitHub Copilot on VSCode Users
+Same thing as above, you can use this server with GitHub Copilot by configuring it as a custom MCP server.
+
+To do this, type Ctrl+p and select `MCP: Open User Configuration` and modify the following to your `mcp.json`:
+
+```json
+{
+	"servers": {
+		"hcm-mcp-local": {
+			"url": "http://127.0.0.1:8000/mcp"
+		}
+	}
+}
+```
+
+Then you can use the function calling interface directly in your code editor.
+
 
 ## Project Structure
 
@@ -75,11 +105,12 @@ Add to your Claude Desktop configuration (`claude_desktop_config.json`):
 hcm-mcp-server/
 ├── mcp_server_fastapi.py        # Main FastAPI application
 ├── functions_registry.yaml      # Function registry configuration
-├── src/
+├── hcm_mcp_server/
 │   ├── example_prompts/                  
 │   │   ├── *.txt                # Example prompts for function calling
 │   │   └── *.json               # Example json files for web validation
 │   ├── core/                    # Core application modules
+│   │   ├── dependencies.py      # Dependency injection and utilities
 │   │   ├── registry.py          # Function registry implementation
 │   │   ├── models.py            # Pydantic data models
 │   │   └── endpoints.py         # Dynamic endpoint creation
@@ -89,9 +120,9 @@ hcm-mcp-server/
 │   └── scripts/                    
 │       ├── import_hcm_docs.py   # Import HCM documentation and setup ChromaDB
 │       └── validate_registry.py # Registry validation
-└── data/                           
-    ├── hcm_files/               # HCM documentation files
-    └── chroma_db/               # ChromaDB storage  
+├── data/                           
+│   └──  hcm_files/               # HCM documentation files
+└── chroma_db/                    # ChromaDB storage
 
 ```
 
@@ -105,6 +136,9 @@ HOST=127.0.0.1
 PORT=8000
 ALLOWED_ORIGINS=http://localhost:3000,http://localhost:3001
 LOG_LEVEL=INFO
+DB_MODE=local
+PUBLIC_SUPABASE_URL=https://
+PUBLIC_SUPABASE_API=your-anon-key / service-role-key
 ```
 
 ### Function Registry
@@ -348,12 +382,6 @@ class CustomAnalysisInput(BaseModel):
 1. Implement function in appropriate module
 2. Add to `functions_registry.yaml`
 3. Restart server or call `/registry/reload`
-
-### Database Integration
-To add HCM content:
-1. Place documents in `data/hcm_documents/`
-2. Run `python scripts/import_hcm_docs.py`
-3. Query using `/tools/query-hcm`
 
 ## Support
 
