@@ -14,3 +14,4 @@ data/hcm_files/*.pdf
 # Virtual environments
 .venv
 .env
+uv.lock
