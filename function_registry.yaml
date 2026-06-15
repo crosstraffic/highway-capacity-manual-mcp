@@ -222,6 +222,113 @@ functions:
             description: "Complete highway facility data"
         required: ["highway_data"]
 
+  # Chapter 12: Basic Freeway Segments (a different equation family than Ch.15)
+  chapter12:
+    determine_free_flow_speed:
+      module: "hcm_mcp_server.functions.chapter12"
+      function: "determine_free_flow_speed_function"
+      description: "Step 2: estimate and adjust free-flow speed for a basic freeway segment"
+      category: "transportation"
+      chapter: 12
+      step: 2
+      parameters:
+        type: "object"
+        properties:
+          freeway_data:
+            type: "object"
+            description: "Basic-freeway segment inputs (bffs, lw, lane_count, demand_flow_i, ...)"
+        required: ["freeway_data"]
+
+    estimate_capacity:
+      module: "hcm_mcp_server.functions.chapter12"
+      function: "estimate_capacity_function"
+      description: "Step 3: base and adjusted capacity (pc/h/ln)"
+      category: "transportation"
+      chapter: 12
+      step: 3
+      parameters:
+        type: "object"
+        properties:
+          freeway_data:
+            type: "object"
+            description: "Basic-freeway segment inputs"
+        required: ["freeway_data"]
+
+    estimate_demand_volume:
+      module: "hcm_mcp_server.functions.chapter12"
+      function: "estimate_demand_volume_function"
+      description: "Step 4: convert directional demand to per-lane flow rate v_p"
+      category: "transportation"
+      chapter: 12
+      step: 4
+      parameters:
+        type: "object"
+        properties:
+          freeway_data:
+            type: "object"
+            description: "Basic-freeway segment inputs"
+        required: ["freeway_data"]
+
+    calculate_speed:
+      module: "hcm_mcp_server.functions.chapter12"
+      function: "calculate_speed_function"
+      description: "Step 5a: space mean speed via the speed-flow curve"
+      category: "transportation"
+      chapter: 12
+      step: 5
+      parameters:
+        type: "object"
+        properties:
+          freeway_data:
+            type: "object"
+            description: "Basic-freeway segment inputs"
+        required: ["freeway_data"]
+
+    estimate_density:
+      module: "hcm_mcp_server.functions.chapter12"
+      function: "estimate_density_function"
+      description: "Step 5b: density D = v_p / S (pc/mi/ln)"
+      category: "transportation"
+      chapter: 12
+      step: 5
+      parameters:
+        type: "object"
+        properties:
+          freeway_data:
+            type: "object"
+            description: "Basic-freeway segment inputs"
+        required: ["freeway_data"]
+
+    determine_segment_los:
+      module: "hcm_mcp_server.functions.chapter12"
+      function: "determine_segment_los_function"
+      description: "Step 6: segment Level of Service (A-F)"
+      category: "transportation"
+      chapter: 12
+      step: 6
+      parameters:
+        type: "object"
+        properties:
+          freeway_data:
+            type: "object"
+            description: "Basic-freeway segment inputs"
+        required: ["freeway_data"]
+
+    complete_analysis:
+      module: "hcm_mcp_server.functions.chapter12"
+      function: "complete_freeway_analysis_function"
+      description: "Perform complete HCM Chapter 12 basic-freeway analysis"
+      category: "transportation"
+      chapter: 12
+      comprehensive: true
+      parameters:
+        type: "object"
+        properties:
+          freeway_data:
+            type: "object"
+            description: "Basic-freeway segment inputs"
+        required: ["freeway_data"]
+
   # Research and Utility Functions
   research:
     query_hcm:
@@ -430,6 +537,25 @@ functions:
             description: "Override (min, max) bounds per design parameter"
         required: ["site"]
 
+  # Validation: the full rule corpus (HCM/AASHTO/MUTCD/HSM/ADA/...), in-process,
+  # no database — citations, terrain/context-gated rules, and clarifications.
+  validation:
+    validate_design_full:
+      module: "hcm_mcp_server.functions.validation"
+      function: "validate_design_full_function"
+      description: "Validate a design against the FULL rule corpus with citations and clarifications (in-process, no database)"
+      category: "validation"
+      parameters:
+        type: "object"
+        properties:
+          design:
+            type: "object"
+            description: "Flat parameter -> value map, e.g. {lane_width: 9.0, facility_type: TwoLaneHighway}"
+          context:
+            type: "object"
+            description: "Optional conditions, e.g. {terrain_type: mountainous, jurisdiction: state}"
+        required: ["design"]
+
   # Future chapters can be added here
   # chapter16:
   #   function_name:
@@ -444,6 +570,7 @@ categories:
   transportation: "Transportation analysis and capacity calculations"
   research: "Documentation search and research functions"
   reasoning: "Graph reasoning over the executable knowledge graph: repair, reconcile, inverse design, chaining"
+  validation: "Full-corpus rule validation with citations and clarifications, in-process"
   utility: "General utility and helper functions"
 
 # Configuration

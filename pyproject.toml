@@ -35,6 +35,9 @@ dependencies = [
     "python-dotenv==1.1.1",
     "chromadb==1.0.15",
     "supabase==2.18.0",
+    # validate_design_full runs the full rule engine in-process via the ORM
+    # model classes — sqlalchemy the library, but no database server / asyncpg.
+    "sqlalchemy>=2.0.0",
     # The reasoning layer (repair/reconcile/inverse/chaining + BasicFreeway) needs:
     #   - transportations-validator with validators.{repair,reconcile,inverse,executors}
     #     incl. BasicFreewayExecutor (>=0.2.0 once published)
