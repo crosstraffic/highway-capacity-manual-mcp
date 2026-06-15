@@ -35,8 +35,14 @@ dependencies = [
     "python-dotenv==1.1.1",
     "chromadb==1.0.15",
     "supabase==2.18.0",
-    "transportations-validator>=0.1.1",
-    "transportations-library==0.1.11",
+    # The reasoning layer (repair/reconcile/inverse/chaining + BasicFreeway) needs:
+    #   - transportations-validator with validators.{repair,reconcile,inverse,executors}
+    #     incl. BasicFreewayExecutor (>=0.2.0 once published)
+    #   - transportations-library with the BasicFreeways PyO3 binding (>=0.1.12)
+    # For local development before those are published, install both editable:
+    #   uv pip install -e ../transportations-validator -e ../transportations-library
+    "transportations-validator>=0.2.0",
+    "transportations-library>=0.1.12",
 ]
 
 [dependency-groups]

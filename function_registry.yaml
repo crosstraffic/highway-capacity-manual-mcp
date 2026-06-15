@@ -291,6 +291,145 @@ functions:
             default: 5
         required: ["topic"]
 
+  # Reasoning: the X-KG reasoning layer (graph chaining, abductive repair,
+  # defeasible reconciliation, inverse design) — reasons over the knowledge
+  # graph + verified executable substrate, no database required.
+  reasoning:
+    propagate_change:
+      module: "hcm_mcp_server.functions.reasoning"
+      function: "propagate_change_function"
+      description: "Forward-chain: downstream parameters affected by a changed root parameter"
+      category: "reasoning"
+      parameters:
+        type: "object"
+        properties:
+          root:
+            type: "string"
+            description: "The changed parameter (rust_field) to propagate from"
+          facility_type:
+            type: "string"
+            description: "Restrict to a facility (e.g. TwoLaneHighway, BasicFreeway)"
+        required: ["root"]
+
+    diagnose_failure:
+      module: "hcm_mcp_server.functions.reasoning"
+      function: "diagnose_failure_function"
+      description: "Backward-chain: upstream causes of a failed target parameter"
+      category: "reasoning"
+      parameters:
+        type: "object"
+        properties:
+          target:
+            type: "string"
+            description: "The failing parameter (rust_field) to trace causes for"
+          facility_type:
+            type: "string"
+            description: "Restrict to a facility (e.g. TwoLaneHighway, BasicFreeway)"
+        required: ["target"]
+
+    repair_design:
+      module: "hcm_mcp_server.functions.reasoning"
+      function: "repair_design_function"
+      description: "Abductive repair: minimal compliant fix for a failing Two-Lane Highway (HCM Ch.15), every candidate re-executed and proved compliant"
+      category: "reasoning"
+      parameters:
+        type: "object"
+        properties:
+          design:
+            type: "object"
+            description: "Current design inputs (rust_fields: lane_width, shoulder_width, apd, volume, spl, grade, phv, phf, length, passing_type)"
+          goal_los:
+            type: "string"
+            description: "Target LOS letter — repair goal is 'no worse than this'"
+            default: "C"
+          immutable:
+            type: "array"
+            items: {type: "string"}
+            description: "Override which parameters are fixed site conditions"
+          allow_demand_changes:
+            type: "boolean"
+            description: "Also consider demand-side levers"
+            default: false
+        required: ["design"]
+
+    repair_freeway:
+      module: "hcm_mcp_server.functions.reasoning"
+      function: "repair_freeway_function"
+      description: "Abductive repair: minimal compliant fix for a failing Basic Freeway (HCM Ch.12). Keep grade/length on the library's heavy-vehicle PCE grid."
+      category: "reasoning"
+      parameters:
+        type: "object"
+        properties:
+          design:
+            type: "object"
+            description: "Current design inputs (rust_fields: bffs, lw, lane_count, demand_flow_i, lc_r, trd, grade, length, p_t, phf)"
+          goal_los:
+            type: "string"
+            description: "Target LOS letter — repair goal is 'no worse than this'"
+            default: "D"
+          immutable:
+            type: "array"
+            items: {type: "string"}
+            description: "Override which parameters are fixed site conditions"
+          allow_demand_changes:
+            type: "boolean"
+            description: "Also consider demand-side levers"
+            default: false
+        required: ["design"]
+
+    reconcile_codes:
+      module: "hcm_mcp_server.functions.reasoning"
+      function: "reconcile_codes_function"
+      description: "Defeasible adjudication of overlapping/conflicting code provisions about one parameter, with an argument trace"
+      category: "reasoning"
+      parameters:
+        type: "object"
+        properties:
+          scenario:
+            type: "string"
+            description: "Name of a constructed conflict scenario (alternative to inline claims)"
+          claims:
+            type: "array"
+            items: {type: "object"}
+            description: "Inline competing rule claims (seed-shaped rule dicts)"
+          parameter:
+            type: "string"
+            description: "The parameter under contention"
+          value:
+            description: "A value to render a compliance verdict for"
+          context:
+            type: "object"
+            description: "Applicability conditions (e.g. {jurisdiction: state})"
+        required: []
+
+    inverse_design:
+      module: "hcm_mcp_server.functions.reasoning"
+      function: "inverse_design_function"
+      description: "Goal-directed synthesis: feasible geometries that reach a target LOS, each validated by forward execution (HCM Ch.15 proof-of-concept)"
+      category: "reasoning"
+      parameters:
+        type: "object"
+        properties:
+          site:
+            type: "object"
+            description: "Fixed site conditions (demand, grade, speed limit, …)"
+          goal_los:
+            type: "string"
+            description: "Target LOS letter"
+            default: "C"
+          facility_type:
+            type: "string"
+            description: "Facility type"
+            default: "TwoLaneHighway"
+          design_parameters:
+            type: "array"
+            items: {type: "string"}
+            description: "Levers to discover geometry over (auto-discovered if omitted)"
+          bounds:
+            type: "object"
+            description: "Override (min, max) bounds per design parameter"
+        required: ["site"]
+
   # Future chapters can be added here
   # chapter16:
   #   function_name:
@@ -304,6 +443,7 @@ functions:
 categories:
   transportation: "Transportation analysis and capacity calculations"
   research: "Documentation search and research functions"
+  reasoning: "Graph reasoning over the executable knowledge graph: repair, reconcile, inverse design, chaining"
   utility: "General utility and helper functions"
 
 # Configuration
