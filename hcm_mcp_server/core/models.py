@@ -88,6 +88,26 @@ class TwoLaneHighwaysInput(BaseModel):
     l_de: float = Field(default=0.0, description="Length of designated passing zones")
 
 
+class BasicFreewaysInput(BaseModel):
+    """A single basic-freeway (HCM Chapter 12) directional segment."""
+    bffs: float = Field(default=65.0, description="Base free-flow speed in mph")
+    lw: float = Field(default=12.0, description="Lane width in feet")
+    lane_count: int = Field(default=2, description="Lanes in the analysis direction")
+    lc_r: int = Field(default=6, description="Right-side lateral clearance in feet")
+    lc_l: int = Field(default=6, description="Left-side lateral clearance in feet")
+    trd: int = Field(default=0, description="Total ramp density (ramps/mi)")
+    apd: int = Field(default=0, description="Access-point density (pts/mi, multilane)")
+    grade: float = Field(default=0.0, description="Grade in percent")
+    terrain_type: Optional[str] = Field(default=None, description="level / rolling / mountainous")
+    speed_limit: int = Field(default=65, description="Posted speed limit in mph")
+    phf: float = Field(default=0.95, description="Peak hour factor")
+    p_t: float = Field(default=0.05, description="Heavy-vehicle proportion (decimal)")
+    demand_flow_i: float = Field(default=1000.0, description="Directional demand in veh/h")
+    length: float = Field(default=0.625, description="Segment length in miles")
+    highway_type: str = Field(default="basic", description="'basic' or 'multilane'")
+    city_type: Optional[str] = Field(default=None, description="urban / rural")
+
+
 # HCM analysis request models
 class SegmentAnalysisRequest(BaseModel):
     segment_index: int = Field(description="Index of segment to analyze")

@@ -5,7 +5,10 @@ A FastAPI-based Model Context Protocol (MCP) server for Highway Capacity Manual 
 ## Features
 
 - Semantic search over HCM documentation
-- Complete HCM Chapter 15 two-lane highway analysis
+- Complete HCM Chapter 15 (two-lane highway) and Chapter 12 (basic freeway) analysis
+- Input validation gateway against HCM/AASHTO constraints (via `transportations-validator`)
+- Full-corpus validation (300+ rules across HCM/AASHTO/MUTCD/HSM/ADA/...) with citations, terrain/context-gated rules, and clarification requests — runs in-process, no database
+- Knowledge-graph reasoning: abductive design repair (Two-Lane & Basic Freeway), defeasible code reconciliation, inverse design, and forward/backward chaining — every repair candidate re-executed through the verified library
 - YAML-based function registry for easy extensibility
 - Function calling interface with 15+ transportation analysis functions
 - MCP server compatibility for integration with AI assistants (supporting Claude)
@@ -251,8 +254,32 @@ curl -X POST "http://localhost:8000/tools/query-hcm" \
 - `chapter15_determine_facility_los` - Step 10: Calculate facility Level of Service
 - `chapter15_complete_analysis` - Complete HCM Chapter 15 procedure
 
+### Chapter 12 Functions (Basic Freeway Segments)
+A different equation family than Chapter 15 — the `lane width -> FFS -> capacity/speed -> density -> LOS` chain. Requires `transportations-library>=0.1.12`.
+- `chapter12_determine_free_flow_speed` - Step 2: Estimate and adjust free-flow speed
+- `chapter12_estimate_capacity` - Step 3: Base and adjusted capacity (pc/h/ln)
+- `chapter12_estimate_demand_volume` - Step 4: Per-lane flow rate v_p
+- `chapter12_calculate_speed` - Step 5a: Space mean speed via the speed-flow curve
+- `chapter12_estimate_density` - Step 5b: Density D = v_p / S
+- `chapter12_determine_segment_los` - Step 6: Segment Level of Service
+- `chapter12_complete_analysis` - Complete HCM Chapter 12 basic-freeway procedure
+
+### Validation Functions
+- `validation_validate_design_full` - Validate a design against the **full rule corpus** (300+ rules: HCM, AASHTO, MUTCD, HSM, ADA, OpenDRIVE, ...) with citations, terrain/jurisdiction-gated rules, and clarification requests when an input is missing or its context is ambiguous. Runs in-process over the bundled seed corpus — no database. (The Chapter 15/12 tools use a lighter semantic-firewall gateway; this is the complete engine.) Requires `transportations-validator>=0.2.0` + `sqlalchemy`.
+
 ### Research Functions
 - `query_hcm` - Query HCM documentation database
+
+### Reasoning Functions
+The X-KG reasoning layer reasons over the knowledge graph and the verified executable substrate. Repair and inverse-design **re-execute every candidate through `transportations-library`** before returning it, so results are proved compliant rather than asserted. No database is required.
+- `reasoning_propagate_change` - Forward-chain: downstream parameters affected by a changed input
+- `reasoning_diagnose_failure` - Backward-chain: upstream causes of a failing parameter
+- `reasoning_repair_design` - Abductive repair: minimal compliant fix for a Two-Lane Highway (HCM Ch.15)
+- `reasoning_repair_freeway` - Abductive repair: minimal compliant fix for a Basic Freeway (HCM Ch.12)
+- `reasoning_reconcile_codes` - Defeasible adjudication of conflicting code provisions, with an argument trace
+- `reasoning_inverse_design` - Goal-directed synthesis: feasible geometries reaching a target LOS
+
+> **Dependencies:** the reasoning functions require `transportations-validator>=0.2.0` and `transportations-library>=0.1.12` (the latter for the BasicFreeways binding used by `reasoning_repair_freeway`). Until those are published, install both editable: `uv pip install -e ../transportations-validator -e ../transportations-library`.
 
 
 
