@@ -1,10 +1,6 @@
 """Tests for the X-KG reasoning functions (hcm_mcp_server.functions.reasoning).
 
-The reasoning layer needs newer dependencies than are published yet: ``transportations-validator`` with the repair/reconcile/inverse/executors modules, and ``transportations-library`` with the BasicFreeways PyO3 binding. Until those are released, install both editable for local dev:
-
-    uv pip install -e ../transportations-validator -e ../transportations-library
-
-If the reasoning module can't import (older validator), the whole module is skipped; the BasicFreeway tests additionally skip when the library lacks the BasicFreeways binding — so CI stays green until the deps ship.
+The reasoning layer needs ``transportations-validator>=0.2.0`` (repair/reconcile/inverse/executors) and ``transportations-library>=0.1.12`` (the BasicFreeways PyO3 binding), both on PyPI. The guards below keep the module a clean skip rather than a failure if an older dependency is installed: if the reasoning module can't import, the whole module is skipped; the BasicFreeway tests additionally skip when the library lacks the BasicFreeways binding.
 """
 
 import pytest
@@ -13,7 +9,7 @@ reasoning = pytest.importorskip(
     "hcm_mcp_server.functions.reasoning",
     reason=(
         "reasoning layer needs transportations-validator>=0.2.0 + "
-        "transportations-library>=0.1.12 (BasicFreeways) — install editable for dev"
+        "transportations-library>=0.1.12 (BasicFreeways)"
     ),
 )
 

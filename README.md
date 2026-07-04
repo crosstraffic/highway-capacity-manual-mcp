@@ -167,6 +167,23 @@ functions:
         required: ["segment_index", "highway_data"]
 ```
 
+### Ablation arms (restricted MCP surfaces)
+
+For the Table 5 / Figure 7 2x2 ablation, the same app can be launched exposing only a subset of tools, so a model can be evaluated under each condition in isolation:
+
+```bash
+python mcp_server_fastapi.py     # ct  : full system (all tools), port 8000
+python mcp_server_kg_only.py     # kg  : 7 reasoning/validation tools only, port 8001 (no Chroma needed)
+python mcp_server_rag_only.py    # rag : query_hcm only, port 8002
+```
+
+Both launchers are thin wrappers that set two env vars before importing the app:
+
+- `HCM_MCP_INCLUDE_OPS` — comma-separated operation ids the MCP surface exposes (unset = all). Filtering uses `FastApiMCP(include_operations=...)`.
+- `HCM_ENABLE_RAG` — set to `false` to skip loading the embedding model + vector store (the kg-only arm needs neither).
+
+Point each VS Code / Claude Desktop MCP client at the port for the arm under test (e.g. `http://localhost:8001` for kg-only) so the model sees only that arm's tools. The `base` arm is simply no MCP server attached.
+
 ## API Usage
 
 ### Complete Highway Analysis
@@ -279,7 +296,7 @@ The X-KG reasoning layer reasons over the knowledge graph and the verified execu
 - `reasoning_reconcile_codes` - Defeasible adjudication of conflicting code provisions, with an argument trace
 - `reasoning_inverse_design` - Goal-directed synthesis: feasible geometries reaching a target LOS
 
-> **Dependencies:** the reasoning functions require `transportations-validator>=0.2.0` and `transportations-library>=0.1.12` (the latter for the BasicFreeways binding used by `reasoning_repair_freeway`). Until those are published, install both editable: `uv pip install -e ../transportations-validator -e ../transportations-library`.
+> **Dependencies:** the reasoning functions require `transportations-validator>=0.2.0` and `transportations-library>=0.1.12` (the latter for the BasicFreeways binding used by `reasoning_repair_freeway`). Both are on PyPI, so a normal `pip install` (or `uv sync`) resolves them.
 
 
 
@@ -302,6 +319,16 @@ Hit the API endpoints directory to perform analyses or query HCM documentation.
 - `POST /research/search_hcm_by_chapter` - Search HCM content by specific chapter
 - `GET /research/get_hcm_section` - Get specific HCM section content
 - `POST /research/summarize_hcm_content` - Summarize HCM content for a topic
+
+### Reasoning & Validation
+Dedicated endpoints (and therefore first-class MCP tools) for the X-KG reasoning layer and full-corpus validation. Each resolves its implementation from the registry, so the surface stays in sync with `function_registry.yaml`.
+- `POST /reason/propagate-change` - Forward-chain downstream impacts
+- `POST /reason/diagnose-failure` - Backward-chain upstream causes
+- `POST /reason/repair-design` - Minimal compliant fix (Two-Lane Highway, HCM Ch.15)
+- `POST /reason/repair-freeway` - Minimal compliant fix (Basic Freeway, HCM Ch.12)
+- `POST /reason/reconcile-codes` - Defeasible multi-jurisdiction adjudication
+- `POST /reason/inverse-design` - Goal-directed geometry synthesis
+- `POST /validate/design-full` - Validate against the full rule corpus with citations + clarifications
 
 ### Utility
 - `GET /health` - Health check

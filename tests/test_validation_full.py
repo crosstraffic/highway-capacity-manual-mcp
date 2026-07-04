@@ -1,6 +1,6 @@
 """Full-corpus validation tool (validate_design_full).
 
-Runs the complete rule engine in-process over the bundled seed corpus — no database. Needs ``transportations-validator>=0.2.0`` (with the seed-backed engine) and ``sqlalchemy``; skipped otherwise so CI stays green until the dep ships.
+Runs the complete rule engine in-process over the bundled seed corpus — no database. Needs ``transportations-validator>=0.2.0`` (with the seed-backed engine) and ``sqlalchemy``; skipped cleanly if an older dependency is installed.
 """
 
 import asyncio

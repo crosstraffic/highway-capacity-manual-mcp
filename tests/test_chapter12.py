@@ -1,6 +1,6 @@
 """Tests for the HCM Chapter 12 basic-freeway computation tools.
 
-These need ``transportations-library>=0.1.12`` (the BasicFreeways binding with the Ch.12 step methods). The module is skipped when that binding is absent, so CI stays green until the dependency ships.
+These need ``transportations-library>=0.1.12`` (the BasicFreeways binding with the Ch.12 step methods). The module is skipped cleanly when that binding is absent (e.g. an older library is installed).
 """
 
 import pytest

@@ -38,12 +38,10 @@ dependencies = [
     # validate_design_full runs the full rule engine in-process via the ORM
     # model classes — sqlalchemy the library, but no database server / asyncpg.
     "sqlalchemy>=2.0.0",
-    # The reasoning layer (repair/reconcile/inverse/chaining + BasicFreeway) needs:
-    #   - transportations-validator with validators.{repair,reconcile,inverse,executors}
-    #     incl. BasicFreewayExecutor (>=0.2.0 once published)
-    #   - transportations-library with the BasicFreeways PyO3 binding (>=0.1.12)
-    # For local development before those are published, install both editable:
-    #   uv pip install -e ../transportations-validator -e ../transportations-library
+    # The reasoning layer (repair/reconcile/inverse/chaining + BasicFreeway), the
+    # Chapter 12 tools, and validate_design_full need:
+    #   - transportations-validator >=0.2.0 (seed-backed engine + reasoning modules)
+    #   - transportations-library >=0.1.12 (BasicFreeways PyO3 binding)
     "transportations-validator>=0.2.0",
     "transportations-library>=0.1.12",
 ]
