@@ -8,9 +8,13 @@ def create_highway_from_input(highway_input: TwoLaneHighwaysInput) -> TwoLaneHig
     """Helper function to create highway object from input data."""
     py_segments = []
     for seg in highway_input.segments:
+        # The MCP input takes subsegment length in miles (consistent with segment
+        # length), but the computational core expects subsegment length in feet
+        # (it divides by 5280 internally). Convert here so the LLM-facing units stay
+        # uniform and the weighted curve-speed aggregation (Eq. 15-16) is correct.
         subsegments = [
             SubSegment(
-                length=sub.length,
+                length=sub.length * 5280.0,
                 avg_speed=sub.avg_speed,
                 hor_class=sub.hor_class,
                 design_rad=sub.design_rad,
@@ -18,13 +22,18 @@ def create_highway_from_input(highway_input: TwoLaneHighwaysInput) -> TwoLaneHig
                 sup_ele=sub.sup_ele
             ) for sub in seg.subsegments
         ]
-        
+
+        # A segment carrying curve subsegments is a horizontal-curve segment. Set
+        # is_hc so the curve speed treatment is applied even if the caller left the
+        # flag at its default, which would otherwise silently skip the curves.
+        has_curve = any((sub.design_rad or 0.0) > 0 for sub in seg.subsegments)
+
         py_segments.append(Segment(
             passing_type=seg.passing_type,
             length=seg.length,
             grade=seg.grade,
             spl=seg.spl,
-            is_hc=seg.is_hc,
+            is_hc=seg.is_hc or has_curve,
             volume=seg.volume,
             volume_op=seg.volume_op,
             flow_rate=seg.flow_rate,
