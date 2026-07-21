@@ -102,6 +102,7 @@ class BasicFreewaysInput(BaseModel):
     speed_limit: int = Field(default=65, description="Posted speed limit in mph")
     phf: float = Field(default=0.95, description="Peak hour factor")
     p_t: float = Field(default=0.05, description="Heavy-vehicle proportion (decimal)")
+    sut_percentage: int = Field(default=0, description="Single-unit-truck share of the heavy-vehicle mix; 0 = unknown (general-terrain Exhibit 12-25), or 30/50/70 for the specific-upgrade exhibits 12-26/27/28")
     demand_flow_i: float = Field(default=1000.0, description="Directional demand in veh/h")
     length: float = Field(default=0.625, description="Segment length in miles")
     highway_type: str = Field(default="basic", description="'basic' or 'multilane'")

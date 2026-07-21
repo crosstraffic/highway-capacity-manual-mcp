@@ -2,7 +2,7 @@
 
 The freeway counterpart to ``chapter15.py``: each function wraps the verified ``transportations_library.BasicFreeways`` implementation (a *different equation family* than the two-lane methodology) and follows the same ``(data: dict) -> dict`` convention. A basic-freeway analysis is a single directional segment, so the input is ``data["freeway_data"]`` (a flat ``BasicFreewaysInput``), not a multi-segment facility.
 
-The HCM Ch.12 step sequence is stateful, so each step function rebuilds the segment and runs its prerequisites in order before the requested step (mirroring ``chapter15.py``). The library tabulates heavy-vehicle effects only at discrete grade/length grid points and raises a Rust panic off-grid; the ``_guarded`` decorator catches that (a PyO3 PanicException is NOT a Python Exception) and returns a clean error instead of crashing.
+The HCM Ch.12 step sequence is stateful, so each step function rebuilds the segment and runs its prerequisites in order before the requested step (mirroring ``chapter15.py``). Heavy-vehicle equivalence depends on ``sut_percentage``: at the default 0 the library reads the general-terrain exhibit (12-25) and grade/length are irrelevant, while 30/50/70 select the specific-upgrade exhibits (12-26/27/28), which the library interpolates over grades to 6% and rejects (a Python ``ValueError``) for off-domain inputs. The ``_guarded`` decorator turns any such failure into a clean error dict instead of a raised exception.
 """
 
 from functools import wraps
@@ -14,7 +14,7 @@ from hcm_mcp_server.core.models import BasicFreewaysInput
 
 
 def _guarded(step: float | None = None) -> Callable:
-    """Wrap a function so any failure — including a Rust PanicException (off the heavy-vehicle PCE grid), which is not a Python Exception — returns a clean error dict."""
+    """Wrap a function so any failure — a validation ``ValueError`` (e.g. an off-domain specific-upgrade grade) or, defensively, a PyO3 PanicException that is not a Python Exception — returns a clean error dict."""
     def decorator(fn: Callable[[Dict[str, Any]], Dict[str, Any]]) -> Callable:
         @wraps(fn)
         def wrapper(data: Dict[str, Any]) -> Dict[str, Any]:
@@ -46,6 +46,7 @@ def create_freeway_from_input(fw: BasicFreewaysInput) -> BasicFreeways:
         speed_limit=fw.speed_limit,
         phf=fw.phf,
         p_t=fw.p_t,
+        sut_percentage=fw.sut_percentage,
         demand_flow_i=fw.demand_flow_i,
         length=fw.length,
         highway_type=fw.highway_type,
