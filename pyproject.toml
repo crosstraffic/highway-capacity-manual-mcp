@@ -41,9 +41,9 @@ dependencies = [
     # The reasoning layer (repair/reconcile/inverse/chaining + BasicFreeway), the
     # Chapter 12 tools, and validate_design_full need:
     #   - transportations-validator >=0.2.0 (seed-backed engine + reasoning modules)
-    #   - transportations-library >=0.1.12 (BasicFreeways PyO3 binding)
+    #   - transportations-library >=0.2.0 (BasicFreeways PyO3 binding: sut_percentage kwarg, corrected Ch.12 PCE tables, e_t/f_hv accessors)
     "transportations-validator>=0.2.0",
-    "transportations-library>=0.1.12",
+    "transportations-library>=0.2.0",
 ]
 
 [dependency-groups]

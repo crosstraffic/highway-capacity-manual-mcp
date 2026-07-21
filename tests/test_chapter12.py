@@ -19,8 +19,14 @@ pytestmark = pytest.mark.skipif(
     reason="transportations-library>=0.1.12 with the BasicFreeways Ch.12 binding required",
 )
 
+# 25% trucks, 2% grade, 3100 veh/h. No SUT mix is given (sut_percentage defaults to 0),
+# so E_T comes from the general-terrain exhibit (12-25, level) = 2.0, not a specific-upgrade
+# table. At 12 ft lanes the segment holds LOS D (FFS 66.78, density 33.9); dropping to 10 ft
+# lanes lowers FFS to 60.18 and pushes density to 36.04 → LOS E. Demand is 3100, not the
+# pre-fix 3000: at 3000 the corrected general-terrain default already yields LOS D at 10 ft,
+# so NARROW would no longer degrade. See tests/unit/test_repair.py for the full hand derivation.
 GOOD = {"bffs": 70.0, "lw": 12.0, "lane_count": 2, "lc_r": 6, "trd": 1,
-        "demand_flow_i": 3000.0, "phf": 0.95, "p_t": 0.25, "grade": 2.0, "length": 0.625}
+        "demand_flow_i": 3100.0, "phf": 0.95, "p_t": 0.25, "grade": 2.0, "length": 0.625}
 NARROW = {**GOOD, "lw": 10.0}
 
 
@@ -51,10 +57,15 @@ class TestSteps:
         assert C.estimate_density_function(d)["density"] > 0
         assert C.determine_segment_los_function(d)["level_of_service"] == "E"
 
-    def test_off_grid_inputs_return_clean_error(self):
+    def test_off_domain_specific_upgrade_returns_clean_error(self):
+        """The specific-upgrade exhibits (12-26/27/28) are tabulated only to a 6%
+        grade; a steeper grade with an explicit SUT mix is off-domain and the
+        library raises, which _guarded turns into a clean error dict. At the
+        default sut_percentage=0 grade is irrelevant (general terrain), so the
+        error path is only reachable with a specific-upgrade mix."""
         from hcm_mcp_server.functions.chapter12 import complete_freeway_analysis_function
         out = complete_freeway_analysis_function(
-            {"freeway_data": {**NARROW, "grade": 3.7, "length": 0.5}}
+            {"freeway_data": {**NARROW, "sut_percentage": 30, "grade": 7.0}}
         )
         assert out["success"] is False
         assert "error" in out
