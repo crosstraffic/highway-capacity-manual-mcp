@@ -1,5 +1,5 @@
 version = 1
-revision = 3
+revision = 2
 requires-python = ">=3.12"
 resolution-markers = [
     "python_full_version >= '3.13'",
@@ -435,6 +435,7 @@ wheels = [
     { url = "https://files.pythonhosted.org/packages/7d/ec/bad1ac26764d26aa1353216fcbfa4670050f66d445448aafa227f8b16e80/greenlet-3.1.1-cp312-cp312-macosx_11_0_universal2.whl", hash = "sha256:4afe7ea89de619adc868e087b4d2359282058479d7cfb94970adf4b55284574d", size = 274260, upload-time = "2024-09-20T17:08:07.301Z" },
     { url = "https://files.pythonhosted.org/packages/66/d4/c8c04958870f482459ab5956c2942c4ec35cac7fe245527f1039837c17a9/greenlet-3.1.1-cp312-cp312-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:f406b22b7c9a9b4f8aa9d2ab13d6ae0ac3e85c9a809bd590ad53fed2bf70dc79", size = 649064, upload-time = "2024-09-20T17:36:47.628Z" },
     { url = "https://files.pythonhosted.org/packages/51/41/467b12a8c7c1303d20abcca145db2be4e6cd50a951fa30af48b6ec607581/greenlet-3.1.1-cp312-cp312-manylinux_2_17_ppc64le.manylinux2014_ppc64le.whl", hash = "sha256:c3a701fe5a9695b238503ce5bbe8218e03c3bcccf7e204e455e7462d770268aa", size = 663420, upload-time = "2024-09-20T17:39:21.258Z" },
+    { url = "https://files.pythonhosted.org/packages/27/8f/2a93cd9b1e7107d5c7b3b7816eeadcac2ebcaf6d6513df9abaf0334777f6/greenlet-3.1.1-cp312-cp312-manylinux_2_17_s390x.manylinux2014_s390x.whl", hash = "sha256:2846930c65b47d70b9d178e89c7e1a69c95c1f68ea5aa0a58646b7a96df12441", size = 658035, upload-time = "2024-09-20T17:44:26.501Z" },
     { url = "https://files.pythonhosted.org/packages/57/5c/7c6f50cb12be092e1dccb2599be5a942c3416dbcfb76efcf54b3f8be4d8d/greenlet-3.1.1-cp312-cp312-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:99cfaa2110534e2cf3ba31a7abcac9d328d1d9f1b95beede58294a60348fba36", size = 660105, upload-time = "2024-09-20T17:08:42.048Z" },
     { url = "https://files.pythonhosted.org/packages/f1/66/033e58a50fd9ec9df00a8671c74f1f3a320564c6415a4ed82a1c651654ba/greenlet-3.1.1-cp312-cp312-manylinux_2_24_x86_64.manylinux_2_28_x86_64.whl", hash = "sha256:1443279c19fca463fc33e65ef2a935a5b09bb90f978beab37729e1c3c6c25fe9", size = 613077, upload-time = "2024-09-20T17:08:33.707Z" },
     { url = "https://files.pythonhosted.org/packages/19/c5/36384a06f748044d06bdd8776e231fadf92fc896bd12cb1c9f5a1bda9578/greenlet-3.1.1-cp312-cp312-musllinux_1_1_aarch64.whl", hash = "sha256:b7cede291382a78f7bb5f04a529cb18e068dd29e0fb27376074b6d0317bf4dd0", size = 1135975, upload-time = "2024-09-20T17:44:15.989Z" },
@@ -443,6 +444,7 @@ wheels = [
     { url = "https://files.pythonhosted.org/packages/f3/57/0db4940cd7bb461365ca8d6fd53e68254c9dbbcc2b452e69d0d41f10a85e/greenlet-3.1.1-cp313-cp313-macosx_11_0_universal2.whl", hash = "sha256:05175c27cb459dcfc05d026c4232f9de8913ed006d42713cb8a5137bd49375f1", size = 272990, upload-time = "2024-09-20T17:08:26.312Z" },
     { url = "https://files.pythonhosted.org/packages/1c/ec/423d113c9f74e5e402e175b157203e9102feeb7088cee844d735b28ef963/greenlet-3.1.1-cp313-cp313-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:935e943ec47c4afab8965954bf49bfa639c05d4ccf9ef6e924188f762145c0ff", size = 649175, upload-time = "2024-09-20T17:36:48.983Z" },
     { url = "https://files.pythonhosted.org/packages/a9/46/ddbd2db9ff209186b7b7c621d1432e2f21714adc988703dbdd0e65155c77/greenlet-3.1.1-cp313-cp313-manylinux_2_17_ppc64le.manylinux2014_ppc64le.whl", hash = "sha256:667a9706c970cb552ede35aee17339a18e8f2a87a51fba2ed39ceeeb1004798a", size = 663425, upload-time = "2024-09-20T17:39:22.705Z" },
+    { url = "https://files.pythonhosted.org/packages/bc/f9/9c82d6b2b04aa37e38e74f0c429aece5eeb02bab6e3b98e7db89b23d94c6/greenlet-3.1.1-cp313-cp313-manylinux_2_17_s390x.manylinux2014_s390x.whl", hash = "sha256:b8a678974d1f3aa55f6cc34dc480169d58f2e6d8958895d68845fa4ab566509e", size = 657736, upload-time = "2024-09-20T17:44:28.544Z" },
     { url = "https://files.pythonhosted.org/packages/d9/42/b87bc2a81e3a62c3de2b0d550bf91a86939442b7ff85abb94eec3fc0e6aa/greenlet-3.1.1-cp313-cp313-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:efc0f674aa41b92da8c49e0346318c6075d734994c3c4e4430b1c3f853e498e4", size = 660347, upload-time = "2024-09-20T17:08:45.56Z" },
     { url = "https://files.pythonhosted.org/packages/37/fa/71599c3fd06336cdc3eac52e6871cfebab4d9d70674a9a9e7a482c318e99/greenlet-3.1.1-cp313-cp313-manylinux_2_24_x86_64.manylinux_2_28_x86_64.whl", hash = "sha256:0153404a4bb921f0ff1abeb5ce8a5131da56b953eda6e14b88dc6bbc04d2049e", size = 615583, upload-time = "2024-09-20T17:08:36.85Z" },
     { url = "https://files.pythonhosted.org/packages/4e/96/e9ef85de031703ee7a4483489b40cf307f93c1824a02e903106f2ea315fe/greenlet-3.1.1-cp313-cp313-musllinux_1_1_aarch64.whl", hash = "sha256:275f72decf9932639c1c6dd1013a1bc266438eb32710016a1c742df5da6e60a1", size = 1133039, upload-time = "2024-09-20T17:44:18.287Z" },
@@ -450,6 +452,7 @@ wheels = [
     { url = "https://files.pythonhosted.org/packages/1f/1b/54336d876186920e185066d8c3024ad55f21d7cc3683c856127ddb7b13ce/greenlet-3.1.1-cp313-cp313-win_amd64.whl", hash = "sha256:b42703b1cf69f2aa1df7d1030b9d77d3e584a70755674d60e710f0af570f3761", size = 299490, upload-time = "2024-09-20T17:17:09.501Z" },
     { url = "https://files.pythonhosted.org/packages/5f/17/bea55bf36990e1638a2af5ba10c1640273ef20f627962cf97107f1e5d637/greenlet-3.1.1-cp313-cp313t-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:f1695e76146579f8c06c1509c7ce4dfe0706f49c6831a817ac04eebb2fd02011", size = 643731, upload-time = "2024-09-20T17:36:50.376Z" },
     { url = "https://files.pythonhosted.org/packages/78/d2/aa3d2157f9ab742a08e0fd8f77d4699f37c22adfbfeb0c610a186b5f75e0/greenlet-3.1.1-cp313-cp313t-manylinux_2_17_ppc64le.manylinux2014_ppc64le.whl", hash = "sha256:7876452af029456b3f3549b696bb36a06db7c90747740c5302f74a9e9fa14b13", size = 649304, upload-time = "2024-09-20T17:39:24.55Z" },
+    { url = "https://files.pythonhosted.org/packages/f1/8e/d0aeffe69e53ccff5a28fa86f07ad1d2d2d6537a9506229431a2a02e2f15/greenlet-3.1.1-cp313-cp313t-manylinux_2_17_s390x.manylinux2014_s390x.whl", hash = "sha256:4ead44c85f8ab905852d3de8d86f6f8baf77109f9da589cb4fa142bd3b57b475", size = 646537, upload-time = "2024-09-20T17:44:31.102Z" },
     { url = "https://files.pythonhosted.org/packages/05/79/e15408220bbb989469c8871062c97c6c9136770657ba779711b90870d867/greenlet-3.1.1-cp313-cp313t-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:8320f64b777d00dd7ccdade271eaf0cad6636343293a25074cc5566160e4de7b", size = 642506, upload-time = "2024-09-20T17:08:47.852Z" },
     { url = "https://files.pythonhosted.org/packages/18/87/470e01a940307796f1d25f8167b551a968540fbe0551c0ebb853cb527dd6/greenlet-3.1.1-cp313-cp313t-manylinux_2_24_x86_64.manylinux_2_28_x86_64.whl", hash = "sha256:6510bf84a6b643dabba74d3049ead221257603a253d0a9873f55f6a59a65f822", size = 602753, upload-time = "2024-09-20T17:08:38.079Z" },
     { url = "https://files.pythonhosted.org/packages/e2/72/576815ba674eddc3c25028238f74d7b8068902b3968cbe456771b166455e/greenlet-3.1.1-cp313-cp313t-musllinux_1_1_aarch64.whl", hash = "sha256:04b013dc07c96f83134b1e99888e7a79979f1a247e2a9f59697fa14b5862ed01", size = 1122731, upload-time = "2024-09-20T17:44:20.556Z" },
@@ -522,6 +525,7 @@ dependencies = [
     { name = "pymupdf4llm" },
     { name = "python-dotenv" },
     { name = "sentence-transformers" },
+    { name = "sqlalchemy" },
     { name = "supabase" },
     { name = "transportations-library" },
     { name = "transportations-validator" },
@@ -547,9 +551,10 @@ requires-dist = [
     { name = "pymupdf4llm", specifier = ">=0.0.25" },
     { name = "python-dotenv", specifier = "==1.1.1" },
     { name = "sentence-transformers", specifier = "==5.0.0" },
+    { name = "sqlalchemy", specifier = ">=2.0.0" },
     { name = "supabase", specifier = "==2.18.0" },
-    { name = "transportations-library", specifier = "==0.1.11" },
-    { name = "transportations-validator", specifier = ">=0.1.1" },
+    { name = "transportations-library", editable = "../transportations-library" },
+    { name = "transportations-validator", specifier = ">=0.2.0" },
 ]
 
 [package.metadata.requires-dev]
@@ -1621,25 +1626,6 @@ wheels = [
 ]
 
 [[package]]
-name = "pymupdf-layout"
-version = "1.26.6"
-source = { registry = "https://pypi.org/simple" }
-dependencies = [
-    { name = "networkx" },
-    { name = "numpy" },
-    { name = "onnxruntime" },
-    { name = "pymupdf" },
-    { name = "pyyaml" },
-]
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/70/86/31f8d05b36ebf43cca88d5c6415de46eb748e487b618a589671a610be8c8/pymupdf_layout-1.26.6-cp310-abi3-macosx_10_9_x86_64.whl", hash = "sha256:d632f83208db8b24600eb8ac54d3135fab6ab1f251a38fa6061e7470e81b9481", size = 12727222, upload-time = "2025-11-05T14:35:44.367Z" },
-    { url = "https://files.pythonhosted.org/packages/ff/d3/0e52d7d1e2f975843f5354ac3b210a98471b690105efc332d3c285bd794b/pymupdf_layout-1.26.6-cp310-abi3-macosx_11_0_arm64.whl", hash = "sha256:f1d45f72ec08ef7f644928487e7a067df6df63172d682d0bb05158896d0d9c71", size = 12725266, upload-time = "2025-11-05T14:36:50.727Z" },
-    { url = "https://files.pythonhosted.org/packages/ae/49/ad1a5edccc45477493d6a53a41df7620d6147febb897c3dd8354f413e154/pymupdf_layout-1.26.6-cp310-abi3-manylinux_2_28_aarch64.whl", hash = "sha256:0561b9485a6ac1a40bb1e2ec7a1648aa64e4be56dab2f39182b11a69e3e43024", size = 12732580, upload-time = "2025-11-06T11:04:09.065Z" },
-    { url = "https://files.pythonhosted.org/packages/a7/bd/3e049b359dd0c3a101ae915484b87ff73bfdedfb24a924e0a8e6783b33f3/pymupdf_layout-1.26.6-cp310-abi3-manylinux_2_28_x86_64.whl", hash = "sha256:ee8e2bfed12d4b6421b27a1f89837ac09d8bc3f783f79670db397ec24614bf3d", size = 12732539, upload-time = "2025-11-05T14:38:01.244Z" },
-    { url = "https://files.pythonhosted.org/packages/f8/7a/69078bf16669f8361360321ea6bede4cbfede35bf3f4ca5842a7c2387825/pymupdf_layout-1.26.6-cp310-abi3-win_amd64.whl", hash = "sha256:2305aac24fd6e12217afaaea8ec95be297be9b250b6077a3f4e92f7f9beeaf92", size = 12734904, upload-time = "2025-11-05T14:39:05.83Z" },
-]
-
-[[package]]
 name = "pymupdf4llm"
 version = "0.0.25"
 source = { registry = "https://pypi.org/simple" }
@@ -2399,27 +2385,24 @@ wheels = [
 
 [[package]]
 name = "transportations-library"
-version = "0.1.11"
-source = { registry = "https://pypi.org/simple" }
-dependencies = [
-    { name = "pymupdf" },
-    { name = "pymupdf-layout" },
-    { name = "pymupdf4llm" },
+source = { editable = "../transportations-library" }
+
+[package.metadata]
+requires-dist = [
+    { name = "pymupdf", marker = "extra == 'pdf'", specifier = ">=1.26.6" },
+    { name = "pymupdf-layout", marker = "extra == 'pdf'", specifier = ">=1.26.6" },
+    { name = "pymupdf4llm", marker = "extra == 'pdf'", specifier = ">=0.0.17" },
+    { name = "pytest", marker = "extra == 'test'", specifier = ">=6.0" },
+    { name = "pytest-cov", marker = "extra == 'test'" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/eb/ad/189200d8f7d00541608ebcc74c56d5ceefc60efa06ba68926f68c7fa5d83/transportations_library-0.1.11.tar.gz", hash = "sha256:ba551593347e4890fc7384dbcd6f4765d9bddc81e4130e7f818711e49bc4cffa", size = 799194, upload-time = "2026-02-08T07:19:06.546Z" }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/3f/57/9a70dd0411a8e36d730a6e22d301cc925a47785698f74834426ee157d4af/transportations_library-0.1.11-cp312-cp312-macosx_11_0_arm64.whl", hash = "sha256:249a2f7ed9b45ca3d9c614776f481229dce6121d173ad30cec32471b4305361b", size = 293355, upload-time = "2026-02-08T07:19:02.674Z" },
-    { url = "https://files.pythonhosted.org/packages/cd/92/a6ff11ad979713e27053116cfbe6c8d81e171744fc74dff3fdf1a305b864/transportations_library-0.1.11-cp312-cp312-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:165a7d56cbf33490835cbb0d53584ab7514f6eae32372286b04152eeab351c70", size = 318884, upload-time = "2026-02-08T07:19:03.89Z" },
-    { url = "https://files.pythonhosted.org/packages/3c/19/0bbef2edcf1c63f2096c28d339483ad43b3eb821e4aa28fd3b1f5c18ff2f/transportations_library-0.1.11-cp312-cp312-win_amd64.whl", hash = "sha256:65db80bd999f03ec1f27020a41038e9a10875099a24441945cd1854ad6412f9f", size = 199744, upload-time = "2026-02-08T07:19:04.934Z" },
-]
+provides-extras = ["pdf", "test"]
 
 [[package]]
 name = "transportations-validator"
-version = "0.1.1"
+version = "0.2.0"
 source = { registry = "https://pypi.org/simple" }
-sdist = { url = "https://files.pythonhosted.org/packages/98/5b/034ed5fdfd036ad4fb406f063cdccb1dac3dc13c74b02727005440810def/transportations_validator-0.1.1.tar.gz", hash = "sha256:8a211c19fd8cd69abeaaa4bd48ab9ff72ec84f8e4ba0b5befd8e226018510ca2", size = 2134278, upload-time = "2026-02-08T08:07:09.316Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/d1/0b/4adf6387fb3994e1ff627ecd306687ddee31598b81f8bc37fa242c154a23/transportations_validator-0.1.1-py3-none-any.whl", hash = "sha256:a0dcbb35acb8b1e5c2959c86f76e3a3ceb4aa1df02e723b4832508ce2ab20be5", size = 78430, upload-time = "2026-02-08T08:07:10.576Z" },
+    { url = "https://files.pythonhosted.org/packages/40/ac/534a5ff56dfd734a8a6b2e2ed0f60fb8aeac49693510464051974778dabc/transportations_validator-0.2.0-py3-none-any.whl", hash = "sha256:c2e5209a121cce832d00a21a10521e823b62379bef2a28bf0be1be910a873a47", size = 218412, upload-time = "2026-06-15T04:01:30.718Z" },
 ]
 
 [[package]]
