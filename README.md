@@ -5,7 +5,10 @@ A FastAPI-based Model Context Protocol (MCP) server for Highway Capacity Manual 
 ## Features
 
 - Semantic search over HCM documentation
-- Complete HCM Chapter 15 two-lane highway analysis
+- Complete HCM Chapter 15 (two-lane highway) and Chapter 12 (basic freeway) analysis
+- Input validation gateway against HCM/AASHTO constraints (via `transportations-validator`)
+- Full-corpus validation (300+ rules across HCM/AASHTO/MUTCD/HSM/ADA/...) with citations, terrain/context-gated rules, and clarification requests — runs in-process, no database
+- Knowledge-graph reasoning: abductive design repair (Two-Lane & Basic Freeway), defeasible code reconciliation, inverse design, and forward/backward chaining — every repair candidate re-executed through the verified library
 - YAML-based function registry for easy extensibility
 - Function calling interface with 15+ transportation analysis functions
 - MCP server compatibility for integration with AI assistants (supporting Claude)
@@ -164,6 +167,23 @@ functions:
         required: ["segment_index", "highway_data"]
 ```
 
+### Ablation arms (restricted MCP surfaces)
+
+For the Table 5 / Figure 7 2x2 ablation, the same app can be launched exposing only a subset of tools, so a model can be evaluated under each condition in isolation:
+
+```bash
+python mcp_server_fastapi.py     # ct  : full system (all tools), port 8000
+python mcp_server_kg_only.py     # kg  : 7 reasoning/validation tools only, port 8001 (no Chroma needed)
+python mcp_server_rag_only.py    # rag : query_hcm only, port 8002
+```
+
+Both launchers are thin wrappers that set two env vars before importing the app:
+
+- `HCM_MCP_INCLUDE_OPS` — comma-separated operation ids the MCP surface exposes (unset = all). Filtering uses `FastApiMCP(include_operations=...)`.
+- `HCM_ENABLE_RAG` — set to `false` to skip loading the embedding model + vector store (the kg-only arm needs neither).
+
+Point each VS Code / Claude Desktop MCP client at the port for the arm under test (e.g. `http://localhost:8001` for kg-only) so the model sees only that arm's tools. The `base` arm is simply no MCP server attached.
+
 ## API Usage
 
 ### Complete Highway Analysis
@@ -251,8 +271,32 @@ curl -X POST "http://localhost:8000/tools/query-hcm" \
 - `chapter15_determine_facility_los` - Step 10: Calculate facility Level of Service
 - `chapter15_complete_analysis` - Complete HCM Chapter 15 procedure
 
+### Chapter 12 Functions (Basic Freeway Segments)
+A different equation family than Chapter 15 — the `lane width -> FFS -> capacity/speed -> density -> LOS` chain. Requires `transportations-library>=0.1.12`.
+- `chapter12_determine_free_flow_speed` - Step 2: Estimate and adjust free-flow speed
+- `chapter12_estimate_capacity` - Step 3: Base and adjusted capacity (pc/h/ln)
+- `chapter12_estimate_demand_volume` - Step 4: Per-lane flow rate v_p
+- `chapter12_calculate_speed` - Step 5a: Space mean speed via the speed-flow curve
+- `chapter12_estimate_density` - Step 5b: Density D = v_p / S
+- `chapter12_determine_segment_los` - Step 6: Segment Level of Service
+- `chapter12_complete_analysis` - Complete HCM Chapter 12 basic-freeway procedure
+
+### Validation Functions
+- `validation_validate_design_full` - Validate a design against the **full rule corpus** (300+ rules: HCM, AASHTO, MUTCD, HSM, ADA, OpenDRIVE, ...) with citations, terrain/jurisdiction-gated rules, and clarification requests when an input is missing or its context is ambiguous. Runs in-process over the bundled seed corpus — no database. (The Chapter 15/12 tools use a lighter semantic-firewall gateway; this is the complete engine.) Requires `transportations-validator>=0.2.0` + `sqlalchemy`.
+
 ### Research Functions
 - `query_hcm` - Query HCM documentation database
+
+### Reasoning Functions
+The X-KG reasoning layer reasons over the knowledge graph and the verified executable substrate. Repair and inverse-design **re-execute every candidate through `transportations-library`** before returning it, so results are proved compliant rather than asserted. No database is required.
+- `reasoning_propagate_change` - Forward-chain: downstream parameters affected by a changed input
+- `reasoning_diagnose_failure` - Backward-chain: upstream causes of a failing parameter
+- `reasoning_repair_design` - Abductive repair: minimal compliant fix for a Two-Lane Highway (HCM Ch.15)
+- `reasoning_repair_freeway` - Abductive repair: minimal compliant fix for a Basic Freeway (HCM Ch.12)
+- `reasoning_reconcile_codes` - Defeasible adjudication of conflicting code provisions, with an argument trace
+- `reasoning_inverse_design` - Goal-directed synthesis: feasible geometries reaching a target LOS
+
+> **Dependencies:** the reasoning functions require `transportations-validator>=0.2.0` and `transportations-library>=0.1.12` (the latter for the BasicFreeways binding used by `reasoning_repair_freeway`). Both are on PyPI, so a normal `pip install` (or `uv sync`) resolves them.
 
 
 
@@ -275,6 +319,16 @@ Hit the API endpoints directory to perform analyses or query HCM documentation.
 - `POST /research/search_hcm_by_chapter` - Search HCM content by specific chapter
 - `GET /research/get_hcm_section` - Get specific HCM section content
 - `POST /research/summarize_hcm_content` - Summarize HCM content for a topic
+
+### Reasoning & Validation
+Dedicated endpoints (and therefore first-class MCP tools) for the X-KG reasoning layer and full-corpus validation. Each resolves its implementation from the registry, so the surface stays in sync with `function_registry.yaml`.
+- `POST /reason/propagate-change` - Forward-chain downstream impacts
+- `POST /reason/diagnose-failure` - Backward-chain upstream causes
+- `POST /reason/repair-design` - Minimal compliant fix (Two-Lane Highway, HCM Ch.15)
+- `POST /reason/repair-freeway` - Minimal compliant fix (Basic Freeway, HCM Ch.12)
+- `POST /reason/reconcile-codes` - Defeasible multi-jurisdiction adjudication
+- `POST /reason/inverse-design` - Goal-directed geometry synthesis
+- `POST /validate/design-full` - Validate against the full rule corpus with citations + clarifications
 
 ### Utility
 - `GET /health` - Health check

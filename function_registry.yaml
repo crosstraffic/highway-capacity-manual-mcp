@@ -222,6 +222,113 @@ functions:
             description: "Complete highway facility data"
         required: ["highway_data"]
 
+  # Chapter 12: Basic Freeway Segments (a different equation family than Ch.15)
+  chapter12:
+    determine_free_flow_speed:
+      module: "hcm_mcp_server.functions.chapter12"
+      function: "determine_free_flow_speed_function"
+      description: "Step 2: estimate and adjust free-flow speed for a basic freeway segment"
+      category: "transportation"
+      chapter: 12
+      step: 2
+      parameters:
+        type: "object"
+        properties:
+          freeway_data:
+            type: "object"
+            description: "Basic-freeway segment inputs (bffs, lw, lane_count, demand_flow_i, ...)"
+        required: ["freeway_data"]
+
+    estimate_capacity:
+      module: "hcm_mcp_server.functions.chapter12"
+      function: "estimate_capacity_function"
+      description: "Step 3: base and adjusted capacity (pc/h/ln)"
+      category: "transportation"
+      chapter: 12
+      step: 3
+      parameters:
+        type: "object"
+        properties:
+          freeway_data:
+            type: "object"
+            description: "Basic-freeway segment inputs"
+        required: ["freeway_data"]
+
+    estimate_demand_volume:
+      module: "hcm_mcp_server.functions.chapter12"
+      function: "estimate_demand_volume_function"
+      description: "Step 4: convert directional demand to per-lane flow rate v_p"
+      category: "transportation"
+      chapter: 12
+      step: 4
+      parameters:
+        type: "object"
+        properties:
+          freeway_data:
+            type: "object"
+            description: "Basic-freeway segment inputs"
+        required: ["freeway_data"]
+
+    calculate_speed:
+      module: "hcm_mcp_server.functions.chapter12"
+      function: "calculate_speed_function"
+      description: "Step 5a: space mean speed via the speed-flow curve"
+      category: "transportation"
+      chapter: 12
+      step: 5
+      parameters:
+        type: "object"
+        properties:
+          freeway_data:
+            type: "object"
+            description: "Basic-freeway segment inputs"
+        required: ["freeway_data"]
+
+    estimate_density:
+      module: "hcm_mcp_server.functions.chapter12"
+      function: "estimate_density_function"
+      description: "Step 5b: density D = v_p / S (pc/mi/ln)"
+      category: "transportation"
+      chapter: 12
+      step: 5
+      parameters:
+        type: "object"
+        properties:
+          freeway_data:
+            type: "object"
+            description: "Basic-freeway segment inputs"
+        required: ["freeway_data"]
+
+    determine_segment_los:
+      module: "hcm_mcp_server.functions.chapter12"
+      function: "determine_segment_los_function"
+      description: "Step 6: segment Level of Service (A-F)"
+      category: "transportation"
+      chapter: 12
+      step: 6
+      parameters:
+        type: "object"
+        properties:
+          freeway_data:
+            type: "object"
+            description: "Basic-freeway segment inputs"
+        required: ["freeway_data"]
+
+    complete_analysis:
+      module: "hcm_mcp_server.functions.chapter12"
+      function: "complete_freeway_analysis_function"
+      description: "Perform complete HCM Chapter 12 basic-freeway analysis"
+      category: "transportation"
+      chapter: 12
+      comprehensive: true
+      parameters:
+        type: "object"
+        properties:
+          freeway_data:
+            type: "object"
+            description: "Basic-freeway segment inputs"
+        required: ["freeway_data"]
+
   # Research and Utility Functions
   research:
     query_hcm:
@@ -291,6 +398,164 @@ functions:
             default: 5
         required: ["topic"]
 
+  # Reasoning: the X-KG reasoning layer (graph chaining, abductive repair,
+  # defeasible reconciliation, inverse design) — reasons over the knowledge
+  # graph + verified executable substrate, no database required.
+  reasoning:
+    propagate_change:
+      module: "hcm_mcp_server.functions.reasoning"
+      function: "propagate_change_function"
+      description: "Forward-chain: downstream parameters affected by a changed root parameter"
+      category: "reasoning"
+      parameters:
+        type: "object"
+        properties:
+          root:
+            type: "string"
+            description: "The changed parameter (rust_field) to propagate from"
+          facility_type:
+            type: "string"
+            description: "Restrict to a facility (e.g. TwoLaneHighway, BasicFreeway)"
+        required: ["root"]
+
+    diagnose_failure:
+      module: "hcm_mcp_server.functions.reasoning"
+      function: "diagnose_failure_function"
+      description: "Backward-chain: upstream causes of a failed target parameter"
+      category: "reasoning"
+      parameters:
+        type: "object"
+        properties:
+          target:
+            type: "string"
+            description: "The failing parameter (rust_field) to trace causes for"
+          facility_type:
+            type: "string"
+            description: "Restrict to a facility (e.g. TwoLaneHighway, BasicFreeway)"
+        required: ["target"]
+
+    repair_design:
+      module: "hcm_mcp_server.functions.reasoning"
+      function: "repair_design_function"
+      description: "Abductive repair: minimal compliant fix for a failing Two-Lane Highway (HCM Ch.15), every candidate re-executed and proved compliant"
+      category: "reasoning"
+      parameters:
+        type: "object"
+        properties:
+          design:
+            type: "object"
+            description: "Current design inputs (rust_fields: lane_width, shoulder_width, apd, volume, spl, grade, phv, phf, length, passing_type)"
+          goal_los:
+            type: "string"
+            description: "Target LOS letter — repair goal is 'no worse than this'"
+            default: "C"
+          immutable:
+            type: "array"
+            items: {type: "string"}
+            description: "Override which parameters are fixed site conditions"
+          allow_demand_changes:
+            type: "boolean"
+            description: "Also consider demand-side levers"
+            default: false
+        required: ["design"]
+
+    repair_freeway:
+      module: "hcm_mcp_server.functions.reasoning"
+      function: "repair_freeway_function"
+      description: "Abductive repair: minimal compliant fix for a failing Basic Freeway (HCM Ch.12). Keep grade/length on the library's heavy-vehicle PCE grid."
+      category: "reasoning"
+      parameters:
+        type: "object"
+        properties:
+          design:
+            type: "object"
+            description: "Current design inputs (rust_fields: bffs, lw, lane_count, demand_flow_i, lc_r, trd, grade, length, p_t, phf)"
+          goal_los:
+            type: "string"
+            description: "Target LOS letter — repair goal is 'no worse than this'"
+            default: "D"
+          immutable:
+            type: "array"
+            items: {type: "string"}
+            description: "Override which parameters are fixed site conditions"
+          allow_demand_changes:
+            type: "boolean"
+            description: "Also consider demand-side levers"
+            default: false
+        required: ["design"]
+
+    reconcile_codes:
+      module: "hcm_mcp_server.functions.reasoning"
+      function: "reconcile_codes_function"
+      description: "Defeasible adjudication of overlapping/conflicting code provisions about one parameter, with an argument trace"
+      category: "reasoning"
+      parameters:
+        type: "object"
+        properties:
+          scenario:
+            type: "string"
+            description: "Name of a constructed conflict scenario (alternative to inline claims)"
+          claims:
+            type: "array"
+            items: {type: "object"}
+            description: "Inline competing rule claims (seed-shaped rule dicts)"
+          parameter:
+            type: "string"
+            description: "The parameter under contention"
+          value:
+            description: "A value to render a compliance verdict for"
+          context:
+            type: "object"
+            description: "Applicability conditions (e.g. {jurisdiction: state})"
+        required: []
+
+    inverse_design:
+      module: "hcm_mcp_server.functions.reasoning"
+      function: "inverse_design_function"
+      description: "Goal-directed synthesis: feasible geometries that reach a target LOS, each validated by forward execution (HCM Ch.15 proof-of-concept)"
+      category: "reasoning"
+      parameters:
+        type: "object"
+        properties:
+          site:
+            type: "object"
+            description: "Fixed site conditions (demand, grade, speed limit, …)"
+          goal_los:
+            type: "string"
+            description: "Target LOS letter"
+            default: "C"
+          facility_type:
+            type: "string"
+            description: "Facility type"
+            default: "TwoLaneHighway"
+          design_parameters:
+            type: "array"
+            items: {type: "string"}
+            description: "Levers to discover geometry over (auto-discovered if omitted)"
+          bounds:
+            type: "object"
+            description: "Override (min, max) bounds per design parameter"
+        required: ["site"]
+
+  # Validation: the full rule corpus (HCM/AASHTO/MUTCD/HSM/ADA/...), in-process,
+  # no database — citations, terrain/context-gated rules, and clarifications.
+  validation:
+    validate_design_full:
+      module: "hcm_mcp_server.functions.validation"
+      function: "validate_design_full_function"
+      description: "Validate a design against the FULL rule corpus with citations and clarifications (in-process, no database)"
+      category: "validation"
+      parameters:
+        type: "object"
+        properties:
+          design:
+            type: "object"
+            description: "Flat parameter -> value map, e.g. {lane_width: 9.0, facility_type: TwoLaneHighway}"
+          context:
+            type: "object"
+            description: "Optional conditions, e.g. {terrain_type: mountainous, jurisdiction: state}"
+        required: ["design"]
+
   # Future chapters can be added here
   # chapter16:
   #   function_name:
@@ -304,6 +569,8 @@ functions:
 categories:
   transportation: "Transportation analysis and capacity calculations"
   research: "Documentation search and research functions"
+  reasoning: "Graph reasoning over the executable knowledge graph: repair, reconcile, inverse design, chaining"
+  validation: "Full-corpus rule validation with citations and clarifications, in-process"
   utility: "General utility and helper functions"
 
 # Configuration
