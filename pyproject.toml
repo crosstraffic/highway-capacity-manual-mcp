@@ -53,6 +53,17 @@ dev = [
     "pytest>=8.3.5"
 ]
 
+# Dev-time: build transportations-library from the sibling checkout so `uv sync`
+# always tracks the current library source instead of a published wheel. This is
+# what prevents the stale-wheel / version-skew class of bug (a downstream venv
+# silently holding an old build). It assumes the repos are checked out as
+# siblings (../transportations-library); CI, which checks out only this repo,
+# must pass `--no-sources` to ignore this and resolve the pinned version from the
+# index instead. transportations-validator stays index-resolved (it is published
+# to PyPI at the required version); only the library needs source builds today.
+[tool.uv.sources]
+transportations-library = { path = "../transportations-library", editable = true }
+
 [project.urls]
 Homepage = "https://github.com/crosstraffic/highway-capacity-manual-mcp"
 Documentation = "https://crosstraffic.github.io/highway-capacity-manual-mcp/#readme"

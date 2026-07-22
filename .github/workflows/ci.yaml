@@ -26,7 +26,11 @@ jobs:
                 python-version-file: ".python-version"
             
             - name: Install dependencies
-              run: uv sync --all-extras --dev
+              # --no-sources ignores [tool.uv.sources] (the local sibling path
+              # for transportations-library, which only exists in a full
+              # multi-repo checkout) and resolves the pinned version from the
+              # index. Requires transportations-library to be published.
+              run: uv sync --all-extras --dev --no-sources
 
             - name: Lint with Ruff
               run: uv run ruff check .
