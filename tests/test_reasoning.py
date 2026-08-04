@@ -64,11 +64,14 @@ class TestRepair:
 
     @needs_basicfreeway
     def test_repair_freeway_basicfreeway_widens_lane(self):
-        # 10 ft lanes, 25% trucks, 3000 veh/h -> LOS E; repair reaches LOS D.
+        # 10 ft lanes, 25% trucks, 3200 veh/h -> LOS E; repair reaches LOS D.
+        # (3000 veh/h sat at LOS E under library 0.2.0, but the 0.3.0 Exhibit
+        # 12-21 lateral-clearance interpolation fix moved it to LOS D, so the
+        # demand is raised to keep a baseline that genuinely needs repair.)
         result = reasoning.repair_freeway_function({
             "design": {
                 "bffs": 70.0, "lw": 10.0, "lane_count": 2, "lc_r": 6, "trd": 1,
-                "demand_flow_i": 3000.0, "phf": 0.95, "p_t": 0.25,
+                "demand_flow_i": 3200.0, "phf": 0.95, "p_t": 0.25,
                 "grade": 2.0, "length": 0.625,
             },
             "goal_los": "D",
@@ -84,8 +87,11 @@ class TestRepair:
         assert "lw" in changed
 
     @needs_basicfreeway
-    def test_repair_freeway_off_grid_is_clean_error(self):
-        # Off the heavy-vehicle PCE grid -> non-evaluable, not a crash.
+    def test_repair_freeway_off_grid_now_evaluates(self):
+        # Library <0.3.0 rejected inputs off the heavy-vehicle PCE grid as
+        # non-evaluable. Since 0.3.0 the library interpolates the grid, so a
+        # formerly off-grid grade/length pair must evaluate cleanly instead of
+        # erroring.
         result = reasoning.repair_freeway_function({
             "design": {
                 "bffs": 70.0, "lw": 10.0, "lane_count": 2,
@@ -93,8 +99,8 @@ class TestRepair:
             },
             "goal_los": "D",
         })
-        assert result["success"] is False
-        assert "non-evaluable" in result["error"]
+        assert result["success"] is True
+        assert result["baseline_evaluated"]["los"] in list("ABCDEF")
 
 
 class TestReconcile:

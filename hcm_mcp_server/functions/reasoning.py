@@ -146,7 +146,7 @@ def repair_design_function(data: dict[str, Any]) -> dict[str, Any]:
 def repair_freeway_function(data: dict[str, Any]) -> dict[str, Any]:
     """Minimal compliant fix for a failing Basic Freeway (HCM Ch.12).
 
-    ``data``: ``design`` (rust_field inputs incl. bffs, lw, lane_count, demand_flow_i), ``goal_los`` (default "D"), optional ``immutable`` and ``allow_demand_changes``. NOTE: the library tabulates heavy-vehicle effects only at discrete grade/length grid points — off-grid inputs return a clear "non-evaluable" error rather than a guess.
+    ``data``: ``design`` (rust_field inputs incl. bffs, lw, lane_count, demand_flow_i), ``goal_los`` (default "D"), optional ``immutable`` and ``allow_demand_changes``. NOTE: transportations-library >=0.3.0 interpolates the heavy-vehicle grade/length grid, so formerly off-grid inputs evaluate normally; the "non-evaluable" error path remains only as a guard for unexpected library errors.
     """
     try:
         return _run_repair(
