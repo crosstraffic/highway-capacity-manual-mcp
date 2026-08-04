@@ -43,10 +43,14 @@ class FunctionRegistry:
         # live under 'legacy_functions' and are loaded only when include_legacy
         # is set (the ablation server variants); the default surface is the
         # small general set under 'functions'.
-        functions_config = dict(config.get('functions', {}))
+        functions_config = {k: dict(v) for k, v in config.get('functions', {}).items() if isinstance(v, dict)}
         if self.include_legacy:
             for section, fns in config.get('legacy_functions', {}).items():
-                functions_config.setdefault(section, fns)
+                if not isinstance(fns, dict):
+                    continue
+                merged = functions_config.setdefault(section, {})
+                for func_name, func_config in fns.items():
+                    merged.setdefault(func_name, func_config)
 
         for chapter, chapter_functions in functions_config.items():
             if not isinstance(chapter_functions, dict):

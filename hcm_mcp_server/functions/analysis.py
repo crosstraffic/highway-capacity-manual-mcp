@@ -1,6 +1,6 @@
 """General facility-analysis interface — the unified surface that replaces per-step per-chapter tools.
 
-One dispatching tool (``analyze_facility``) takes a facility type plus its inputs and returns the complete analysis by delegating to the verified transportations-library executor for that facility. Two discovery tools (``list_facility_types``, ``describe_facility_inputs``) let a caller — human or LLM — find what facilities exist and construct a valid input without reading the Rust bindings.
+One dispatching tool (``analyze_facility``) takes a facility type plus its inputs and returns the complete analysis by delegating to the verified transportations-library executor for that facility. One discovery tool (``describe_facility_inputs``) serves both discovery modes: without a facility_type it lists every library-backed facility with adapter status, and with one it returns the field schema needed to construct a valid request — so a caller, human or LLM, never reads the Rust bindings.
 
 Coverage grows one table row at a time: an adapter is a (input model, runner) pair in ``FACILITIES``. Facilities the library can execute but which have no adapter yet are listed with status ``adapter_pending`` so the surface never overstates what it covers. The per-step chapter functions in ``chapter12.py``/``chapter15.py`` are unchanged — the ablation server variants import them directly and their behavior is frozen with the paper.
 """
@@ -88,7 +88,7 @@ def analyze_facility_function(data: Dict[str, Any]) -> Dict[str, Any]:
     if not facility_type or facility_type not in FACILITIES:
         return {
             "success": False,
-            "error": f"Unknown facility_type {facility_type!r}. Valid types: {sorted(FACILITIES)}. Call list_facility_types for status and describe_facility_inputs for input schemas.",
+            "error": f"Unknown facility_type {facility_type!r}. Valid types: {sorted(FACILITIES)}. Call describe_facility_inputs (no arguments) for the list with status, or with a facility_type for its input schema.",
         }
     entry = FACILITIES[facility_type]
     if "run" not in entry:
@@ -131,9 +131,11 @@ def list_facility_types_function(data: Dict[str, Any]) -> Dict[str, Any]:
 
 
 def describe_facility_inputs_function(data: Dict[str, Any]) -> Dict[str, Any]:
-    """Describe the input schema for a facility type so a caller can construct a valid analyze_facility request."""
+    """Describe the input schema for a facility type so a caller can construct a valid analyze_facility request; called without a facility_type, list every facility type with adapter status instead."""
     facility_type = data.get("facility_type")
-    if not facility_type or facility_type not in FACILITIES:
+    if not facility_type:
+        return list_facility_types_function(data)
+    if facility_type not in FACILITIES:
         return {"success": False, "error": f"Unknown facility_type {facility_type!r}. Valid types: {sorted(FACILITIES)}."}
     entry = FACILITIES[facility_type]
     if "run" not in entry:

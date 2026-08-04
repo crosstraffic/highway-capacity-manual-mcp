@@ -59,8 +59,8 @@ class TestAnalyzeFacility:
 
 
 class TestDiscovery:
-    def test_list_covers_all_core_motorized_chapters(self):
-        r = analysis.list_facility_types_function({})
+    def test_describe_without_type_lists_all_core_motorized_chapters(self):
+        r = analysis.describe_facility_inputs_function({})
         assert r["success"] is True
         chapters = {row["chapter"] for row in r["facility_types"]}
         assert set(range(10, 25)) <= chapters
@@ -91,15 +91,18 @@ class TestDiscovery:
 class TestRegistryLegacySplit:
     REGISTRY = Path(__file__).resolve().parent.parent / "function_registry.yaml"
 
-    def test_default_surface_is_general_only(self):
+    def test_default_surface_is_ten_general_tools(self):
         reg = FunctionRegistry(self.REGISTRY)
         names = set(reg.get_all_functions())
-        assert {"analyze_facility", "list_facility_types", "describe_facility_inputs"} <= names
+        assert {"analyze_facility", "describe_facility_inputs", "query_hcm"} <= names
+        assert len(names) == 10
         assert not any(n.startswith("chapter12_") or n.startswith("chapter15_") for n in names)
+        assert "search_hcm_by_chapter" not in names
 
     def test_legacy_flag_restores_per_step_families(self):
         reg = FunctionRegistry(self.REGISTRY, include_legacy=True)
         names = set(reg.get_all_functions())
         assert "chapter12_complete_analysis" in names
         assert "chapter15_determine_segment_los" in names
+        assert "search_hcm_by_chapter" in names
         assert "analyze_facility" in names
