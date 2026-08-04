@@ -60,11 +60,23 @@ def validate_input(data: dict[str, Any]) -> dict[str, Any]:
     result = semantic.validate_highway(data)
 
     if result.is_valid:
+        # Report coverage as a distinct outcome so an uncovered or partially
+        # covered input is never returned as a fully endorsed passing design.
+        messages = {
+            "none": "No applicable rule for the given input (not covered)",
+            "partial": (
+                f"Partial coverage: {result.constraints_checked} constraint(s) checked, "
+                "some supplied parameters had no applicable rule"
+            ),
+            "covered": f"Validation passed ({result.constraints_checked} constraints checked)",
+        }
         return {
             "success": True,
             "validated": True,
+            "coverage": result.coverage,
+            "abstained": result.abstained,
             "constraints_checked": result.constraints_checked,
-            "message": f"Validation passed ({result.constraints_checked} constraints checked)",
+            "message": messages[result.coverage],
         }
 
     # Format violations for MCP response

@@ -35,8 +35,15 @@ dependencies = [
     "python-dotenv==1.1.1",
     "chromadb==1.0.15",
     "supabase==2.18.0",
-    "transportations-validator>=0.1.1",
-    "transportations-library==0.1.11",
+    # validate_design_full runs the full rule engine in-process via the ORM
+    # model classes — sqlalchemy the library, but no database server / asyncpg.
+    "sqlalchemy>=2.0.0",
+    # The reasoning layer (repair/reconcile/inverse/chaining + BasicFreeway), the
+    # Chapter 12 tools, and validate_design_full need:
+    #   - transportations-validator >=0.2.0 (seed-backed engine + reasoning modules)
+    #   - transportations-library >=0.2.0 (BasicFreeways PyO3 binding: sut_percentage kwarg, corrected Ch.12 PCE tables, e_t/f_hv accessors)
+    "transportations-validator>=0.2.0",
+    "transportations-library>=0.2.0",
 ]
 
 [dependency-groups]
@@ -45,6 +52,17 @@ dev = [
     "types-setuptools>=75.8.2.20250305",
     "pytest>=8.3.5"
 ]
+
+# Dev-time: build transportations-library from the sibling checkout so `uv sync`
+# always tracks the current library source instead of a published wheel. This is
+# what prevents the stale-wheel / version-skew class of bug (a downstream venv
+# silently holding an old build). It assumes the repos are checked out as
+# siblings (../transportations-library); CI, which checks out only this repo,
+# must pass `--no-sources` to ignore this and resolve the pinned version from the
+# index instead. transportations-validator stays index-resolved (it is published
+# to PyPI at the required version); only the library needs source builds today.
+[tool.uv.sources]
+transportations-library = { path = "../transportations-library", editable = true }
 
 [project.urls]
 Homepage = "https://github.com/crosstraffic/highway-capacity-manual-mcp"

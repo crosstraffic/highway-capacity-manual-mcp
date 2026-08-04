@@ -1,313 +1,605 @@
-# Function Registry Configuration
-# This file defines all available functions for the HCM-LLM API
-
 functions:
-  # Chapter 15: Two-Lane Highways
-  chapter15:
-    identify_vertical_class:
-      module: "hcm_mcp_server.functions.chapter15"
-      function: "identify_vertical_class_function"
-      description: "Identify vertical alignment class range for a segment"
-      category: "transportation"
-      chapter: 15
-      step: 1
+  analysis:
+    analyze_facility:
+      module: hcm_mcp_server.functions.analysis
+      function: analyze_facility_function
+      description: 'Run the complete HCM analysis for one facility: pass facility_type plus its inputs; dispatches to the verified transportations-library executor and returns the full result'
+      category: analysis
       parameters:
-        type: "object"
+        type: object
         properties:
-          segment_index:
-            type: "integer"
-            description: "Segment index to analyze"
-          highway_data:
-            type: "object"
-            description: "Complete highway facility data"
-        required: ["segment_index", "highway_data"]
-    
-    determine_demand_flow:
-      module: "hcm_mcp_server.functions.chapter15"
-      function: "determine_demand_flow_function"
-      description: "Calculate demand flow rates and capacity"
-      category: "transportation"
-      chapter: 15
-      step: 2
+          facility_type:
+            type: string
+            description: Facility type, e.g. BasicFreeway or TwoLaneHighway; call list_facility_types for the full set and status
+          inputs:
+            type: object
+            description: Facility inputs; call describe_facility_inputs for the schema of this facility_type
+        required:
+        - facility_type
+        - inputs
+    describe_facility_inputs:
+      module: hcm_mcp_server.functions.analysis
+      function: describe_facility_inputs_function
+      description: 'Describe facility input schemas: with facility_type, the field schema (types, defaults, units) for constructing an analyze_facility request; without it, the list of every library-backed HCM facility type with chapter and adapter status'
+      category: analysis
       parameters:
-        type: "object"
+        type: object
         properties:
-          segment_index:
-            type: "integer"
-            description: "Segment index to analyze"
-          highway_data:
-            type: "object"
-            description: "Complete highway facility data"
-        required: ["segment_index", "highway_data"]
-    
-    determine_vertical_alignment:
-      module: "hcm_mcp_server.functions.chapter15"
-      function: "determine_vertical_alignment_function"
-      description: "Determine vertical alignment classification"
-      category: "transportation"
-      chapter: 15
-      step: 3
-      parameters:
-        type: "object"
-        properties:
-          segment_index:
-            type: "integer"
-            description: "Segment index to analyze"
-          highway_data:
-            type: "object"
-            description: "Complete highway facility data"
-        required: ["segment_index", "highway_data"]
-    
-    determine_free_flow_speed:
-      module: "hcm_mcp_server.functions.chapter15"
-      function: "determine_free_flow_speed_function"
-      description: "Calculate free flow speed for a segment"
-      category: "transportation"
-      chapter: 15
-      step: 4
-      parameters:
-        type: "object"
-        properties:
-          segment_index:
-            type: "integer"
-            description: "Segment index to analyze"
-          highway_data:
-            type: "object"
-            description: "Complete highway facility data"
-        required: ["segment_index", "highway_data"]
-    
-    estimate_average_speed:
-      module: "hcm_mcp_server.functions.chapter15"
-      function: "estimate_average_speed_function"
-      description: "Estimate average travel speed for a segment"
-      category: "transportation"
-      chapter: 15
-      step: 5
-      parameters:
-        type: "object"
-        properties:
-          segment_index:
-            type: "integer"
-            description: "Segment index to analyze"
-          highway_data:
-            type: "object"
-            description: "Complete highway facility data"
-        required: ["segment_index", "highway_data"]
-    
-    estimate_percent_followers:
-      module: "hcm_mcp_server.functions.chapter15"
-      function: "estimate_percent_followers_function"
-      description: "Estimate percentage of vehicles following in platoons"
-      category: "transportation"
-      chapter: 15
-      step: 6
-      parameters:
-        type: "object"
-        properties:
-          segment_index:
-            type: "integer"
-            description: "Segment index to analyze"
-          highway_data:
-            type: "object"
-            description: "Complete highway facility data"
-        required: ["segment_index", "highway_data"]
-    
-    determine_follower_density_pl:
-      module: "hcm_mcp_server.functions.chapter15"
-      function: "determine_follower_density_pl_function"
-      description: "Calculate follower density for passing lane segments"
-      category: "transportation"
-      chapter: 15
-      step: 8
-      subtype: "passing_lane"
-      parameters:
-        type: "object"
-        properties:
-          segment_index:
-            type: "integer"
-            description: "Segment index to analyze"
-          highway_data:
-            type: "object"
-            description: "Complete highway facility data"
-        required: ["segment_index", "highway_data"]
-    
-    determine_follower_density_pc_pz:
-      module: "hcm_mcp_server.functions.chapter15"
-      function: "determine_follower_density_pc_pz_function"
-      description: "Calculate follower density for passing constrained/zone segments"
-      category: "transportation"
-      chapter: 15
-      step: 8
-      subtype: "pc_pz"
-      parameters:
-        type: "object"
-        properties:
-          segment_index:
-            type: "integer"
-            description: "Segment index to analyze"
-          highway_data:
-            type: "object"
-            description: "Complete highway facility data"
-        required: ["segment_index", "highway_data"]
-
-    determine_adjustment_to_follower_density:
-      module: "hcm_mcp_server.functions.chapter15"
-      function: "determine_adjustment_to_follower_density_function"
-      description: "Calculate adjustment to follower density for segments"
-      category: "transportation"
-      chapter: 15
-      step: 8.5
-      parameters:
-        type: "object"
-        properties:
-          segment_index:
-            type: "integer"
-            description: "Segment index to analyze"
-          highway_data:
-            type: "object"
-            description: "Complete highway facility data"
-        required: ["segment_index", "highway_data"]
-    
-    determine_segment_los:
-      module: "hcm_mcp_server.functions.chapter15"
-      function: "determine_segment_los_function"
-      description: "Determine Level of Service for a specific segment"
-      category: "transportation"
-      chapter: 15
-      step: 9
-      parameters:
-        type: "object"
-        properties:
-          segment_index:
-            type: "integer"
-            description: "Segment index to analyze"
-          s_pl:
-            type: "number"
-            description: "Average speed for LOS calculation"
-          capacity:
-            type: "integer"
-            description: "Segment capacity"
-          highway_data:
-            type: "object"
-            description: "Complete highway facility data"
-        required: ["segment_index", "s_pl", "capacity", "highway_data"]
-    
-    determine_facility_los:
-      module: "hcm_mcp_server.functions.chapter15"
-      function: "determine_facility_los_function"
-      description: "Determine overall facility Level of Service"
-      category: "transportation"
-      chapter: 15
-      step: 10
-      parameters:
-        type: "object"
-        properties:
-          highway_data:
-            type: "object"
-            description: "Complete highway facility data"
-        required: ["highway_data"]
-    
-    complete_analysis:
-      module: "hcm_mcp_server.functions.chapter15"
-      function: "complete_highway_analysis_function"
-      description: "Perform complete HCM Chapter 15 analysis"
-      category: "transportation"
-      chapter: 15
-      comprehensive: true
-      parameters:
-        type: "object"
-        properties:
-          highway_data:
-            type: "object"
-            description: "Complete highway facility data"
-        required: ["highway_data"]
-
-  # Research and Utility Functions
+          facility_type:
+            type: string
+            description: Facility type to describe; omit to list all facility types with status
+        required: []
   research:
     query_hcm:
-      module: "hcm_mcp_server.functions.research"
-      function: "query_hcm_function"
-      description: "Query the Highway Capacity Manual database"
-      category: "research"
+      module: hcm_mcp_server.functions.research
+      function: query_hcm_function
+      description: Query the Highway Capacity Manual database
+      category: research
       parameters:
-        type: "object"
+        type: object
         properties:
           question:
-            type: "string"
-            description: "Question to search in HCM database"
+            type: string
+            description: Question to search in HCM database
           top_k:
-            type: "integer"
-            description: "Number of results to return"
+            type: integer
+            description: Number of results to return
             default: 5
-        required: ["question"]
-
-    search_hcm_by_chapter:
-      module: "hcm_mcp_server.functions.research"
-      function: "search_hcm_by_chapter_function"
-      description: "Search HCM content by chapter"
-      category: "research"
+        required:
+        - question
+  reasoning:
+    propagate_change:
+      module: hcm_mcp_server.functions.reasoning
+      function: propagate_change_function
+      description: 'Forward-chain: downstream parameters affected by a changed root parameter'
+      category: reasoning
       parameters:
-        type: "object"
+        type: object
         properties:
-          chapter:
-            type: "string"
-            description: "Chapter to search in HCM database"
-          top_k:
-            type: "integer"
-            description: "Number of results to return"
-            default: 5
-        required: ["chapter"]
-
-    get_hcm_section:
-      module: "hcm_mcp_server.functions.research"
-      function: "get_hcm_section_function"
-      description: "Retrieve a specific section from the Highway Capacity Manual"
-      category: "research"
+          root:
+            type: string
+            description: The changed parameter (rust_field) to propagate from
+          facility_type:
+            type: string
+            description: Restrict to a facility (e.g. TwoLaneHighway, BasicFreeway)
+        required:
+        - root
+    diagnose_failure:
+      module: hcm_mcp_server.functions.reasoning
+      function: diagnose_failure_function
+      description: 'Backward-chain: upstream causes of a failed target parameter'
+      category: reasoning
       parameters:
-        type: "object"
+        type: object
         properties:
-          chapter:
-            type: "string"
-            description: "Chapter to retrieve section from"
-          section:
-            type: "string"
-            description: "Section number to retrieve"
-        required: ["chapter"]
-
-    summarize_hcm_content:
-      module: "hcm_mcp_server.functions.research"
-      function: "summarize_hcm_content_function"
-      description: "Summarize HCM content for a given topic"
-      category: "research"
+          target:
+            type: string
+            description: The failing parameter (rust_field) to trace causes for
+          facility_type:
+            type: string
+            description: Restrict to a facility (e.g. TwoLaneHighway, BasicFreeway)
+        required:
+        - target
+    repair_design:
+      module: hcm_mcp_server.functions.reasoning
+      function: repair_design_function
+      description: 'Abductive repair: minimal compliant fix for a failing Two-Lane Highway (HCM Ch.15), every candidate re-executed and proved compliant'
+      category: reasoning
       parameters:
-        type: "object"
+        type: object
         properties:
-          topic:
-            type: "string"
-            description: "Topic to summarize from HCM content"
-          top_k:
-            type: "integer"
-            description: "Number of results to return"
-            default: 5
-        required: ["topic"]
-
-  # Future chapters can be added here
-  # chapter16:
-  #   function_name:
-  #     module: "functions.chapter16"
-  #     function: "function_implementation"
-  #     description: "Description"
-  #     category: "transportation"
-  #     chapter: 16
-
-# Categories for organization
+          design:
+            type: object
+            description: 'Current design inputs (rust_fields: lane_width, shoulder_width, apd, volume, spl, grade, phv, phf, length, passing_type)'
+          goal_los:
+            type: string
+            description: Target LOS letter — repair goal is 'no worse than this'
+            default: C
+          immutable:
+            type: array
+            items:
+              type: string
+            description: Override which parameters are fixed site conditions
+          allow_demand_changes:
+            type: boolean
+            description: Also consider demand-side levers
+            default: false
+        required:
+        - design
+    repair_freeway:
+      module: hcm_mcp_server.functions.reasoning
+      function: repair_freeway_function
+      description: 'Abductive repair: minimal compliant fix for a failing Basic Freeway (HCM Ch.12). Keep grade/length on the library''s heavy-vehicle PCE grid.'
+      category: reasoning
+      parameters:
+        type: object
+        properties:
+          design:
+            type: object
+            description: 'Current design inputs (rust_fields: bffs, lw, lane_count, demand_flow_i, lc_r, trd, grade, length, p_t, phf)'
+          goal_los:
+            type: string
+            description: Target LOS letter — repair goal is 'no worse than this'
+            default: D
+          immutable:
+            type: array
+            items:
+              type: string
+            description: Override which parameters are fixed site conditions
+          allow_demand_changes:
+            type: boolean
+            description: Also consider demand-side levers
+            default: false
+        required:
+        - design
+    reconcile_codes:
+      module: hcm_mcp_server.functions.reasoning
+      function: reconcile_codes_function
+      description: Defeasible adjudication of overlapping/conflicting code provisions about one parameter, with an argument trace
+      category: reasoning
+      parameters:
+        type: object
+        properties:
+          scenario:
+            type: string
+            description: Name of a constructed conflict scenario (alternative to inline claims)
+          claims:
+            type: array
+            items:
+              type: object
+            description: Inline competing rule claims (seed-shaped rule dicts)
+          parameter:
+            type: string
+            description: The parameter under contention
+          value:
+            description: A value to render a compliance verdict for
+          context:
+            type: object
+            description: 'Applicability conditions (e.g. {jurisdiction: state})'
+        required: []
+    inverse_design:
+      module: hcm_mcp_server.functions.reasoning
+      function: inverse_design_function
+      description: 'Goal-directed synthesis: feasible geometries that reach a target LOS, each validated by forward execution (HCM Ch.15 proof-of-concept)'
+      category: reasoning
+      parameters:
+        type: object
+        properties:
+          site:
+            type: object
+            description: Fixed site conditions (demand, grade, speed limit, …)
+          goal_los:
+            type: string
+            description: Target LOS letter
+            default: C
+          facility_type:
+            type: string
+            description: Facility type
+            default: TwoLaneHighway
+          design_parameters:
+            type: array
+            items:
+              type: string
+            description: Levers to discover geometry over (auto-discovered if omitted)
+          bounds:
+            type: object
+            description: Override (min, max) bounds per design parameter
+        required:
+        - site
+  validation:
+    validate_design_full:
+      module: hcm_mcp_server.functions.validation
+      function: validate_design_full_function
+      description: Validate a design against the FULL rule corpus with citations and clarifications (in-process, no database)
+      category: validation
+      parameters:
+        type: object
+        properties:
+          design:
+            type: object
+            description: 'Flat parameter -> value map, e.g. {lane_width: 9.0, facility_type: TwoLaneHighway}'
+          context:
+            type: object
+            description: 'Optional conditions, e.g. {terrain_type: mountainous, jurisdiction: state}'
+        required:
+        - design
 categories:
-  transportation: "Transportation analysis and capacity calculations"
-  research: "Documentation search and research functions"
-  utility: "General utility and helper functions"
-
-# Configuration
+  transportation: Transportation analysis and capacity calculations
+  research: Documentation search and research functions
+  reasoning: 'Graph reasoning over the executable knowledge graph: repair, reconcile, inverse design, chaining'
+  validation: Full-corpus rule validation with citations and clarifications, in-process
+  utility: General utility and helper functions
+  analysis: 'General facility analysis: one dispatching tool over every library-backed HCM facility, plus discovery tools'
 config:
   auto_load_modules: true
   validate_functions: true
   enable_caching: false
+legacy_functions:
+  chapter12:
+    determine_free_flow_speed:
+      module: hcm_mcp_server.functions.chapter12
+      function: determine_free_flow_speed_function
+      description: 'Step 2: estimate and adjust free-flow speed for a basic freeway segment'
+      category: transportation
+      chapter: 12
+      step: 2
+      parameters:
+        type: object
+        properties:
+          freeway_data:
+            type: object
+            description: Basic-freeway segment inputs (bffs, lw, lane_count, demand_flow_i, ...)
+        required:
+        - freeway_data
+    estimate_capacity:
+      module: hcm_mcp_server.functions.chapter12
+      function: estimate_capacity_function
+      description: 'Step 3: base and adjusted capacity (pc/h/ln)'
+      category: transportation
+      chapter: 12
+      step: 3
+      parameters:
+        type: object
+        properties:
+          freeway_data:
+            type: object
+            description: Basic-freeway segment inputs
+        required:
+        - freeway_data
+    estimate_demand_volume:
+      module: hcm_mcp_server.functions.chapter12
+      function: estimate_demand_volume_function
+      description: 'Step 4: convert directional demand to per-lane flow rate v_p'
+      category: transportation
+      chapter: 12
+      step: 4
+      parameters:
+        type: object
+        properties:
+          freeway_data:
+            type: object
+            description: Basic-freeway segment inputs
+        required:
+        - freeway_data
+    calculate_speed:
+      module: hcm_mcp_server.functions.chapter12
+      function: calculate_speed_function
+      description: 'Step 5a: space mean speed via the speed-flow curve'
+      category: transportation
+      chapter: 12
+      step: 5
+      parameters:
+        type: object
+        properties:
+          freeway_data:
+            type: object
+            description: Basic-freeway segment inputs
+        required:
+        - freeway_data
+    estimate_density:
+      module: hcm_mcp_server.functions.chapter12
+      function: estimate_density_function
+      description: 'Step 5b: density D = v_p / S (pc/mi/ln)'
+      category: transportation
+      chapter: 12
+      step: 5
+      parameters:
+        type: object
+        properties:
+          freeway_data:
+            type: object
+            description: Basic-freeway segment inputs
+        required:
+        - freeway_data
+    determine_segment_los:
+      module: hcm_mcp_server.functions.chapter12
+      function: determine_segment_los_function
+      description: 'Step 6: segment Level of Service (A-F)'
+      category: transportation
+      chapter: 12
+      step: 6
+      parameters:
+        type: object
+        properties:
+          freeway_data:
+            type: object
+            description: Basic-freeway segment inputs
+        required:
+        - freeway_data
+    complete_analysis:
+      module: hcm_mcp_server.functions.chapter12
+      function: complete_freeway_analysis_function
+      description: Perform complete HCM Chapter 12 basic-freeway analysis
+      category: transportation
+      chapter: 12
+      comprehensive: true
+      parameters:
+        type: object
+        properties:
+          freeway_data:
+            type: object
+            description: Basic-freeway segment inputs
+        required:
+        - freeway_data
+  chapter15:
+    identify_vertical_class:
+      module: hcm_mcp_server.functions.chapter15
+      function: identify_vertical_class_function
+      description: Identify vertical alignment class range for a segment
+      category: transportation
+      chapter: 15
+      step: 1
+      parameters:
+        type: object
+        properties:
+          segment_index:
+            type: integer
+            description: Segment index to analyze
+          highway_data:
+            type: object
+            description: Complete highway facility data
+        required:
+        - segment_index
+        - highway_data
+    determine_demand_flow:
+      module: hcm_mcp_server.functions.chapter15
+      function: determine_demand_flow_function
+      description: Calculate demand flow rates and capacity
+      category: transportation
+      chapter: 15
+      step: 2
+      parameters:
+        type: object
+        properties:
+          segment_index:
+            type: integer
+            description: Segment index to analyze
+          highway_data:
+            type: object
+            description: Complete highway facility data
+        required:
+        - segment_index
+        - highway_data
+    determine_vertical_alignment:
+      module: hcm_mcp_server.functions.chapter15
+      function: determine_vertical_alignment_function
+      description: Determine vertical alignment classification
+      category: transportation
+      chapter: 15
+      step: 3
+      parameters:
+        type: object
+        properties:
+          segment_index:
+            type: integer
+            description: Segment index to analyze
+          highway_data:
+            type: object
+            description: Complete highway facility data
+        required:
+        - segment_index
+        - highway_data
+    determine_free_flow_speed:
+      module: hcm_mcp_server.functions.chapter15
+      function: determine_free_flow_speed_function
+      description: Calculate free flow speed for a segment
+      category: transportation
+      chapter: 15
+      step: 4
+      parameters:
+        type: object
+        properties:
+          segment_index:
+            type: integer
+            description: Segment index to analyze
+          highway_data:
+            type: object
+            description: Complete highway facility data
+        required:
+        - segment_index
+        - highway_data
+    estimate_average_speed:
+      module: hcm_mcp_server.functions.chapter15
+      function: estimate_average_speed_function
+      description: Estimate average travel speed for a segment
+      category: transportation
+      chapter: 15
+      step: 5
+      parameters:
+        type: object
+        properties:
+          segment_index:
+            type: integer
+            description: Segment index to analyze
+          highway_data:
+            type: object
+            description: Complete highway facility data
+        required:
+        - segment_index
+        - highway_data
+    estimate_percent_followers:
+      module: hcm_mcp_server.functions.chapter15
+      function: estimate_percent_followers_function
+      description: Estimate percentage of vehicles following in platoons
+      category: transportation
+      chapter: 15
+      step: 6
+      parameters:
+        type: object
+        properties:
+          segment_index:
+            type: integer
+            description: Segment index to analyze
+          highway_data:
+            type: object
+            description: Complete highway facility data
+        required:
+        - segment_index
+        - highway_data
+    determine_follower_density_pl:
+      module: hcm_mcp_server.functions.chapter15
+      function: determine_follower_density_pl_function
+      description: Calculate follower density for passing lane segments
+      category: transportation
+      chapter: 15
+      step: 8
+      subtype: passing_lane
+      parameters:
+        type: object
+        properties:
+          segment_index:
+            type: integer
+            description: Segment index to analyze
+          highway_data:
+            type: object
+            description: Complete highway facility data
+        required:
+        - segment_index
+        - highway_data
+    determine_follower_density_pc_pz:
+      module: hcm_mcp_server.functions.chapter15
+      function: determine_follower_density_pc_pz_function
+      description: Calculate follower density for passing constrained/zone segments
+      category: transportation
+      chapter: 15
+      step: 8
+      subtype: pc_pz
+      parameters:
+        type: object
+        properties:
+          segment_index:
+            type: integer
+            description: Segment index to analyze
+          highway_data:
+            type: object
+            description: Complete highway facility data
+        required:
+        - segment_index
+        - highway_data
+    determine_adjustment_to_follower_density:
+      module: hcm_mcp_server.functions.chapter15
+      function: determine_adjustment_to_follower_density_function
+      description: Calculate adjustment to follower density for segments
+      category: transportation
+      chapter: 15
+      step: 8.5
+      parameters:
+        type: object
+        properties:
+          segment_index:
+            type: integer
+            description: Segment index to analyze
+          highway_data:
+            type: object
+            description: Complete highway facility data
+        required:
+        - segment_index
+        - highway_data
+    determine_segment_los:
+      module: hcm_mcp_server.functions.chapter15
+      function: determine_segment_los_function
+      description: Determine Level of Service for a specific segment
+      category: transportation
+      chapter: 15
+      step: 9
+      parameters:
+        type: object
+        properties:
+          segment_index:
+            type: integer
+            description: Segment index to analyze
+          s_pl:
+            type: number
+            description: Average speed for LOS calculation
+          capacity:
+            type: integer
+            description: Segment capacity
+          highway_data:
+            type: object
+            description: Complete highway facility data
+        required:
+        - segment_index
+        - s_pl
+        - capacity
+        - highway_data
+    determine_facility_los:
+      module: hcm_mcp_server.functions.chapter15
+      function: determine_facility_los_function
+      description: Determine overall facility Level of Service
+      category: transportation
+      chapter: 15
+      step: 10
+      parameters:
+        type: object
+        properties:
+          highway_data:
+            type: object
+            description: Complete highway facility data
+        required:
+        - highway_data
+    complete_analysis:
+      module: hcm_mcp_server.functions.chapter15
+      function: complete_highway_analysis_function
+      description: Perform complete HCM Chapter 15 analysis
+      category: transportation
+      chapter: 15
+      comprehensive: true
+      parameters:
+        type: object
+        properties:
+          highway_data:
+            type: object
+            description: Complete highway facility data
+        required:
+        - highway_data
+  research:
+    search_hcm_by_chapter:
+      module: hcm_mcp_server.functions.research
+      function: search_hcm_by_chapter_function
+      description: Search HCM content by chapter
+      category: research
+      parameters:
+        type: object
+        properties:
+          chapter:
+            type: string
+            description: Chapter to search in HCM database
+          top_k:
+            type: integer
+            description: Number of results to return
+            default: 5
+        required:
+        - chapter
+    get_hcm_section:
+      module: hcm_mcp_server.functions.research
+      function: get_hcm_section_function
+      description: Retrieve a specific section from the Highway Capacity Manual
+      category: research
+      parameters:
+        type: object
+        properties:
+          chapter:
+            type: string
+            description: Chapter to retrieve section from
+          section:
+            type: string
+            description: Section number to retrieve
+        required:
+        - chapter
+    summarize_hcm_content:
+      module: hcm_mcp_server.functions.research
+      function: summarize_hcm_content_function
+      description: Summarize HCM content for a given topic
+      category: research
+      parameters:
+        type: object
+        properties:
+          topic:
+            type: string
+            description: Topic to summarize from HCM content
+          top_k:
+            type: integer
+            description: Number of results to return
+            default: 5
+        required:
+        - topic

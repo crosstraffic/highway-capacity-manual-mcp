@@ -19,32 +19,45 @@ from fastapi.middleware.cors import CORSMiddleware
 from hcm_mcp_server.core.registry import FunctionRegistry
 from hcm_mcp_server.core.models import ChatCompletionRequest, ChatCompletionResponse, ChatCompletionResponseChoice
 from hcm_mcp_server.core import endpoints
+from hcm_mcp_server.core import reasoning_endpoints
 
 load_dotenv()
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    model = SentenceTransformer("all-MiniLM-L6-v2")
-    app.state.embedding_model = model
+    # HCM_ENABLE_RAG=false skips the embedding model + document store. The
+    # retrieval tools then can't run, but the reasoning/validation layer is
+    # database- and retrieval-free, so a KG-only deployment needs neither
+    # Chroma nor sentence-transformers loaded.
+    enable_rag = os.getenv("HCM_ENABLE_RAG", "true").lower() != "false"
 
-    db_mode = os.getenv("DB_MODE", "local")
+    if enable_rag:
+        model = SentenceTransformer("all-MiniLM-L6-v2")
+        app.state.embedding_model = model
 
-    if db_mode == "local":
-        chroma_path = os.getenv("CHROMA_DB_PATH", "./chroma_db")
-        client = chromadb.PersistentClient(path=chroma_path, settings=Settings(anonymized_telemetry=False))
-        collection = client.get_collection(name="hcm_documents")
-        app.state.document_store = ("chroma", collection)
+        db_mode = os.getenv("DB_MODE", "local")
+
+        if db_mode == "local":
+            chroma_path = os.getenv("CHROMA_DB_PATH", "./chroma_db")
+            client = chromadb.PersistentClient(path=chroma_path, settings=Settings(anonymized_telemetry=False))
+            collection = client.get_collection(name="hcm_documents")
+            app.state.document_store = ("chroma", collection)
+        else:
+            from supabase import create_client
+            supabase_url = os.getenv("PUBLIC_SUPABASE_URL")
+            supabase_key = os.getenv("PUBLIC_SUPABASE_API")
+            supabase = create_client(supabase_url, supabase_key)
+            app.state.document_store = ("supabase", supabase)
     else:
-        from supabase import create_client
-        supabase_url = os.getenv("PUBLIC_SUPABASE_URL")
-        supabase_key = os.getenv("PUBLIC_SUPABASE_API")
-        supabase = create_client(supabase_url, supabase_key)
-        app.state.document_store = ("supabase", supabase)
+        app.state.embedding_model = None
+        app.state.document_store = None
 
-
-    # Initialize function registry
+    # Initialize function registry. include_legacy keeps every REST route
+    # working (the per-step chapter and research-extra handlers resolve their
+    # implementations here); the narrowed default MCP tool surface is enforced
+    # separately via include_operations on the FastApiMCP mount below.
     registry_path = Path("function_registry.yaml")
-    app.state.function_registry = FunctionRegistry(registry_path)
+    app.state.function_registry = FunctionRegistry(registry_path, include_legacy=True)
 
     yield
 
@@ -64,6 +77,7 @@ app.add_middleware(
 )
 
 app.include_router(endpoints.router)
+app.include_router(reasoning_endpoints.router)
 
 # MCP discovery endpoint
 @app.get("/mcp/discovery")
@@ -320,13 +334,39 @@ async def create_chat_completion(request: ChatCompletionRequest):
     
     return response
 
-mcp = FastApiMCP(
-    app,
+# The default MCP tool surface: the unified analysis interface, one retrieval
+# tool, the reasoning layer, and full-corpus validation. Every other route
+# (per-step chapter tools, research extras, meta endpoints) stays reachable
+# over REST but is not offered as an MCP tool.
+PUBLIC_OPERATIONS = [
+    "analyze_facility",
+    "describe_facility_inputs",
+    "query_hcm",
+    "propagate_change",
+    "diagnose_failure",
+    "repair_design",
+    "repair_freeway",
+    "reconcile_codes",
+    "inverse_design",
+    "validate_design_full",
+]
+
+# HCM_MCP_INCLUDE_OPS (comma-separated operation ids) overrides which tools the
+# MCP surface exposes — used by the ablation arm launchers (kg-only, rag-only).
+# Unset = expose the PUBLIC_OPERATIONS default surface.
+_mcp_kwargs = dict(
     name="HCM-LLM",
     description="Highway Capacity Manual API with Transportation Analysis",
     describe_all_responses=True,
-    describe_full_response_schema=True  
+    describe_full_response_schema=True,
 )
+_include_ops = os.getenv("HCM_MCP_INCLUDE_OPS")
+if _include_ops:
+    _mcp_kwargs["include_operations"] = [op.strip() for op in _include_ops.split(",") if op.strip()]
+else:
+    _mcp_kwargs["include_operations"] = list(PUBLIC_OPERATIONS)
+
+mcp = FastApiMCP(app, **_mcp_kwargs)
 
 mcp.mount()
 
