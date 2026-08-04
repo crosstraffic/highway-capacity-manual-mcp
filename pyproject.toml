@@ -40,9 +40,9 @@ dependencies = [
     "sqlalchemy>=2.0.0",
     # The reasoning layer (repair/reconcile/inverse/chaining + BasicFreeway), the
     # Chapter 12 tools, and validate_design_full need:
-    #   - transportations-validator >=0.2.0 (seed-backed engine + reasoning modules)
+    #   - transportations-validator >=0.3.0 (seed-backed engine + reasoning modules + coverage/abstention on semantic results)
     #   - transportations-library >=0.2.0 (BasicFreeways PyO3 binding: sut_percentage kwarg, corrected Ch.12 PCE tables, e_t/f_hv accessors)
-    "transportations-validator>=0.2.0",
+    "transportations-validator>=0.3.0",
     "transportations-library>=0.2.0",
 ]
 
