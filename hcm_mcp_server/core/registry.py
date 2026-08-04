@@ -7,8 +7,9 @@ from pathlib import Path
 class FunctionRegistry:
     """Manages function registration and discovery from YAML configuration."""
     
-    def __init__(self, registry_file: Path):
+    def __init__(self, registry_file: Path, include_legacy: bool = False):
         self.registry_file = registry_file
+        self.include_legacy = include_legacy
         self.functions: Dict[str, Dict[str, Any]] = {}
         self.modules: Dict[str, Any] = {}
         self.load_registry()
@@ -38,15 +39,23 @@ class FunctionRegistry:
         self.config = config.get('config', {})
         self.categories = config.get('categories', {})
         
-        # Load all functions from all chapters
-        functions_config = config.get('functions', {})
-        
+        # Load all functions from all sections. The per-step chapter families
+        # live under 'legacy_functions' and are loaded only when include_legacy
+        # is set (the ablation server variants); the default surface is the
+        # small general set under 'functions'.
+        functions_config = dict(config.get('functions', {}))
+        if self.include_legacy:
+            for section, fns in config.get('legacy_functions', {}).items():
+                functions_config.setdefault(section, fns)
+
         for chapter, chapter_functions in functions_config.items():
             if not isinstance(chapter_functions, dict):
                 continue
 
             for func_name, func_config in chapter_functions.items():
-                full_name = f"{chapter}_{func_name}" if chapter != 'research' else func_name
+                # analysis and research tools are the public general surface and
+                # keep their bare names; everything else is section-prefixed.
+                full_name = f"{chapter}_{func_name}" if chapter not in ('research', 'analysis') else func_name
                 self.register_function(full_name, func_config)
     
     def register_function(self, name: str, config: Dict[str, Any]) -> None:
