@@ -38,11 +38,8 @@ class TestAnalyzeFacility:
         assert r["success"] is False
         assert "BasicFreeway" in r["error"]
 
-    def test_pending_facility_reports_adapter_pending(self):
-        r = analysis.analyze_facility_function({"facility_type": "FreewayReliability", "inputs": {}})
-        assert r["success"] is False
-        assert r["status"] == "adapter_pending"
-        assert "FreewayReliability" in r["error"]
+    def test_every_facility_type_has_an_adapter(self):
+        assert all("run" in entry for entry in analysis.FACILITIES.values())
 
     def test_missing_inputs_is_a_clean_error(self):
         r = analysis.analyze_facility_function({"facility_type": "BasicFreeway"})
@@ -143,6 +140,69 @@ class TestNewAdapters:
         assert len(matrix) == 11 and len(matrix[0]) == 5
         assert all(cell in list("ABCDEF") for row in matrix for cell in row)
 
+    def test_freeway_reliability_runs_library_example_1(self):
+        import json as _json
+        case = _json.loads((Path(__file__).parent / "data" / "freewayreliability_case1.json").read_text())
+        r = analysis.analyze_facility_function({"facility_type": "FreewayReliability", "inputs": case})
+        assert r["success"] is True
+        assert abs(r["results"]["reliability_rating"] - 84.2) < 0.5
+        assert abs(r["results"]["tti_mean"] - 1.241) < 0.01
+
+    def test_urban_facility_runs_library_example_1(self):
+        import json as _json
+        case = _json.loads((Path(__file__).parent / "data" / "urbanfacilities_case1.json").read_text())
+        r = analysis.analyze_facility_function({"facility_type": "UrbanFacility", "inputs": case})
+        assert r["success"] is True
+        assert r["los"] == "A"
+        assert r["poorest_segment_los"] == "B"
+
+    def test_urban_reliability_runs_library_example_1(self):
+        import json as _json
+        case = _json.loads((Path(__file__).parent / "data" / "urbanreliability_case1.json").read_text())
+        r = analysis.analyze_facility_function({"facility_type": "UrbanReliability", "inputs": case})
+        assert r["success"] is True
+        assert abs(r["results"]["reliability_rating"] - 98.8) < 0.5
+        assert abs(r["results"]["tti_mean"] - 1.545) < 0.01
+
+    def test_ramp_terminal_runs_library_example_1(self):
+        import json as _json
+        case = _json.loads((Path(__file__).parent / "data" / "rampterminals_case1.json").read_text())
+        r = analysis.analyze_facility_function({"facility_type": "RampTerminal", "inputs": case})
+        assert r["success"] is True
+        assert r["interchange_los"] == "C"
+        assert abs(r["interchange_ett"] - 52.8) < 0.5
+
+    def test_pedestrian_walkway_reproduces_hcm_ch35_example_1(self):
+        r = analysis.analyze_facility_function({"facility_type": "PedestrianWalkway", "inputs": {
+            "total_walkway_width": 5.0, "fixed_object_width": 0.0,
+            "peak_15min_volume": 100.0, "phf": 0.83, "pedestrian_speed": 240.0,
+            "facility_type": "walkway", "flow_type": "random",
+        }})
+        assert r["success"] is True
+        assert r["level_of_service"] == "A"
+        assert abs(r["results"]["pedestrian_space"] - 180.0) < 2.0
+
+    def test_shared_use_path_pedestrian_reproduces_hcm_ch35_example_1(self):
+        r = analysis.analyze_facility_function({"facility_type": "SharedUsePathPedestrian", "inputs": {
+            "bicycle_demand_same_direction": 100.0, "bicycle_demand_opposing": 100.0,
+            "phf": 0.83, "pedestrian_speed": 4.0, "bicycle_speed": 16.0, "is_one_way": False,
+        }})
+        assert r["success"] is True
+        assert r["level_of_service"] == "E"
+        assert abs(r["results"]["total_events"] - 166.0) < 2.0
+
+    def test_offstreet_bicycle_reproduces_hcm_ch35_example_2(self):
+        r = analysis.analyze_facility_function({"facility_type": "OffStreetBicycle", "inputs": {
+            "path_width": 10.0, "segment_length": 3.0, "has_centerline": False,
+            "two_way_demand": 340.0, "directional_split": 0.5, "phf": 0.90, "is_one_way": False,
+            "mode_splits": [0.55, 0.20, 0.10, 0.10, 0.05],
+            "mode_speeds": [12.8, 3.4, 6.5, 10.1, 7.9],
+            "mode_speed_sds": [3.4, 0.6, 1.2, 2.7, 1.9],
+        }})
+        assert r["success"] is True
+        assert r["level_of_service"] == "D"
+        assert abs(r["results"]["blos_score"] - 2.69) < 0.02
+
     def test_bad_json_config_is_a_clean_error(self):
         r = analysis.analyze_facility_function({"facility_type": "Roundabout", "inputs": {"nonsense": True}})
         assert r["success"] is False
@@ -172,10 +232,16 @@ class TestDiscovery:
         item_names = {f["name"] for f in seg["item_fields"]}
         assert {"passing_type", "length", "grade", "spl"} <= item_names
 
-    def test_describe_pending_facility_says_so(self):
+    def test_describe_json_config_facility_serves_an_example(self):
         r = analysis.describe_facility_inputs_function({"facility_type": "RampTerminal"})
-        assert r["success"] is False
-        assert r["status"] == "adapter_pending"
+        assert r["success"] is True
+        assert "example" in r
+
+    def test_every_facility_type_is_describable(self):
+        for name in analysis.FACILITIES:
+            r = analysis.describe_facility_inputs_function({"facility_type": name})
+            assert r["success"] is True, name
+            assert "fields" in r or "example" in r, name
 
 
 class TestRegistryLegacySplit:

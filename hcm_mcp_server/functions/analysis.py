@@ -152,6 +152,90 @@ _run_roundabout = _json_config_runner("Roundabouts", ["intersection_los", "inter
 _run_signalized = _json_config_runner("SignalizedIntersection", ["intersection_los", "intersection_delay"])
 _run_urban_segment = _json_config_runner("UrbanSegment", ["los", "travel_speed", "running_time"])
 _run_freeway_facility = _json_config_runner("FreewayFacility", ["facility_los", "los", "vc_ratio"], run_method="run_analysis")
+_run_urban_facility = _json_config_runner("UrbanFacility", ["los", "poorest_segment_los", "critical_vc_ratio", "perception_score"])
+_run_ramp_terminal = _json_config_runner("Interchange", ["interchange_los", "interchange_ett"])
+
+
+def _json_config_snapshot_runner(cls_name: str, accessors: list[str], run_method: str = "run"):
+    """Runner for JSON-config facilities whose binding has no to_json (the reliability engines): the result is a snapshot of their accessor set."""
+    @_guarded_run
+    def run(inputs: Dict[str, Any]) -> Dict[str, Any]:
+        obj = getattr(tl, cls_name)(json.dumps(inputs))
+        getattr(obj, run_method)()
+        return {"success": True, "results": _snapshot(obj, accessors)}
+    return run
+
+
+_run_freeway_reliability = _json_config_snapshot_runner("FreewayReliability", [
+    "reliability_rating", "tti_mean", "misery_index", "semi_std_dev",
+    "expected_vhd", "num_scenarios", "num_observations", "free_flow_travel_time_min",
+])
+_run_urban_reliability = _json_config_snapshot_runner("UrbanReliability", [
+    "reliability_rating", "tti_mean", "total_vhd", "num_scenarios",
+    "num_incidents", "num_weather_events", "mean_travel_time_s", "base_free_flow_travel_time_s",
+])
+
+
+class PedestrianWalkwayInput(BaseModel):
+    """HCM Ch. 24 exclusive pedestrian facility (walkway or stairwell)."""
+    total_walkway_width: float = Field(description="Total walkway width in feet")
+    fixed_object_width: float = Field(description="Total fixed-object/shy width to subtract in feet")
+    pedestrian_demand: Optional[float] = Field(default=None, description="Hourly pedestrian demand in p/h (alternative to peak_15min_volume)")
+    peak_15min_volume: Optional[float] = Field(default=None, description="Peak 15-minute pedestrian volume in p")
+    phf: Optional[float] = Field(default=None, description="Peak hour factor")
+    pedestrian_speed: Optional[float] = Field(default=None, description="Average pedestrian speed in ft/min")
+    facility_type: str = Field(description="walkway or stairwell")
+    flow_type: str = Field(description="random or platoon")
+
+
+class SharedUsePathPedestrianInput(BaseModel):
+    """HCM Ch. 24 pedestrian LOS on a shared-use path (governed by bicycle events)."""
+    bicycle_demand_same_direction: Optional[float] = Field(default=None, description="Same-direction bicycle demand in bikes/h")
+    bicycle_demand_opposing: Optional[float] = Field(default=None, description="Opposing bicycle demand in bikes/h")
+    phf: Optional[float] = Field(default=None, description="Peak hour factor")
+    pedestrian_speed: Optional[float] = Field(default=None, description="Pedestrian speed in mi/h")
+    bicycle_speed: Optional[float] = Field(default=None, description="Bicycle speed in mi/h")
+    bicycle_flow_rate_same_direction: Optional[float] = Field(default=None, description="Direct same-direction bicycle flow rate override in bikes/h")
+    bicycle_flow_rate_opposing: Optional[float] = Field(default=None, description="Direct opposing bicycle flow rate override in bikes/h")
+    is_one_way: bool = Field(default=False, description="One-way path")
+
+
+class OffStreetBicycleInput(BaseModel):
+    """HCM Ch. 24 bicycle LOS (BLOS) on an off-street or shared-use path."""
+    path_width: float = Field(description="Path width in feet")
+    segment_length: float = Field(description="Segment length in miles")
+    has_centerline: bool = Field(description="Path has a marked centerline")
+    two_way_demand: Optional[float] = Field(default=None, description="Two-way path user demand in users/h")
+    directional_split: Optional[float] = Field(default=None, description="Subject-direction share of demand (decimal)")
+    phf: Optional[float] = Field(default=None, description="Peak hour factor")
+    subject_demand: Optional[float] = Field(default=None, description="Direct subject-direction demand override in users/h")
+    opposing_demand: Optional[float] = Field(default=None, description="Direct opposing demand override in users/h")
+    is_one_way: bool = Field(default=False, description="One-way path")
+    mode_splits: Optional[list[float]] = Field(default=None, description="Mode split proportions in HCM order: bicycle, pedestrian, runner, inline skater, child bicyclist")
+    mode_speeds: Optional[list[float]] = Field(default=None, description="Mode mean speeds in mi/h, same order")
+    mode_speed_sds: Optional[list[float]] = Field(default=None, description="Mode speed standard deviations in mi/h, same order")
+
+
+def _kwargs_runner(cls_name: str, model: type[BaseModel], accessors: list[str]):
+    """Runner for keyword-constructor facilities (the Ch. 24 ped/bike classes): analyze() returns the LOS letter directly."""
+    @_guarded_run
+    def run(inputs: Dict[str, Any]) -> Dict[str, Any]:
+        obj = getattr(tl, cls_name)(**model(**inputs).model_dump())
+        los = obj.analyze()
+        return {"success": True, "level_of_service": los, "results": _snapshot(obj, accessors)}
+    return run
+
+
+_run_ped_walkway = _kwargs_runner("ExclusivePedestrianFacility", PedestrianWalkwayInput, [
+    "effective_width", "unit_flow_rate", "pedestrian_space", "vc_ratio", "flow_rate_15min",
+])
+_run_sup_pedestrian = _kwargs_runner("SharedUsePathPedestrian", SharedUsePathPedestrianInput, [
+    "passing_events", "meeting_events", "total_events",
+])
+_run_offstreet_bicycle = _kwargs_runner("OffStreetBicycleFacility", OffStreetBicycleInput, [
+    "blos_score", "effective_lanes", "active_passings_per_minute", "meetings_per_minute",
+    "delayed_passings_per_minute", "total_probability_delayed_passing",
+])
 
 
 # The dispatch table. Keys are the public facility_type strings; each available
@@ -245,12 +329,55 @@ FACILITIES: Dict[str, Dict[str, Any]] = {
         "input_example": {"_note": "Intersection config (phasing, lane groups, demand); see the library's Signalized example cases for the full shape."},
         "run": _run_signalized,
     },
-    # ---- library-backed, adapter pending ----
-    "FreewayReliability": {"chapter": 11, "library_class": "FreewayReliability", "description": "Freeway reliability and strategy assessment (HCM Ch. 11)"},
-    "UrbanFacility": {"chapter": 16, "library_class": "UrbanFacility", "description": "Urban street facility (HCM Ch. 16)"},
-    "UrbanReliability": {"chapter": 17, "library_class": "UrbanReliability", "description": "Urban street reliability and ATDM (HCM Ch. 17)"},
-    "RampTerminal": {"chapter": 23, "library_class": "Interchange", "description": "Ramp terminals and alternative intersections (HCM Ch. 23)"},
-    "OffStreetPedBike": {"chapter": 24, "library_class": "OffStreetBicycleFacility", "description": "Off-street pedestrian and bicycle facilities (HCM Ch. 24; spans pedestrian, bicycle, and shared-use-path classes — adapter routing to be designed)"},
+    "FreewayReliability": {
+        "chapter": 11,
+        "description": "Freeway reliability analysis (HCM Ch. 11): scenario generation and travel-time reliability measures (TTI, misery index, reliability rating)",
+        "library_class": "FreewayReliability",
+        "input_example": {"_note": "Reliability config (seed facility, demand/weather/incident scenario inputs); see the library's FreewayReliability example cases for the full shape."},
+        "run": _run_freeway_reliability,
+    },
+    "UrbanFacility": {
+        "chapter": 16,
+        "description": "Urban street facility (HCM Ch. 16): aggregated travel speed, perception score, facility LOS",
+        "library_class": "UrbanFacility",
+        "input_example": {"_note": "Facility config (ordered segment configs with boundary signal timing); see the library's UrbanFacilities example cases for the full shape."},
+        "run": _run_urban_facility,
+    },
+    "UrbanReliability": {
+        "chapter": 17,
+        "description": "Urban street reliability (HCM Ch. 17): scenario-based travel-time reliability measures",
+        "library_class": "UrbanReliability",
+        "input_example": {"_note": "Reliability config (base facility, demand patterns, weather, incidents); see the library's UrbanReliability example cases for the full shape."},
+        "run": _run_urban_reliability,
+    },
+    "RampTerminal": {
+        "chapter": 23,
+        "description": "Ramp terminals and alternative intersections (HCM Ch. 23): O-D delays, experienced travel time, interchange LOS",
+        "library_class": "Interchange",
+        "input_example": {"_note": "Interchange config (signalized ramp-terminal geometry, phasing, O-D demand); see the library's RampTerminals example cases for the full shape."},
+        "run": _run_ramp_terminal,
+    },
+    "PedestrianWalkway": {
+        "chapter": 24,
+        "description": "Exclusive pedestrian facility (HCM Ch. 24): walkway or stairwell pedestrian space and LOS",
+        "library_class": "ExclusivePedestrianFacility",
+        "input_model": PedestrianWalkwayInput,
+        "run": _run_ped_walkway,
+    },
+    "SharedUsePathPedestrian": {
+        "chapter": 24,
+        "description": "Pedestrian LOS on a shared-use path (HCM Ch. 24): bicycle passing/meeting events govern",
+        "library_class": "SharedUsePathPedestrian",
+        "input_model": SharedUsePathPedestrianInput,
+        "run": _run_sup_pedestrian,
+    },
+    "OffStreetBicycle": {
+        "chapter": 24,
+        "description": "Bicycle LOS on an off-street or shared-use path (HCM Ch. 24): BLOS score from passing and meeting events",
+        "library_class": "OffStreetBicycleFacility",
+        "input_model": OffStreetBicycleInput,
+        "run": _run_offstreet_bicycle,
+    },
 }
 
 
