@@ -1,0 +1,23 @@
+{
+  "_source": "HCM 7th Edition, Chapter 30 (Urban Street Segments: Supplemental), Section 8, Example Problem 1: Motorized Vehicle LOS (Exhibits 30-26 through 30-36), eastbound direction. 1,800-ft undivided four-lane segment, speed limit 35 mi/h, 70% curb, 4 access points per side, both boundary intersections signalized (coordinated-actuated, C = 100 s). Boundary-intersection performance values are the published computational-engine outputs supplied as inputs per Exhibit 18-5 ('HCM method output'): through control delay 18.310 s/veh and full stop rate 0.547 stops/veh (Exhibit 30-36); through demand 968 veh/h and through capacity 1,848 veh/h (Exhibit 30-32 westbound columns at Intersection 1, which mirror the eastbound movement at Intersection 2; v/c = 0.52); effective green 48.63 s (Exhibit 30-33 Timer 6 phase duration 52.63 s minus 4.00 s change period). The midsegment flow rate of 1,150 veh/h is the volume entering the segment at Signalized Intersection 1 (1,000 through + 50 northbound right + 100 southbound left, Exhibit 30-29). Per-access-point turning delays 0.193 and 0.194 s/veh are the Chapter 30 Section 4 procedure outputs published in Exhibit 30-35 (the in-crate procedure for these is deferred; see case2 for the Exhibit 18-13 planning-estimate path). Published results asserted by the integration test: base FFS 40.78 mi/h, running time 33.54 s, running speed 36.59 mi/h, travel speed 23.67 mi/h, spatial stop rate 1.61 stops/mi, through v/c 0.52, LOS C, traveler perception score 2.53.",
+  "segment_length_ft": 1800.0,
+  "upstream_intersection_width_ft": 50.0,
+  "n_through_lanes": 2,
+  "speed_limit_mph": 35.0,
+  "restrictive_median_length_ft": 0.0,
+  "proportion_with_curb": 0.70,
+  "proportion_on_street_parking": 0.0,
+  "n_access_points_subject": 4.0,
+  "n_access_points_opposing": 4.0,
+  "signal_spacing_ft": 1800.0,
+  "through_demand_veh_h": 968.0,
+  "midsegment_flow_veh_h": 1150.0,
+  "through_capacity_veh_h": 1848.0,
+  "control": "Signalized",
+  "through_control_delay_s": 18.310,
+  "cycle_length_s": 100.0,
+  "effective_green_s": 48.63,
+  "access_point_delays_s": [0.193, 0.194],
+  "full_stop_rate_override": 0.547,
+  "prop_left_turn_lanes": 0.33
+}

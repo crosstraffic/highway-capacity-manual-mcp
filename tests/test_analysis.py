@@ -39,10 +39,10 @@ class TestAnalyzeFacility:
         assert "BasicFreeway" in r["error"]
 
     def test_pending_facility_reports_adapter_pending(self):
-        r = analysis.analyze_facility_function({"facility_type": "WeavingSegment", "inputs": {}})
+        r = analysis.analyze_facility_function({"facility_type": "FreewayReliability", "inputs": {}})
         assert r["success"] is False
         assert r["status"] == "adapter_pending"
-        assert "WeavingSegment" in r["error"]
+        assert "FreewayReliability" in r["error"]
 
     def test_missing_inputs_is_a_clean_error(self):
         r = analysis.analyze_facility_function({"facility_type": "BasicFreeway"})
@@ -58,14 +58,104 @@ class TestAnalyzeFacility:
         assert "Invalid inputs" in r["error"]
 
 
+class TestNewAdapters:
+    """Each adapter is pinned to the published values of a library example case (the same HCM example problems the Rust integration suite asserts)."""
+
+    def test_weaving_reproduces_hcm_ch27_example_1(self):
+        r = analysis.analyze_facility_function({"facility_type": "WeavingSegment", "inputs": {
+            "weaving_type": "one_sided", "facility_type": "freeway", "length_short": 1500.0,
+            "num_lanes": 4, "num_weaving_lanes": 3, "ffs": 65.0,
+            "v_ff": 1815.0, "v_fr": 692.0, "v_rf": 1037.0, "v_rr": 1297.0,
+            "phf": 0.91, "heavy_vehicle_pct": 0.05, "terrain": "level",
+            "lc_rf": 0, "lc_fr": 1, "lc_rr": 0, "interchange_density": 0.8,
+            "basic_freeway_capacity": 2350.0, "caf": 1.0, "saf": 1.0,
+        }})
+        assert r["success"] is True
+        assert r["level_of_service"] == "C"
+        assert abs(r["results"]["speed_avg"] - 53.1) < 0.5
+        assert abs(r["results"]["density"] - 26.3) < 0.5
+
+    def test_ramp_reproduces_hcm_ch14_example_1(self):
+        r = analysis.analyze_facility_function({"facility_type": "RampSegment", "inputs": {
+            "ramp_type": "OnRamp", "ramp_side": "Right", "ramp_lanes": 1,
+            "freeway_lanes": 2, "freeway_ffs": 60.0, "ramp_ffs": 45.0,
+            "accel_lane_length": 740.0, "freeway_demand": 2500.0, "ramp_demand": 535.0,
+            "phf": 0.90, "heavy_vehicle_pct": 0.05, "terrain": "Level",
+            "adjacent_upstream": "None", "adjacent_downstream": "None", "caf": 1.0, "saf": 1.0,
+        }})
+        assert r["success"] is True
+        assert r["level_of_service"] == "D"
+        assert abs(r["results"]["density"] - 28.2) < 0.5
+
+    def test_roundabout_reproduces_hcm_ch33_example_1(self):
+        r = analysis.analyze_facility_function({"facility_type": "Roundabout", "inputs": {
+            "nb": {"v_u": 30.0, "v_l": 105.0, "v_t": 210.0, "v_r": 50.0, "heavy_vehicle_pct": 2.0, "entry_lanes": 1, "circulating_lanes": 1, "exiting_lanes": 1, "bypass": "None", "n_ped": 50.0},
+            "sb": {"v_u": 20.0, "v_l": 175.0, "v_t": 95.0, "v_r": 580.0, "heavy_vehicle_pct": 2.0, "entry_lanes": 1, "circulating_lanes": 1, "exiting_lanes": 1, "bypass": "NonYielding", "n_ped": 0.0},
+            "eb": {"v_u": 50.0, "v_l": 190.0, "v_t": 280.0, "v_r": 85.0, "heavy_vehicle_pct": 2.0, "entry_lanes": 1, "circulating_lanes": 1, "exiting_lanes": 1, "bypass": "None", "n_ped": 0.0},
+            "wb": {"v_u": 20.0, "v_l": 110.0, "v_t": 395.0, "v_r": 610.0, "heavy_vehicle_pct": 2.0, "entry_lanes": 1, "circulating_lanes": 1, "exiting_lanes": 1, "bypass": "Yielding", "n_ped": 0.0},
+            "phf": 0.94, "analysis_period_h": 0.25,
+        }})
+        assert r["success"] is True
+        assert r["intersection_los"] == "C"
+
+    def test_awsc_reproduces_hcm_ch32_example_1(self):
+        r = analysis.analyze_facility_function({"facility_type": "AWSC", "inputs": {
+            "eb": {"lanes": [{"volume_left": 50.0, "volume_through": 300.0, "volume_right": 0.0}], "heavy_vehicle_pct": 2.0},
+            "wb": {"lanes": [{"volume_left": 0.0, "volume_through": 300.0, "volume_right": 100.0}], "heavy_vehicle_pct": 2.0},
+            "nb": {"lanes": [], "heavy_vehicle_pct": 0.0},
+            "sb": {"lanes": [{"volume_left": 100.0, "volume_through": 0.0, "volume_right": 50.0}], "heavy_vehicle_pct": 2.0},
+            "phf": 0.95, "analysis_period_h": 0.25,
+        }})
+        assert r["success"] is True
+        assert r["intersection_los"] == "B"
+        assert abs(r["intersection_delay"] - 12.8) < 0.5
+
+    def test_twsc_runs_hcm_ch32_example_1(self):
+        r = analysis.analyze_facility_function({"facility_type": "TWSC", "inputs": {
+            "demand": {"v2": 240.0, "v3": 40.0, "v4": 160.0, "v5": 300.0, "v7": 40.0, "v9": 120.0},
+            "geometry": {"is_three_leg": True, "major_lanes_per_direction": 1, "major_right_turn_eb": "Shared", "major_right_turn_wb": "Shared", "minor_lanes_nb": "SingleShared"},
+            "phf": None, "analysis_period_h": 0.25, "heavy_vehicle_pct": 10.0,
+        }})
+        assert r["success"] is True
+        assert r["intersection_delay"] >= 0
+        assert "movements" in r["results"]
+
+    def test_signalized_reproduces_library_example_1(self):
+        import json as _json
+        case = _json.loads((Path(__file__).parent / "data" / "signalized_case1.json").read_text())
+        r = analysis.analyze_facility_function({"facility_type": "SignalizedIntersection", "inputs": case})
+        assert r["success"] is True
+        assert r["intersection_los"] == "D"
+
+    def test_urban_segment_reproduces_library_example_1(self):
+        import json as _json
+        case = _json.loads((Path(__file__).parent / "data" / "urbansegments_case1.json").read_text())
+        r = analysis.analyze_facility_function({"facility_type": "UrbanSegment", "inputs": case})
+        assert r["success"] is True
+        assert r["los"] == "C"
+
+    def test_freeway_facility_runs_library_example_1(self):
+        import json as _json
+        case = _json.loads((Path(__file__).parent / "data" / "freewayfacilities_case1.json").read_text())
+        r = analysis.analyze_facility_function({"facility_type": "FreewayFacility", "inputs": case})
+        assert r["success"] is True
+        matrix = r["los"]
+        assert len(matrix) == 11 and len(matrix[0]) == 5
+        assert all(cell in list("ABCDEF") for row in matrix for cell in row)
+
+    def test_bad_json_config_is_a_clean_error(self):
+        r = analysis.analyze_facility_function({"facility_type": "Roundabout", "inputs": {"nonsense": True}})
+        assert r["success"] is False
+        assert "error" in r
+
+
 class TestDiscovery:
     def test_describe_without_type_lists_all_core_motorized_chapters(self):
         r = analysis.describe_facility_inputs_function({})
         assert r["success"] is True
         chapters = {row["chapter"] for row in r["facility_types"]}
         assert set(range(10, 25)) <= chapters
-        assert "BasicFreeway" in r["available"]
-        assert "TwoLaneHighway" in r["available"]
+        assert {"BasicFreeway", "TwoLaneHighway", "WeavingSegment", "RampSegment", "TWSC", "AWSC", "Roundabout"} <= set(r["available"])
         for row in r["facility_types"]:
             assert row["status"] in ("available", "adapter_pending")
 
@@ -83,7 +173,7 @@ class TestDiscovery:
         assert {"passing_type", "length", "grade", "spl"} <= item_names
 
     def test_describe_pending_facility_says_so(self):
-        r = analysis.describe_facility_inputs_function({"facility_type": "Roundabout"})
+        r = analysis.describe_facility_inputs_function({"facility_type": "RampTerminal"})
         assert r["success"] is False
         assert r["status"] == "adapter_pending"
 
