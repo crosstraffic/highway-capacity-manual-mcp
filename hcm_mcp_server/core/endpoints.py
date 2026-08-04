@@ -15,7 +15,42 @@ from .models import (
 
 router = APIRouter()
 
-    
+
+# Unified analysis surface
+@router.post("/analysis/facility", tags=["analysis"], operation_id="analyze_facility")
+async def analyze_facility(
+    request: Dict[str, Any],
+    registry: FunctionRegistry = Depends(get_function_registry),
+) -> Dict[str, Any]:
+    """Run the complete HCM analysis for one facility: pass facility_type plus its inputs; dispatches to the verified transportations-library executor for that facility and returns the full result."""
+    function_impl = registry.get_function("analyze_facility")
+
+    if function_impl is None:
+        raise HTTPException(status_code=404, detail="analyze_facility not available")
+
+    try:
+        return function_impl(request)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@router.post("/analysis/describe", tags=["analysis"], operation_id="describe_facility_inputs")
+async def describe_facility_inputs(
+    request: Dict[str, Any],
+    registry: FunctionRegistry = Depends(get_function_registry),
+) -> Dict[str, Any]:
+    """Describe facility input schemas: with facility_type, the field schema for constructing an analyze_facility request; without it, every library-backed HCM facility type with chapter and adapter status."""
+    function_impl = registry.get_function("describe_facility_inputs")
+
+    if function_impl is None:
+        raise HTTPException(status_code=404, detail="describe_facility_inputs not available")
+
+    try:
+        return function_impl(request)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
 @router.post("/tools/list", tags=["tools"], operation_id="list_tools")
 async def list_tools(
     request: ListToolsRequest = None,

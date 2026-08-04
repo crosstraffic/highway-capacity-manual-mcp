@@ -106,3 +106,29 @@ class TestRegistryLegacySplit:
         assert "chapter15_determine_segment_los" in names
         assert "search_hcm_by_chapter" in names
         assert "analyze_facility" in names
+
+
+class TestServedSurface:
+    """The MCP tool surface is FastApiMCP over route operation ids, not the registry — so the served app must expose the new routes, keep every legacy REST route resolvable, and default the MCP mount to the public tool set."""
+
+    def test_public_operations_are_routes_and_default_mcp_surface(self):
+        import mcp_server_fastapi as srv
+
+        op_ids = {getattr(r, "operation_id", None) for r in srv.app.routes}
+        missing = set(srv.PUBLIC_OPERATIONS) - op_ids
+        assert not missing, f"PUBLIC_OPERATIONS without a backing route: {missing}"
+        assert srv._mcp_kwargs.get("include_operations") is not None
+
+    def test_app_registry_resolves_every_routed_function(self):
+        # Every registry.get_function(name) lookup made by a route handler must
+        # resolve on the app's include_legacy registry — a None here means a
+        # live REST endpoint that can only 404.
+        import re
+        root = Path(__file__).resolve().parent.parent
+        reg = FunctionRegistry(root / "function_registry.yaml", include_legacy=True)
+        src_dir = root / "hcm_mcp_server" / "core"
+        looked_up = set()
+        for f in ("endpoints.py", "reasoning_endpoints.py"):
+            looked_up |= set(re.findall(r"get_function\(\"([a-z0-9_]+)\"\)", (src_dir / f).read_text()))
+        unresolved = {n for n in looked_up if reg.get_function(n) is None}
+        assert not unresolved, f"routes whose implementation is missing from the legacy registry: {unresolved}"

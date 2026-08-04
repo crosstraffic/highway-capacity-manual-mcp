@@ -52,9 +52,12 @@ async def lifespan(app: FastAPI):
         app.state.embedding_model = None
         app.state.document_store = None
 
-    # Initialize function registry
+    # Initialize function registry. include_legacy keeps every REST route
+    # working (the per-step chapter and research-extra handlers resolve their
+    # implementations here); the narrowed default MCP tool surface is enforced
+    # separately via include_operations on the FastApiMCP mount below.
     registry_path = Path("function_registry.yaml")
-    app.state.function_registry = FunctionRegistry(registry_path)
+    app.state.function_registry = FunctionRegistry(registry_path, include_legacy=True)
 
     yield
 
@@ -331,9 +334,26 @@ async def create_chat_completion(request: ChatCompletionRequest):
     
     return response
 
-# HCM_MCP_INCLUDE_OPS (comma-separated operation ids) restricts which tools the
+# The default MCP tool surface: the unified analysis interface, one retrieval
+# tool, the reasoning layer, and full-corpus validation. Every other route
+# (per-step chapter tools, research extras, meta endpoints) stays reachable
+# over REST but is not offered as an MCP tool.
+PUBLIC_OPERATIONS = [
+    "analyze_facility",
+    "describe_facility_inputs",
+    "query_hcm",
+    "propagate_change",
+    "diagnose_failure",
+    "repair_design",
+    "repair_freeway",
+    "reconcile_codes",
+    "inverse_design",
+    "validate_design_full",
+]
+
+# HCM_MCP_INCLUDE_OPS (comma-separated operation ids) overrides which tools the
 # MCP surface exposes — used by the ablation arm launchers (kg-only, rag-only).
-# Unset = expose every operation (the full +CT server).
+# Unset = expose the PUBLIC_OPERATIONS default surface.
 _mcp_kwargs = dict(
     name="HCM-LLM",
     description="Highway Capacity Manual API with Transportation Analysis",
@@ -343,6 +363,8 @@ _mcp_kwargs = dict(
 _include_ops = os.getenv("HCM_MCP_INCLUDE_OPS")
 if _include_ops:
     _mcp_kwargs["include_operations"] = [op.strip() for op in _include_ops.split(",") if op.strip()]
+else:
+    _mcp_kwargs["include_operations"] = list(PUBLIC_OPERATIONS)
 
 mcp = FastApiMCP(app, **_mcp_kwargs)
 
