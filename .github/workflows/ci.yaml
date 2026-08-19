@@ -34,7 +34,6 @@ jobs:
 
             - name: Lint with Ruff
               run: uv run --no-sources ruff check .
-              continue-on-error: true
     pytest:
         name: Pytest
         runs-on: ubuntu-latest
