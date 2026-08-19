@@ -5,6 +5,13 @@ from fastapi import HTTPException, APIRouter, Depends
 from hcm_mcp_server.core.dependencies import get_function_registry
 from hcm_mcp_server.core.registry import FunctionRegistry
 
+from hcm_mcp_server.functions.methods import (
+    METHODS,
+    describe_function,
+    method_catalog_lines,
+    validate_function,
+)
+
 from .models import (
     ToolCallRequest, ListToolsRequest, FunctionListResponse,
     QueryHCMRequest, TwoLaneHighwaysInput, SegmentAnalysisRequest,
@@ -322,6 +329,86 @@ async def chapter15_segment_analysis(
         }
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
+# The per-method HCM surface (hcm_mcp_server.functions.methods)
+#
+# Two layers, deliberately different shapes.
+#
+# The MCP tool surface is CAPABILITY-shaped: hcm_analyze, hcm_describe and
+# hcm_validate, matching the capability shape of the ten published tools above.
+# One tool per method would put 32 near-identical schemas in every caller's
+# context and blunt tool selection, so the method is an argument, not a tool.
+#
+# The REST surface is METHOD-shaped: one route per method under /analysis/hcm/.
+# Routes are not MCP tools, and a readable URL per method is worth keeping for
+# direct API callers. These handlers reach the implementation through the
+# METHODS table rather than the registry, because the per-method functions are
+# no longer registered as tools.
+def _capability_route(path: str, operation_id: str, tool_name: str, summary: str, description: str):
+    async def handler(
+        request: Dict[str, Any],
+        registry: FunctionRegistry = Depends(get_function_registry),
+    ) -> Dict[str, Any]:
+        function_impl = registry.get_function(tool_name)
+        if function_impl is None:
+            raise HTTPException(status_code=404, detail=f"{tool_name} not available")
+        try:
+            return function_impl(request)
+        except Exception as e:
+            raise HTTPException(status_code=500, detail=str(e))
+
+    handler.__name__ = operation_id
+    handler.__doc__ = description
+    router.post(path, tags=["hcm"], operation_id=operation_id, summary=summary)(handler)
+
+
+_capability_route(
+    "/analysis/hcm/analyze", "hcm_analyze", "hcm_analyze",
+    "Run one HCM method",
+    "Run one HCM analysis method. Pass the method id and that method's config in the compute library's example-case schema. "
+    "Call hcm_describe for the method catalog and for a method's input shape.\n\nMethods:\n"
+    + "\n".join(f"  {line}" for line in method_catalog_lines()),
+)
+_capability_route(
+    "/analysis/hcm/describe", "hcm_describe", "hcm_describe",
+    "Describe an HCM method, or list them all",
+    (describe_function.__doc__ or "").strip(),
+)
+_capability_route(
+    "/analysis/hcm/validate", "hcm_validate", "hcm_validate",
+    "Validate an HCM method config without running it",
+    (validate_function.__doc__ or "").strip(),
+)
+
+
+def _method_route(method: str, entry: Dict[str, Any]):
+    """A method-shaped REST convenience route. Not an MCP tool."""
+    async def handler(request: Dict[str, Any]) -> Dict[str, Any]:
+        try:
+            return entry["function"](request)
+        except Exception as e:
+            raise HTTPException(status_code=500, detail=str(e))
+
+    handler.__name__ = f"hcm_method_{method}"
+    handler.__doc__ = (entry["function"].__doc__ or "").strip()
+    router.post(
+        f"/analysis/hcm/{method.replace('_', '-')}",
+        tags=["hcm"],
+        operation_id=f"hcm_method_{method}",
+        summary=f"HCM Ch. {entry['chapter']}: {entry['title']}",
+    )(handler)
+
+
+for _name, _entry in sorted(METHODS.items(), key=lambda kv: (kv[1]["chapter"], kv[0])):
+    _method_route(_name, _entry)
+
+# The full-coverage tool surface, offered over MCP only when the server opts in.
+# Three capability tools, not thirty-three method tools. It is deliberately NOT
+# folded into PUBLIC_OPERATIONS: that list is the tool surface the published
+# ablation experiment ran against, and changing what the default MCP mount
+# exposes would change the experiment rather than extend it.
+FULL_COVERAGE_OPERATIONS = ["hcm_analyze", "hcm_describe", "hcm_validate"]
+
 
 # Utility endpoints
 @router.get("/health", tags=["utility"])

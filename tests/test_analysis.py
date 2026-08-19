@@ -170,7 +170,11 @@ class TestNewAdapters:
         r = analysis.analyze_facility_function({"facility_type": "RampTerminal", "inputs": case})
         assert r["success"] is True
         assert r["interchange_los"] == "C"
-        assert abs(r["interchange_ett"] - 52.8) < 0.5
+        # Engine value, re-anchored when the pin moved with transportations-library
+        # 0.3.1 (interchange aggregate LOS from weighted ETT only, d2 on lane-group
+        # capacity). The library's own Chapter 23 test asserts 50.7 +-0.5 for this
+        # fixture; the published Exhibit 34-16 figure is 52.4.
+        assert abs(r["interchange_ett"] - 50.7) < 0.5
 
     def test_pedestrian_walkway_reproduces_hcm_ch35_example_1(self):
         r = analysis.analyze_facility_function({"facility_type": "PedestrianWalkway", "inputs": {
@@ -247,11 +251,14 @@ class TestDiscovery:
 class TestRegistryLegacySplit:
     REGISTRY = Path(__file__).resolve().parent.parent / "function_registry.yaml"
 
-    def test_default_surface_is_ten_general_tools(self):
+    def test_default_surface_is_the_ten_general_tools_plus_three_capability_tools(self):
+        # The ten general tools are the published ablation surface and are frozen
+        # (tests/test_frozen_surface.py). The additions are the three hcm_
+        # capability tools covering all 32 HCM methods.
         reg = FunctionRegistry(self.REGISTRY)
         names = set(reg.get_all_functions())
         assert {"analyze_facility", "describe_facility_inputs", "query_hcm"} <= names
-        assert len(names) == 10
+        assert len({n for n in names if not n.startswith("hcm_")}) == 10
         assert not any(n.startswith("chapter12_") or n.startswith("chapter15_") for n in names)
         assert "search_hcm_by_chapter" not in names
 

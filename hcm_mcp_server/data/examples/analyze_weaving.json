@@ -1,0 +1,22 @@
+{
+    "weaving_type": "OneSided",
+    "facility_type": "Freeway",
+    "length_short": 1500.0,
+    "num_lanes": 4,
+    "num_weaving_lanes": 3,
+    "ffs": 65.0,
+    "v_ff": 1815.0,
+    "v_fr": 692.0,
+    "v_rf": 1037.0,
+    "v_rr": 1297.0,
+    "phf": 0.91,
+    "heavy_vehicle_pct": 0.05,
+    "terrain": "Level",
+    "lc_rf": 0,
+    "lc_fr": 1,
+    "lc_rr": 0,
+    "interchange_density": 0.8,
+    "basic_freeway_capacity": 2350.0,
+    "caf": 1.0,
+    "saf": 1.0
+}

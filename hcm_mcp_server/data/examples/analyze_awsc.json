@@ -1,0 +1,27 @@
+{
+  "_source": "HCM 7th Edition, Chapter 32, AWSC Example Problem 1: single-lane, three-leg AWSC intersection (T with the minor stem on the north leg). Hourly demand volumes, PHF = 0.95, 2% heavy vehicles.",
+  "eb": {
+    "lanes": [
+      { "volume_left": 50.0, "volume_through": 300.0, "volume_right": 0.0 }
+    ],
+    "heavy_vehicle_pct": 2.0
+  },
+  "wb": {
+    "lanes": [
+      { "volume_left": 0.0, "volume_through": 300.0, "volume_right": 100.0 }
+    ],
+    "heavy_vehicle_pct": 2.0
+  },
+  "nb": {
+    "lanes": [],
+    "heavy_vehicle_pct": 0.0
+  },
+  "sb": {
+    "lanes": [
+      { "volume_left": 100.0, "volume_through": 0.0, "volume_right": 50.0 }
+    ],
+    "heavy_vehicle_pct": 2.0
+  },
+  "phf": 0.95,
+  "analysis_period_h": 0.25
+}

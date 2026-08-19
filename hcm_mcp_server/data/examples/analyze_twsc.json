@@ -1,0 +1,21 @@
+{
+  "_source": "HCM 7th Edition, Chapter 32, TWSC Example Problem 1: TWSC at an intersection with three legs. Demand values are peak 15-min flow rates (15-min volumes x 4), veh/h. Movement numbering per HCM Exhibit 20-1.",
+  "demand": {
+    "v2": 240.0,
+    "v3": 40.0,
+    "v4": 160.0,
+    "v5": 300.0,
+    "v7": 40.0,
+    "v9": 120.0
+  },
+  "geometry": {
+    "is_three_leg": true,
+    "major_lanes_per_direction": 1,
+    "major_right_turn_eb": "Shared",
+    "major_right_turn_wb": "Shared",
+    "minor_lanes_nb": "SingleShared"
+  },
+  "phf": null,
+  "analysis_period_h": 0.25,
+  "heavy_vehicle_pct": 10.0
+}

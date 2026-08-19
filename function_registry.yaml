@@ -203,12 +203,129 @@ functions:
             description: 'Optional conditions, e.g. {terrain_type: mountainous, jurisdiction: state}'
         required:
         - design
+  hcm:
+    analyze:
+      module: hcm_mcp_server.functions.methods
+      function: analyze_function
+      description: |-
+        Run one HCM analysis method against the compute library's verified executors. Pass 'method' plus that method's 'config' in the library's example-case (fixture) schema; call hcm_describe for a method's input shape and worked example. Methods:
+            analyze_freeway_facility (Ch.10): Freeway facility (Chapter 25 engine)
+            analyze_managed_lanes (Ch.10): Managed-lane freeway facility
+            analyze_freeway_reliability (Ch.11): Freeway travel-time reliability
+            analyze_basic_freeway (Ch.12): Basic freeway and multilane segment
+            analyze_weaving (Ch.13): Freeway weaving segment
+            analyze_merge_diverge (Ch.14): Freeway merge and diverge segment
+            analyze_two_lane_highway (Ch.15): Two-lane highway facility
+            analyze_urban_facility (Ch.16): Urban street facility
+            analyze_urban_reliability (Ch.17): Urban street travel-time reliability
+            analyze_bicycle_segment (Ch.18): Urban street segment, bicycle mode
+            analyze_pedestrian_segment (Ch.18): Urban street segment, pedestrian mode
+            analyze_transit_segment (Ch.18): Urban street segment, transit mode
+            analyze_urban_segment (Ch.18): Urban street segment, automobile mode
+            analyze_signalized (Ch.19): Signalized intersection, automobile mode
+            analyze_signalized_bicycle (Ch.19): Signalized intersection, bicycle mode
+            analyze_signalized_pedestrian (Ch.19): Signalized intersection, pedestrian mode
+            analyze_two_stage_crossing (Ch.19): Two-stage pedestrian crossing delay
+            analyze_twsc (Ch.20): Two-way STOP-controlled intersection, vehicular
+            analyze_twsc_pedestrian (Ch.20): TWSC and midblock crossing, pedestrian mode
+            analyze_awsc (Ch.21): All-way STOP-controlled intersection
+            analyze_roundabout (Ch.22): Roundabout
+            analyze_alternative_intersection (Ch.23): RCUT and MUT alternative intersections (Part C)
+            analyze_displaced_left_turn (Ch.23): Displaced left-turn intersection (Part C)
+            analyze_ramp_terminal (Ch.23): Interchange ramp terminals (Part B)
+            analyze_offstreet_bicycle (Ch.24): Off-street path, bicycle mode
+            analyze_pedestrian_walkway (Ch.24): Exclusive pedestrian walkway or stairwell
+            analyze_shared_use_path_pedestrian (Ch.24): Shared-use path, pedestrian mode
+            analyze_composite_grade (Ch.25): Mixed-flow model, composite grade
+            analyze_planning_facility (Ch.25): Planning-level freeway facility
+            analyze_mixed_flow (Ch.26): Mixed-flow model, single grade
+            analyze_weaving_service_volumes (Ch.27): Weaving segment service volumes
+            analyze_ramp_service_volumes (Ch.28): Merge and diverge service volumes
+      category: hcm
+      parameters:
+        type: object
+        properties:
+          method:
+            type: string
+            description: Which HCM method to run
+            enum:
+            - analyze_alternative_intersection
+            - analyze_awsc
+            - analyze_basic_freeway
+            - analyze_bicycle_segment
+            - analyze_composite_grade
+            - analyze_displaced_left_turn
+            - analyze_freeway_facility
+            - analyze_freeway_reliability
+            - analyze_managed_lanes
+            - analyze_merge_diverge
+            - analyze_mixed_flow
+            - analyze_offstreet_bicycle
+            - analyze_pedestrian_segment
+            - analyze_pedestrian_walkway
+            - analyze_planning_facility
+            - analyze_ramp_service_volumes
+            - analyze_ramp_terminal
+            - analyze_roundabout
+            - analyze_shared_use_path_pedestrian
+            - analyze_signalized
+            - analyze_signalized_bicycle
+            - analyze_signalized_pedestrian
+            - analyze_transit_segment
+            - analyze_two_lane_highway
+            - analyze_two_stage_crossing
+            - analyze_twsc
+            - analyze_twsc_pedestrian
+            - analyze_urban_facility
+            - analyze_urban_reliability
+            - analyze_urban_segment
+            - analyze_weaving
+            - analyze_weaving_service_volumes
+          config:
+            type: object
+            description: Analysis inputs in that method's HCM example-case (fixture) schema; hcm_describe returns the shape and a worked example
+          mode:
+            type: string
+            description: analyze_urban_facility only - aggregate (default) or analyze
+        required:
+        - method
+        - config
+    describe:
+      module: hcm_mcp_server.functions.methods
+      function: describe_function
+      description: 'Discover HCM methods: with a method id, its input schema sketch, its result-field meanings and the example-problem fixture that validates it; with no argument, the catalog of every method with its chapter and a one-line summary'
+      category: hcm
+      parameters:
+        type: object
+        properties:
+          method:
+            type: string
+            description: Method id to describe; omit for the full catalog
+        required: []
+    validate:
+      module: hcm_mcp_server.functions.methods
+      function: validate_function
+      description: 'Parse and validate a method config WITHOUT running the analysis, returning the compute library''s own validation errors or ok. Use this while iterating on a config. A few methods have no validation step separate from the analysis and say so in the response'
+      category: hcm
+      parameters:
+        type: object
+        properties:
+          method:
+            type: string
+            description: Which HCM method the config is for
+          config:
+            type: object
+            description: Analysis inputs in that method's HCM example-case (fixture) schema
+        required:
+        - method
+        - config
 categories:
   transportation: Transportation analysis and capacity calculations
   research: Documentation search and research functions
   reasoning: 'Graph reasoning over the executable knowledge graph: repair, reconcile, inverse design, chaining'
   validation: Full-corpus rule validation with citations and clarifications, in-process
   utility: General utility and helper functions
+  hcm: 'Per-method HCM analysis: one tool per method the compute library implements, taking the library''s own example-case (fixture) JSON schema'
   analysis: 'General facility analysis: one dispatching tool over every library-backed HCM facility, plus discovery tools'
 config:
   auto_load_modules: true

@@ -1,0 +1,53 @@
+{
+  "_source": "HCM 7th Edition, Chapter 33, Roundabout Example Problem 1: four-leg single-lane roundabout with a yielding WB right-turn bypass and a nonyielding SB right-turn bypass. Hourly demand volumes (Exhibit 33-6), PHF = 0.94, 2% heavy vehicles, 50 p/h crossing the south leg (NB entry).",
+  "nb": {
+    "v_u": 30.0,
+    "v_l": 105.0,
+    "v_t": 210.0,
+    "v_r": 50.0,
+    "heavy_vehicle_pct": 2.0,
+    "entry_lanes": 1,
+    "circulating_lanes": 1,
+    "exiting_lanes": 1,
+    "bypass": "None",
+    "n_ped": 50.0
+  },
+  "sb": {
+    "v_u": 20.0,
+    "v_l": 175.0,
+    "v_t": 95.0,
+    "v_r": 580.0,
+    "heavy_vehicle_pct": 2.0,
+    "entry_lanes": 1,
+    "circulating_lanes": 1,
+    "exiting_lanes": 1,
+    "bypass": "NonYielding",
+    "n_ped": 0.0
+  },
+  "eb": {
+    "v_u": 50.0,
+    "v_l": 190.0,
+    "v_t": 280.0,
+    "v_r": 85.0,
+    "heavy_vehicle_pct": 2.0,
+    "entry_lanes": 1,
+    "circulating_lanes": 1,
+    "exiting_lanes": 1,
+    "bypass": "None",
+    "n_ped": 0.0
+  },
+  "wb": {
+    "v_u": 20.0,
+    "v_l": 110.0,
+    "v_t": 395.0,
+    "v_r": 610.0,
+    "heavy_vehicle_pct": 2.0,
+    "entry_lanes": 1,
+    "circulating_lanes": 1,
+    "exiting_lanes": 1,
+    "bypass": "Yielding",
+    "n_ped": 0.0
+  },
+  "phf": 0.94,
+  "analysis_period_h": 0.25
+}

@@ -1,0 +1,24 @@
+{
+  "_source": "HCM 7th Edition, Chapter 32, TWSC Example Problem 2, scenario B (marked crosswalk with median refuge, two-stage crossing, 50% motorist yield rate). Extracted from the library fixture tests/ExampleCases/hcm/Twsc/case4_pedestrian.json, which holds three scenarios in one file.",
+  "stages": [
+    {
+      "crossing_length_ft": 20.0,
+      "conflicting_flow_veh_h": 850.0,
+      "through_lanes": 2
+    },
+    {
+      "crossing_length_ft": 20.0,
+      "conflicting_flow_veh_h": 850.0,
+      "through_lanes": 2
+    }
+  ],
+  "walk_speed_fps": 4.0,
+  "startup_clearance_s": 1.0,
+  "motorist_yield_rate": 0.5,
+  "pedestrian_platooning": false,
+  "peak_hour_volume_veh_h": 1700.0,
+  "k_factor": 0.08,
+  "has_rrfb": false,
+  "has_marked_crosswalk": true,
+  "has_median_refuge": true
+}

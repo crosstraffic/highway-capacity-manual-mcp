@@ -1,0 +1,10 @@
+{
+  "_source": "HCM 7th Edition, Chapter 35, Example Problem 1: Pedestrian LOS on Shared-Use and Exclusive Paths (operational analysis)",
+  "total_walkway_width": 5.0,
+  "fixed_object_width": 0.0,
+  "peak_15min_volume": 100.0,
+  "phf": 0.83,
+  "pedestrian_speed": 240.0,
+  "facility_type": "walkway",
+  "flow_type": "random"
+}

@@ -1,0 +1,12 @@
+{
+    "ffs": 65.0,
+    "v_mix": 1500.0,
+    "p_sut": 0.05,
+    "p_tt": 0.10,
+    "caf_ao": 1.0,
+    "segments": [
+        { "length": 1.5, "grade": 3.0 },
+        { "length": 2.0, "grade": 2.0 },
+        { "length": 1.0, "grade": 5.0 }
+    ]
+}
