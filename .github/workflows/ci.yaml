@@ -33,7 +33,7 @@ jobs:
               run: uv sync --all-extras --dev --no-sources
 
             - name: Lint with Ruff
-              run: uv run ruff check .
+              run: uv run --no-sources ruff check .
               continue-on-error: true
     pytest:
         name: Pytest
@@ -62,4 +62,4 @@ jobs:
               # No continue-on-error. A red suite is the signal this job exists
               # for: a stale expected value sat failing on main unnoticed until
               # 2026-08-18 because nothing ran pytest here.
-              run: uv run pytest -q
+              run: uv run --no-sources pytest -q
