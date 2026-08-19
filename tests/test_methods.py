@@ -1,6 +1,6 @@
 """The full HCM method coverage, every method driven through the ``hcm_analyze`` capability tool against its example-problem fixture.
 
-The MCP surface is capability-shaped: three tools (``hcm_analyze``, ``hcm_describe``, ``hcm_validate``) over thirty-two methods. Every analysis below therefore goes through ``hcm_analyze`` with a ``method`` argument, which is the path a real caller takes, rather than reaching into the per-method implementation function. Each call is made the way ``/tools/call`` makes it — ``registry.get_function(name)(arguments)`` — so a failure here means the analysis is wrong, the dispatch is wrong, or the registry wiring is, and the three are not confused.
+The MCP surface is capability-shaped: three tools (``hcm_analyze``, ``hcm_describe``, ``hcm_validate``) over thirty-three methods. Every analysis below therefore goes through ``hcm_analyze`` with a ``method`` argument, which is the path a real caller takes, rather than reaching into the per-method implementation function. Each call is made the way ``/tools/call`` makes it — ``registry.get_function(name)(arguments)`` — so a failure here means the analysis is wrong, the dispatch is wrong, or the registry wiring is, and the three are not confused.
 
 Every expected value and tolerance below is cribbed from the compute library's own test suite for that example problem (``transportations-library/tests/test_chapter*_integration.py`` for the Python-tested chapters, ``tests/chapter*_integration.rs`` for the ones the Rust side pins). Nothing here is an invented tolerance: where the library asserts +-0.5 mi/h, so does this file, and where the library documents a computed-versus-published gap the value asserted is the library's computed one with the published one in the comment. The published-value provenance lives in the fixtures' own ``_source`` lines.
 """
@@ -302,6 +302,64 @@ class TestTwoLaneHighway:
         assert round(r["facility_follower_density"], 3) == 10.092
         assert r["facility_posted_speed_limit"] == pytest.approx(50.0)
         assert result["level_of_service"] == "D"
+
+
+class TestBicycleLOS:
+    """The Chapter 15 Section 4 widening example, both designs.
+
+    Expected values and tolerances are the library's own (``tests/test_bicycle_los_integration.py``, itself mirroring the Rust ``bicycle_los_widening_example_test``). The shipped fixture is the current design; the proposed one is the same segment with the three fields the project changes, which is what makes the F to D move visible from here rather than only inside the library.
+    """
+
+    @pytest.fixture(scope="class")
+    def current(self, registry):
+        return run_example(registry, "analyze_bicycle_los")["results"]
+
+    @pytest.fixture(scope="class")
+    def proposed(self, registry):
+        config = dict(methods._example("analyze_bicycle_los"),
+                      shoulder_width=6.0, speed_limit=55.0, pavement_condition=5.0)
+        result = analyze(registry, "analyze_bicycle_los", config)
+        assert result["success"] is True, result.get("error")
+        return result["results"]
+
+    def test_step_2_flow_rate(self, current, proposed):
+        # Only the cross section and the limit change, so vOL = 500 / (0.90 x 1) either way.
+        assert current["flow_rate_outside_lane"] == pytest.approx(555.6, abs=0.1)
+        assert proposed["flow_rate_outside_lane"] == pytest.approx(555.6, abs=0.1)
+
+    def test_steps_3_and_4(self, current, proposed):
+        # The 2 ft shoulder takes Equation 15-43 and the 6 ft shoulder Equation
+        # 15-42, which is why We moves 10 ft for 4 ft of added shoulder.
+        assert current["effective_width"] == pytest.approx(14.0, abs=0.01)
+        assert proposed["effective_width"] == pytest.approx(24.0, abs=0.01)
+        assert current["effective_speed_factor"] == pytest.approx(4.62, abs=0.01)
+        assert proposed["effective_speed_factor"] == pytest.approx(4.79, abs=0.01)
+
+    def test_published_values(self, current, proposed):
+        # Tolerance +-0.01 because the book rounds its intermediates to two
+        # decimals; the LOS letters are exact.
+        assert current["blos_score"] == pytest.approx(5.90, abs=0.01)
+        assert proposed["blos_score"] == pytest.approx(3.58, abs=0.01)
+        assert (current["los"], proposed["los"]) == ("F", "D")
+        # A lower score is a better LOS, so the project buys two letters.
+        assert proposed["blos_score"] < current["blos_score"]
+
+    def test_a_posted_limit_at_the_singularity_returns_a_null_score(self, registry):
+        """Equation 15-46 takes ln(Spl - 20), and the library returns a null score with an unguarded LOS letter at or below 20 mi/h rather than refusing. The tool passes that through, so pin what a caller actually sees: the null is the answer and the letter beside it is not."""
+        config = dict(methods._example("analyze_bicycle_los"), speed_limit=20.0)
+        r = analyze(registry, "analyze_bicycle_los", config)
+        assert r["success"] is True
+        assert r["results"]["blos_score"] is None
+        assert r["results"]["effective_speed_factor"] is None
+
+    def test_a_missing_input_is_refused_rather_than_defaulted(self, registry):
+        """None of the nine inputs has an HCM-stated default. A dropped pavement rating moves the score by more than a whole letter, so it has to fail in both capabilities, not just one."""
+        config = dict(methods._example("analyze_bicycle_los"))
+        del config["pavement_condition"]
+        assert analyze(registry, "analyze_bicycle_los", config)["success"] is False
+        validated = call(registry, "hcm_validate", method="analyze_bicycle_los", config=config)
+        assert validated["valid"] is False
+        assert "pavement_condition" in validated["error"]
 
 
 # ── Chapters 16-18: urban streets ────────────────────────────────────────────
@@ -917,7 +975,7 @@ class TestMethodTableIntegrity:
             json.loads(path.read_text())
 
     def test_the_mcp_surface_is_three_capability_tools(self, registry):
-        """One tool per method would put thirty-two near-identical schemas in every caller's context. The method is an argument."""
+        """One tool per method would put thirty-three near-identical schemas in every caller's context. The method is an argument."""
         names = {n for n in registry.get_all_functions() if n.startswith("hcm_")}
         assert names == {"hcm_analyze", "hcm_describe", "hcm_validate"}
 

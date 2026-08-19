@@ -1,6 +1,21 @@
 # Changelog
 
-## Unreleased
+## 0.3.1
+
+### Added: the Chapter 15 bicycle mode, `analyze_bicycle_los`
+
+`hcm_analyze`'s thirty-third method, closing the one gap 0.3.0 shipped with. The HCM Chapter 15 Section 4 bicycle mode has been in the compute library's Rust core since the chapter went in, but it had no PyO3 binding, so it could not be offered here. `transportations-library` 0.3.7 exports it as `analyze_bicycle_los` and a `BicycleLOS` class, and this release wires both up.
+
+- `hcm_analyze` gains `analyze_bicycle_los` in its method enum and one line in its catalog. The tool surface itself is unchanged: three capability tools, as before.
+- `hcm_describe analyze_bicycle_los` serves the shipped fixture, the Chapter 15 widening example's current design (12 ft lane, 2 ft shoulder, 50 mi/h posted, pavement rated 3), whose published BLOS score is 5.90 at LOS F. Widening the shoulder to 6 ft, raising the limit to 55 mi/h and repaving to a 5 rating gives 3.58 at LOS D, and `tests/test_methods.py` drives both designs at the library's own tolerances.
+- `hcm_validate` runs a real dry run for this method, so twenty-four of the thirty-three now do. The library reaches the bicycle mode through a bare JSON function, which normally means there is no step between parse and compute, but the same nine inputs are also a `BicycleLOS` constructor that computes nothing, so the parse can be run there honestly. It checks that all nine fields are present and typed, not that they are in range.
+- The REST route `/analysis/hcm/analyze-bicycle-los` comes with it, as for every other method.
+
+Two things about this method are worth knowing before calling it, and both are in the tool's own description. `heavy_vehicle_pct` and `pct_on_highway_parking` are decimals, 0.05 for 5%, which is the opposite of the `phv` percent convention in the same chapter's motorized schema, and a percent passed as a percent drives the score far past LOS F without raising. And Equation 15-46 takes ln(speed_limit - 20), so at a posted limit of 20 mi/h or below the library returns a null `blos_score` while still reporting an `los` letter computed from the non-finite value. That defect is pinned rather than fixed in the library (guarding it would change what the web calculator and this server return, which is Rei's call), so the tool passes it through and says in its description that the null is the answer and the letter beside it is not.
+
+### Changed
+
+- Minimum `transportations-library` raised from 0.3.6 to 0.3.7, the first release exposing `analyze_bicycle_los` and `BicycleLOS` to Python. **Publish order: `transportations-library` 0.3.7 goes to PyPI before this release is deployed or published.** Until it does, a clean `uv sync --no-sources` install cannot resolve the floor.
 
 ### Fixed: `validation_validate_design_full` was a stub in every clean install
 
@@ -97,4 +112,4 @@ It defaults **off**, and that is deliberate. `mcp_server_fastapi.py` is the `ct`
 
 ### Known gaps
 
-The Chapter 15 bicycle mode (`BicycleLOS`) is implemented in the Rust library and has its own worked-example fixture, but it is not exported through the PyO3 bindings, so it has no tool here. Closing that gap is a change to `transportations-library`, not to this repository.
+The Chapter 15 bicycle mode (`BicycleLOS`) is implemented in the Rust library and has its own worked-example fixture, but it is not exported through the PyO3 bindings, so it has no tool here. Closing that gap is a change to `transportations-library`, not to this repository. (Closed in 0.3.1, against `transportations-library` 0.3.7.)

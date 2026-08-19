@@ -215,6 +215,7 @@ functions:
             analyze_basic_freeway (Ch.12): Basic freeway and multilane segment
             analyze_weaving (Ch.13): Freeway weaving segment
             analyze_merge_diverge (Ch.14): Freeway merge and diverge segment
+            analyze_bicycle_los (Ch.15): Two-lane and multilane highway segment, bicycle mode
             analyze_two_lane_highway (Ch.15): Two-lane highway facility
             analyze_urban_facility (Ch.16): Urban street facility
             analyze_urban_reliability (Ch.17): Urban street travel-time reliability
@@ -252,6 +253,7 @@ functions:
             - analyze_alternative_intersection
             - analyze_awsc
             - analyze_basic_freeway
+            - analyze_bicycle_los
             - analyze_bicycle_segment
             - analyze_composite_grade
             - analyze_displaced_left_turn

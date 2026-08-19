@@ -1,0 +1,12 @@
+{
+    "_source": "HCM 7th Edition, Chapter 15 Section 4 widening example (transportations-library tests/ExampleCases/hcm/TwoLaneHighways/bicycle_widening.json, 'current' design): 12 ft lane, 2 ft shoulder, 50 mi/h posted, pavement rated 3, published BLOS score 5.90 at LOS F. The same segment after widening the shoulder to 6 ft, raising the limit to 55 mi/h and repaving to a 5 rating scores 3.58 at LOS D.",
+    "lane_width": 12.0,
+    "shoulder_width": 2.0,
+    "speed_limit": 50.0,
+    "num_lanes": 1,
+    "pavement_condition": 3.0,
+    "hourly_volume": 500.0,
+    "phf": 0.90,
+    "heavy_vehicle_pct": 0.05,
+    "pct_on_highway_parking": 0.0
+}
