@@ -1,5 +1,21 @@
 # Changelog
 
+## Unreleased
+
+### Fixed: `validation_validate_design_full` was a stub in every clean install
+
+`transportations_validator.validators.engine` imports `simpleeval` unconditionally, but `transportations-validator` declares it only under its `api` and `all` extras, never in its base requirements. This project did not declare it either, so it was present only in developer venvs that had picked it up by accident. In any clean install — CI, a fresh deployment, anyone following the README — `hcm_mcp_server.functions.validation` failed to import and the tool answered every call with `{"success": false, "error": "Function validate_design_full_function not found"}`.
+
+`simpleeval>=1.0.0` (resolving to 1.0.7) is now a declared runtime dependency. Taking `transportations-validator[api]` instead would have pulled fastapi, asyncpg, neo4j, uvicorn and the plotting stack into a deployment that runs the engine in-process with no database, so the one package actually needed is declared directly. It can be dropped once the validator lists it among its base requirements.
+
+Three things had to line up for this to ship unnoticed, and all three are now covered:
+
+- `FunctionRegistry.register_function` degrades a failed module import to a lambda placeholder. The tool keeps its name, description and schema, the server starts clean, and nothing raises. `TestEveryRegisteredToolImported` now asserts no registered tool resolves to that placeholder and that every module named in the registry imports, reporting the real exception rather than a swallowed warning. The degradation behaviour itself is unchanged: the server's runtime semantics under a partial install are part of what the ablation measured, so the guard is a test, not a behaviour change.
+- `tests/test_validation_full.py` guards its import with `pytest.importorskip`, so when the import broke, the one suite that exercised this tool skipped instead of failing. A test that runs the full-corpus validator end to end and does not skip now sits beside the import guard.
+- The frozen-surface guard caught it only incidentally, through the placeholder's `<lambda>` function name, and its failure message read "this is a revert, not a snapshot update" — which sent the first investigation looking for an edit that had never happened. That message now names the placeholder case explicitly and points at the import check.
+
+The snapshot in `tests/data/paper_surface.json` is unchanged and was never wrong. The published tool surface did not change; one of its ten tools was broken by a missing dependency, which is exactly what the guard exists to notice.
+
 ## 0.3.0
 
 ### The paper surface

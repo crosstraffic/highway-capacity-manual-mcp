@@ -48,8 +48,12 @@ class TestPublicSurfaceIsFrozen:
         live = live_surface(include_legacy=False)
         for name, frozen in SNAPSHOT["public"].items():
             assert live[name] == frozen, (
-                f"the published tool {name!r} changed. Diff against tests/data/paper_surface.json. "
-                "Name, JSON schema and description are all part of what the ablation measured, so this is a revert, not a snapshot update."
+                f"the published tool {name!r} changed. Diff against tests/data/paper_surface.json.\n"
+                "If the differing field is 'function' and the live value is '<lambda>', this is NOT an edit to the tool: "
+                "the registry degraded a failed module import to a placeholder. Look for a 'Could not import module' "
+                "line in the captured stdout and fix the missing dependency; see TestEveryRegisteredToolImported below.\n"
+                "Otherwise: name, JSON schema and description are all part of what the ablation measured, so this is a "
+                "revert, not a snapshot update."
             )
 
     def test_new_tools_are_additive_only(self):
@@ -62,6 +66,63 @@ class TestPublicSurfaceIsFrozen:
         # exact set keeps a later change from quietly reintroducing a
         # method-per-tool surface and tripling every caller's context cost.
         assert added == {"hcm_analyze", "hcm_describe", "hcm_validate"}, sorted(added)
+
+
+class TestEveryRegisteredToolImported:
+    """No registered tool may be a placeholder.
+
+    ``FunctionRegistry.register_function`` degrades a failed module import into a lambda that answers every call with ``{"success": false, "error": "Function ... not found"}``. Nothing raises, the tool keeps its name, description and schema, and the server starts clean — so a tool can ship completely broken and look healthy.
+
+    That is exactly how ``validation_validate_design_full`` shipped broken: ``simpleeval`` is imported unconditionally by the validator's rule engine but was declared by neither the validator's base requirements nor this project's, so it was present only in developer venvs that had picked it up by accident. Every clean install served a stub. The frozen-surface snapshot caught it by accident, through the placeholder's ``<lambda>`` name, and its message pointed at the wrong cause.
+
+    These tests make the real cause loud. They are deliberately tests rather than a change to the registry's degradation behaviour: the server's runtime semantics are part of what the ablation measured, and a registry that started raising on import failure could change how an arm behaves under a partial install.
+    """
+
+    def test_no_registered_tool_is_an_import_placeholder(self):
+        registry = FunctionRegistry(REGISTRY_FILE, include_legacy=True)
+        broken = {
+            name: info["module"]
+            for name, info in registry.get_all_functions().items()
+            if info["function"].__name__ == "<lambda>" or info.get("available") is False
+        }
+        assert not broken, (
+            f"these tools resolved to the registry's import placeholder and answer every call with an error: {broken}. "
+            "A missing dependency is the usual cause; the captured stdout carries the 'Could not import module' line "
+            "naming it. Declare it in pyproject rather than relying on it being present by accident."
+        )
+
+    def test_every_module_named_in_the_registry_imports(self):
+        """Checked directly rather than through the registry, so a module that fails to import is reported with its real exception instead of a swallowed warning."""
+        import importlib
+
+        import yaml
+
+        config = yaml.safe_load(REGISTRY_FILE.read_text())
+        modules = {
+            entry["module"]
+            for block in ("functions", "legacy_functions")
+            for section in config.get(block, {}).values()
+            for entry in section.values()
+        }
+        failures = {}
+        for module in sorted(modules):
+            try:
+                importlib.import_module(module)
+            except Exception as e:  # noqa: BLE001 -- the point is to report it
+                failures[module] = f"{type(e).__name__}: {e}"
+        assert not failures, f"registry modules that do not import: {failures}"
+
+    def test_the_full_corpus_validator_actually_runs(self):
+        """The tool whose breakage started this. Its own suite uses ``importorskip``, so when the import broke that suite skipped rather than failed -- the second reason a stub shipped unnoticed. This one does not skip."""
+        import asyncio
+
+        registry = FunctionRegistry(REGISTRY_FILE)
+        impl = registry.get_function("validation_validate_design_full")
+        assert impl is not None
+        result = asyncio.run(impl({"design": {"lane_width": 8.0, "facility_type": "TwoLaneHighway"}}))
+        assert result["success"] is True, result.get("error")
+        assert result["error_count"] >= 1, "a 8 ft lane should violate the Exhibit 15-8 range"
+        assert any(v.get("citation") for v in result["violations"]), "violations must carry citations"
 
 
 class TestLegacySurfaceIsFrozen:
