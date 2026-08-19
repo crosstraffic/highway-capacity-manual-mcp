@@ -216,8 +216,11 @@ class TestSemanticValidatorDirect:
             ValidationResult,
             Violation,
         )
+        assert semantic is not None
         assert callable(validate)
         assert callable(validate_highway)
+        assert isinstance(ValidationResult, type)
+        assert isinstance(Violation, type)
 
     def test_validate_function(self):
         """Test the flat validate function."""

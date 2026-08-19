@@ -3,7 +3,7 @@ import importlib
 from pathlib import Path
 
 
-def validate_registry(registry_file: Path = Path("functions_registry.yaml")):
+def validate_registry(registry_file: Path = Path("function_registry.yaml")):
     """Validate the function registry configuration."""
     print(f"Validating registry: {registry_file}")
     
@@ -75,7 +75,7 @@ def validate_registry(registry_file: Path = Path("functions_registry.yaml")):
 
 def main():
     """Main validation function."""
-    registry_file = Path("functions_registry.yaml")
+    registry_file = Path("function_registry.yaml")
     
     if validate_registry(registry_file):
         print("\n✓ Registry validation passed!")

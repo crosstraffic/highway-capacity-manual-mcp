@@ -119,7 +119,7 @@ def add_to_supabase(supabase: Client, embeddings, text_chunks, metadata_list):
         records.append(record)
 
     if records:
-        response = supabase.table("hcm_documents").upsert(records).execute()
+        supabase.table("hcm_documents").upsert(records).execute()
         print(f"Inserted {len(records)} records to Supabase")
     else:
         print("No records inserted — all chunks were duplicates.")

@@ -555,7 +555,7 @@ requires-dist = [
     { name = "simpleeval", specifier = ">=1.0.0" },
     { name = "sqlalchemy", specifier = ">=2.0.0" },
     { name = "supabase", specifier = "==2.18.0" },
-    { name = "transportations-library", editable = "../transportations-library" },
+    { name = "transportations-library", specifier = ">=0.3.6" },
     { name = "transportations-validator", specifier = ">=0.3.0" },
 ]
 
@@ -2396,17 +2396,14 @@ wheels = [
 
 [[package]]
 name = "transportations-library"
-source = { editable = "../transportations-library" }
-
-[package.metadata]
-requires-dist = [
-    { name = "pymupdf", marker = "extra == 'pdf'", specifier = ">=1.26.6" },
-    { name = "pymupdf-layout", marker = "extra == 'pdf'", specifier = ">=1.26.6" },
-    { name = "pymupdf4llm", marker = "extra == 'pdf'", specifier = ">=0.0.17" },
-    { name = "pytest", marker = "extra == 'test'", specifier = ">=6.0" },
-    { name = "pytest-cov", marker = "extra == 'test'" },
+version = "0.3.6"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/a3/8d/e987a0e3790a215892ead1c836c8a52038af7579639bac916bbaf4e9ad97/transportations_library-0.3.6.tar.gz", hash = "sha256:2dc58ae4d3b0a310c79d36870133416597b829633ad7cf48c588226a9f022844", size = 869438, upload-time = "2026-08-18T02:46:48.613Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/34/6d/cb3e0226ddd3a820b100f8e8ae86cd62dee8677e2f3a34e47b09d73cf9dd/transportations_library-0.3.6-cp312-cp312-macosx_11_0_arm64.whl", hash = "sha256:e0a6b9d7d7fed61ba93f68694f0db247b474810b2035ec9264fa0b8c4a389c03", size = 1087435, upload-time = "2026-08-18T02:46:43.452Z" },
+    { url = "https://files.pythonhosted.org/packages/97/a6/3c5a66891243f21ed630f4a18108d8b7e2ebf74b4735ea2c922a01f40099/transportations_library-0.3.6-cp312-cp312-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:a7d94e6275dfd50b7b8b24ba474392dc2c7f17e3cf42fcafe65dfe357e03a506", size = 1167826, upload-time = "2026-08-18T02:46:45.109Z" },
+    { url = "https://files.pythonhosted.org/packages/40/87/d42e0858f2e0377cdd48c0ff5b19e7d42c4bd63198ae83504bd1c1d53667/transportations_library-0.3.6-cp312-cp312-win_amd64.whl", hash = "sha256:486487a8cbc221307b4298c5a6420e7c02152cb054f4e5c3c9f9649c7dd9f532", size = 1082043, upload-time = "2026-08-18T02:46:46.752Z" },
 ]
-provides-extras = ["pdf", "test"]
 
 [[package]]
 name = "transportations-validator"
