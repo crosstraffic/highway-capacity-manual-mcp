@@ -6,7 +6,7 @@ A FastAPI-based Model Context Protocol (MCP) server for Highway Capacity Manual 
 
 - Semantic search over HCM documentation
 - Complete HCM Chapter 15 (two-lane highway) and Chapter 12 (basic freeway) analysis
-- Full HCM chapter coverage, chapters 10 through 28, behind three capability tools (`hcm_analyze`, `hcm_describe`, `hcm_validate`) over 32 methods, each taking the library's own example-case JSON and each validated against its published example problem
+- Full HCM chapter coverage, chapters 10 through 28, behind three capability tools (`hcm_analyze`, `hcm_describe`, `hcm_validate`) over 33 methods, each taking the library's own example-case JSON and each validated against its published example problem
 - Input validation gateway against HCM/AASHTO constraints (via `transportations-validator`)
 - Full-corpus validation (300+ rules across HCM/AASHTO/MUTCD/HSM/ADA/...) with citations, terrain/context-gated rules, and clarification requests — runs in-process, no database
 - Knowledge-graph reasoning: abductive design repair (Two-Lane & Basic Freeway), defeasible code reconciliation, inverse design, and forward/backward chaining — every repair candidate re-executed through the verified library
@@ -284,13 +284,13 @@ A different equation family than Chapter 15 — the `lane width -> FFS -> capaci
 
 ### HCM Analysis Capabilities (full chapter coverage)
 
-Every HCM method the compute library implements, chapters 10 through 28, behind **three capability tools**. The method is an argument, not a tool: thirty-two near-identical schemas would cost every caller context and blunt tool selection, and the ten published tools above are already capability-shaped.
+Every HCM method the compute library implements, chapters 10 through 28, behind **three capability tools**. The method is an argument, not a tool: thirty-three near-identical schemas would cost every caller context and blunt tool selection, and the ten published tools above are already capability-shaped.
 
-- `hcm_analyze` — `{method, config}`. Runs one method. The tool description carries the method catalog, one compact line each, and `method` is an enum of the thirty-two ids.
+- `hcm_analyze` — `{method, config}`. Runs one method. The tool description carries the method catalog, one compact line each, and `method` is an enum of the thirty-three ids.
 - `hcm_describe` — `{method?}`. With a method: its input schema sketch, its result-field meanings and the example-problem fixture that validates it. Without one: the catalog, every method id with its chapter and a one-line summary. Call this first; it is how a caller learns a method's shape without reading the Rust bindings.
-- `hcm_validate` — `{method, config}`. Parses and checks a config **without running the analysis**, returning the library's own validation errors or ok. Iterating on a config costs a parse rather than a full analysis. Twenty-three of the thirty-two methods have a real validation step behind the constructor (serde deserialisation, constructor range checks, and for Chapter 15 the Exhibit 15-8 parameter ranges via `tl.validate_input`); the other nine are single JSON entry points in the library where parsing and computation are one call, and those say so in the response rather than running the analysis and calling it a validation.
+- `hcm_validate` — `{method, config}`. Parses and checks a config **without running the analysis**, returning the library's own validation errors or ok. Iterating on a config costs a parse rather than a full analysis. Twenty-four of the thirty-three methods have a real validation step behind the constructor (serde deserialisation, constructor range checks, and for Chapter 15 the Exhibit 15-8 parameter ranges via `tl.validate_input`); the other nine are single JSON entry points in the library where parsing and computation are one call, and those say so in the response rather than running the analysis and calling it a validation.
 
-The input is always the compute library's own example-case (fixture) JSON, passed as `config` — not a second flattened schema invented for the MCP layer. An example case from `transportations-library/tests/ExampleCases/hcm/` can be handed over unmodified. Requires `transportations-library>=0.3.6`.
+The input is always the compute library's own example-case (fixture) JSON, passed as `config` — not a second flattened schema invented for the MCP layer. An example case from `transportations-library/tests/ExampleCases/hcm/` can be handed over unmodified. Requires `transportations-library>=0.3.7`.
 
 | Chapter | `method` | What it computes |
 | --- | --- | --- |
@@ -300,6 +300,7 @@ The input is always the compute library's own example-case (fixture) JSON, passe
 | 12 | `analyze_basic_freeway` | Basic freeway and multilane segment |
 | 13 | `analyze_weaving` | Freeway weaving segment (HCM 7 and 7.1) |
 | 14 | `analyze_merge_diverge` | Freeway merge and diverge segment (HCM 7 and 7.1) |
+| 15 | `analyze_bicycle_los` | Two-lane and multilane highway segment, bicycle mode |
 | 15 | `analyze_two_lane_highway` | Two-lane highway facility |
 | 16 | `analyze_urban_facility` | Urban street facility |
 | 17 | `analyze_urban_reliability` | Urban street travel-time reliability |

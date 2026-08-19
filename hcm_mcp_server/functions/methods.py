@@ -461,6 +461,27 @@ def analyze_two_lane_highway_function(data: Dict[str, Any]) -> Dict[str, Any]:
     return _dispatch(_run_two_lane_highway, data)
 
 
+@_guarded
+def _run_bicycle_los(config: Dict[str, Any]) -> Dict[str, Any]:
+    return {"success": True, "results": json.loads(tl.analyze_bicycle_los(json.dumps(config)))}
+
+
+def analyze_bicycle_los_function(data: Dict[str, Any]) -> Dict[str, Any]:
+    """HCM Chapter 15, Section 4 bicycle mode on a two-lane or multilane highway segment.
+
+    The bicycle method's input set is not the motorized method's, which is why this is a separate method rather than a mode argument on ``analyze_two_lane_highway``: pavement rating and on-highway parking govern the score, and segment length does not enter it at all.
+
+    Input is the bicycle-LOS fixture schema: ``lane_width`` and ``shoulder_width`` in feet, ``speed_limit`` in mi/h, ``num_lanes`` (directional through lanes, 1 for a two-lane highway), ``pavement_condition`` on the FHWA 5-point scale where 1 is very poor and 5 very good, ``hourly_volume`` in veh/h, ``phf``, and ``heavy_vehicle_pct`` and ``pct_on_highway_parking``. All nine are required; none of them defaults. Worked example: ``analyze_bicycle_los`` ships the HCM two-lane highway widening example, a 12 ft lane with a 2 ft shoulder at a posted 50 mi/h whose published BLOS score is 5.90 at LOS F, and 3.58 at LOS D after the project widens the shoulder to 6 ft, raises the limit to 55 mi/h and repaves.
+
+    ``heavy_vehicle_pct`` and ``pct_on_highway_parking`` are DECIMALS here, 0.05 for 5%, which is the opposite of the ``phv`` percent convention in the same chapter's motorized schema. A percent passed as a percent does not raise; it drives the score far past the LOS F threshold.
+
+    ``flow_rate_outside_lane`` is the Step 2 directional flow in the outside lane in veh/h, ``effective_width`` the Step 3 effective width of that lane in feet (which shoulder width moves in steps, at 4 ft and 8 ft, rather than continuously), ``effective_speed_factor`` the Step 4 term from the posted limit, and ``blos_score`` the Equation 15-47 score whose Exhibit 15-7 letter is ``los``. The score runs the opposite way to a grade: lower is better, and a project succeeds by reducing it.
+
+    Equation 15-46 takes ln(speed_limit - 20), so a posted limit of 20 mi/h or below has no defined effective speed factor. The library returns ``effective_speed_factor`` and ``blos_score`` as null there while still reporting an ``los`` letter from the raw value, and that letter is meaningless. Treat a null score as the answer, not the letter beside it.
+    """
+    return _dispatch(_run_bicycle_los, data)
+
+
 # ── Chapters 16-18: urban streets ────────────────────────────────────────────
 
 _URBAN_FACILITY = ["los", "poorest_segment_los", "travel_speed_mph", "base_free_flow_speed_mph",
@@ -1011,6 +1032,8 @@ METHODS: Dict[str, Dict[str, Any]] = {
                               "title": "Freeway merge and diverge segment", "editions": ["7", "7.1"]},
     "analyze_two_lane_highway": {"chapter": 15, "library": "TwoLaneHighways", "function": analyze_two_lane_highway_function,
                                  "title": "Two-lane highway facility"},
+    "analyze_bicycle_los": {"chapter": 15, "library": "analyze_bicycle_los", "function": analyze_bicycle_los_function,
+                            "title": "Two-lane and multilane highway segment, bicycle mode"},
     "analyze_urban_facility": {"chapter": 16, "library": "UrbanFacility", "function": analyze_urban_facility_function,
                                "title": "Urban street facility"},
     "analyze_urban_reliability": {"chapter": 17, "library": "UrbanReliability", "function": analyze_urban_reliability_function,
@@ -1069,7 +1092,10 @@ METHODS: Dict[str, Dict[str, Any]] = {
 # range checks) and raises with the library's own message, without running a
 # single equation. Methods reached through a bare JSON function have no such
 # split -- validation happens inside the analysis -- and those say so rather
-# than quietly running the analysis and calling it a validation.
+# than quietly running the analysis and calling it a validation. The one
+# exception is analyze_bicycle_los, whose bare JSON function is shadowed by a
+# BicycleLOS class holding the same input set and computing nothing, so the
+# parse can be run there.
 
 
 def _json_class_validator(cls_name: str) -> Callable[[Dict[str, Any]], None]:
@@ -1115,6 +1141,21 @@ def _validate_two_lane_highway(config: Dict[str, Any]) -> None:
         raise ValueError("; ".join(errors))
 
 
+_BICYCLE_LOS_KEYS = ("lane_width", "shoulder_width", "speed_limit", "num_lanes", "pavement_condition",
+                     "hourly_volume", "phf", "heavy_vehicle_pct", "pct_on_highway_parking")
+
+
+def _validate_bicycle_los(config: Dict[str, Any]) -> None:
+    """The bicycle mode reaches the engine through a bare JSON function, but the same input set is also a ``BicycleLOS`` constructor that computes nothing, so a dry run here is a real parse rather than the analysis under another name. The missing-field check is spelled out because serde names only the first field it misses, and a config short three fields is worth learning about in one round trip."""
+    missing = [k for k in _BICYCLE_LOS_KEYS if config.get(k) is None]
+    if missing:
+        raise ValueError(
+            f"missing required field(s) {', '.join(repr(k) for k in missing)}: BicycleLOS has no defaults, "
+            "every one of the nine inputs enters Equation 15-47"
+        )
+    tl.BicycleLOS(*(config[k] for k in _BICYCLE_LOS_KEYS))
+
+
 def _validate_ramp_service_volumes(config: Dict[str, Any]) -> None:
     _ramp_segment(config["segment"])
     if (config.get("ramp_fraction") is None) == (config.get("fixed_freeway_vf") is None):
@@ -1145,6 +1186,7 @@ _VALIDATORS: Dict[str, Any] = {
     "analyze_weaving": (_kwargs_validator(_weaving_segment), "the WeavingSegment keyword constructor's range and enum checks"),
     "analyze_merge_diverge": (_kwargs_validator(_ramp_segment), "the RampSegment keyword constructor's range and enum checks"),
     "analyze_two_lane_highway": (_validate_two_lane_highway, "the Segment/SubSegment constructors plus tl.validate_input's Exhibit 15-8 parameter ranges"),
+    "analyze_bicycle_los": (_validate_bicycle_los, "the nine required BicycleLOS inputs and their types, through the constructor (no range check: Equation 15-46 is undefined at a posted speed limit of 20 mi/h or below and the library does not refuse it)"),
     "analyze_urban_facility": (_json_class_validator("UrbanFacility"), "serde deserialisation of the urban facility config"),
     "analyze_urban_reliability": (_json_class_validator("UrbanReliability"), "serde deserialisation of the urban reliability config"),
     "analyze_urban_segment": (_json_class_validator("UrbanSegment"), "serde deserialisation of the urban segment config"),
@@ -1219,8 +1261,8 @@ def _method_row(name: str, entry: Dict[str, Any]) -> Dict[str, Any]:
 # ── The three capability tools ───────────────────────────────────────────────
 # The MCP surface is capability-shaped, matching the ten tools of the published
 # surface: one tool to run a method, one to discover it, one to dry-run a config.
-# The 32 per-method functions above stay as the implementation and keep their
-# REST routes; they are not advertised as separate tools, because 32 near-
+# The 33 per-method functions above stay as the implementation and keep their
+# REST routes; they are not advertised as separate tools, because 33 near-
 # identical schemas cost every caller context and blunt tool selection.
 
 
