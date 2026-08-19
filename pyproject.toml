@@ -38,6 +38,20 @@ dependencies = [
     # validate_design_full runs the full rule engine in-process via the ORM
     # model classes — sqlalchemy the library, but no database server / asyncpg.
     "sqlalchemy>=2.0.0",
+    # simpleeval is what the validator's rule engine evaluates formula-type rule
+    # expressions with. transportations-validator imports it unconditionally from
+    # validators/engine.py but declares it only under its `api` and `all` extras,
+    # so a base install of the validator cannot import the engine at all. We take
+    # those extras deliberately (they pull fastapi, asyncpg, neo4j, uvicorn and
+    # the plotting stack, which an in-process no-database deployment has no use
+    # for), so the one genuinely needed package is declared here instead.
+    #
+    # This is compensating for an upstream metadata gap, not a dependency this
+    # repo chose: drop it once transportations-validator lists simpleeval among
+    # its base requirements. Until 2026-08-19 it was undeclared on both sides and
+    # only present in developer venvs by accident, which left
+    # validation_validate_design_full a non-functional stub in any clean install.
+    "simpleeval>=1.0.0",
     # The reasoning layer (repair/reconcile/inverse/chaining + BasicFreeway), the
     # Chapter 12 tools, and validate_design_full need:
     #   - transportations-validator >=0.3.0 (seed-backed engine + reasoning modules + coverage/abstention on semantic results)
