@@ -1,0 +1,32 @@
+{
+  "_source": "HCM 7th Edition, Chapter 27, Example Problem 5 (service flow rates, service volumes and daily service volumes for a weaving segment). Segment transcribed from transportations-library tests/test_chapter13_integration.py; the library ships no fixture file for this example problem.",
+  "segment": {
+    "weaving_type": "OneSided",
+    "facility_type": "Freeway",
+    "length_short": 1500.0,
+    "num_lanes": 3,
+    "num_weaving_lanes": 2,
+    "ffs": 65.0,
+    "interchange_density": 1.0,
+    "lc_rf": 0,
+    "lc_fr": 2,
+    "lc_rr": 0,
+    "basic_freeway_capacity": 2350.0
+  },
+  "split": [
+    0.65,
+    0.15,
+    0.12,
+    0.08
+  ],
+  "target_densities": [
+    10.0,
+    20.0,
+    28.0,
+    35.0
+  ],
+  "f_hv": 0.952,
+  "phf": 0.93,
+  "k_factor": 0.08,
+  "d_factor": 0.55
+}

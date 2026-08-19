@@ -1,0 +1,31 @@
+{
+  "_source": "HCM 7th Edition, Chapter 35, Example Problem 2: Bicycle LOS on a Shared-Use Path (planning analysis)",
+  "path_width": 10.0,
+  "has_centerline": false,
+  "segment_length": 3.0,
+  "is_one_way": false,
+  "two_way_demand": 340.0,
+  "directional_split": 0.5,
+  "phf": 0.9,
+  "mode_splits": [
+    0.55,
+    0.2,
+    0.1,
+    0.1,
+    0.05
+  ],
+  "mode_speeds": [
+    12.8,
+    3.4,
+    6.5,
+    10.1,
+    7.9
+  ],
+  "mode_speed_sds": [
+    3.4,
+    0.6,
+    1.2,
+    2.7,
+    1.9
+  ]
+}

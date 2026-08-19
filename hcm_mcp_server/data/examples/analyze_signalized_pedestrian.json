@@ -1,0 +1,12 @@
+{
+  "_source": "HCM 7th Edition, Chapter 31, Example Problem 2 (pedestrian LOS at a signalized intersection). Transcribed from transportations-library tests/test_chapter19_integration.py; the library ships no fixture file for this example problem.",
+  "cycle_length_s": 80.0,
+  "walk_setting_s": 7.0,
+  "lanes_crossed": 2.0,
+  "v_rtor": 30.0,
+  "v_lt_perm": 42.0,
+  "num_rtci": 0.0,
+  "crossed_street_volume_sum": 986.0,
+  "crossed_street_lanes": 2.0,
+  "speed_85_mph": 35.0
+}

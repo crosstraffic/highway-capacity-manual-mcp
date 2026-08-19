@@ -1,0 +1,22 @@
+{
+  "_source": "HCM 7th Edition, Chapter 30, Example Problem 2 (pedestrian LOS on an urban street segment). Transcribed from transportations-library tests/test_chapter18_integration.py; the library ships no fixture file for this example problem.",
+  "length_ft": 1320.0,
+  "num_through_lanes": 2.0,
+  "midseg_flow_rate": 940.0,
+  "ped_flow_rate": 2000.0,
+  "prop_parking_occupied": 0.2,
+  "width_sidewalk_ft": 10.0,
+  "width_buffer_ft": 5.0,
+  "prop_fence": 0.5,
+  "width_outside_lane_ft": 12.0,
+  "width_bike_lane_ft": 5.0,
+  "width_parking_lane_ft": 9.5,
+  "curb_present": true,
+  "motor_running_speed": 33.0,
+  "free_flow_walk_speed": 4.4,
+  "ped_delay_parallel": 40.0,
+  "ped_delay_crossing_signal": 80.0,
+  "ped_delay_crossing_uncontrolled": 740.0,
+  "ped_los_score_intersection": 3.6,
+  "prop_midblock_crossing": 0.35
+}

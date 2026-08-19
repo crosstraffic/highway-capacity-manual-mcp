@@ -511,7 +511,7 @@ wheels = [
 
 [[package]]
 name = "hcm-mcp-server"
-version = "0.2.0"
+version = "0.3.0"
 source = { editable = "." }
 dependencies = [
     { name = "chromadb" },
@@ -554,7 +554,7 @@ requires-dist = [
     { name = "sqlalchemy", specifier = ">=2.0.0" },
     { name = "supabase", specifier = "==2.18.0" },
     { name = "transportations-library", editable = "../transportations-library" },
-    { name = "transportations-validator", specifier = ">=0.2.0" },
+    { name = "transportations-validator", specifier = ">=0.3.0" },
 ]
 
 [package.metadata.requires-dev]
@@ -2399,10 +2399,11 @@ provides-extras = ["pdf", "test"]
 
 [[package]]
 name = "transportations-validator"
-version = "0.2.0"
+version = "0.3.0"
 source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/7a/ed/7d8385c268d1c53cc6e20f56f0a5f8c901949e39750af11ab4a0dd7b88c3/transportations_validator-0.3.0.tar.gz", hash = "sha256:77db3a3ce0f31acdd2e6e3239ec64e1ebeb98e021e484e27c33a5b7d90405466", size = 2236531, upload-time = "2026-08-04T21:14:17.081Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/40/ac/534a5ff56dfd734a8a6b2e2ed0f60fb8aeac49693510464051974778dabc/transportations_validator-0.2.0-py3-none-any.whl", hash = "sha256:c2e5209a121cce832d00a21a10521e823b62379bef2a28bf0be1be910a873a47", size = 218412, upload-time = "2026-06-15T04:01:30.718Z" },
+    { url = "https://files.pythonhosted.org/packages/21/a3/086b383a3e12dfb2a6cf12fce8ed5cd1873ad86f6e6790fa2527d70f4d9f/transportations_validator-0.3.0-py3-none-any.whl", hash = "sha256:15ad5bd272f8daaf04f1465f161db57805aa8e44f9033d3fade5a60941605676", size = 201969, upload-time = "2026-08-04T21:14:15.434Z" },
 ]
 
 [[package]]

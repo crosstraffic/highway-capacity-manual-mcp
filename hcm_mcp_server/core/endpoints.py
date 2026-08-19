@@ -5,6 +5,8 @@ from fastapi import HTTPException, APIRouter, Depends
 from hcm_mcp_server.core.dependencies import get_function_registry
 from hcm_mcp_server.core.registry import FunctionRegistry
 
+from hcm_mcp_server.functions.methods import METHODS, describe_method_function
+
 from .models import (
     ToolCallRequest, ListToolsRequest, FunctionListResponse,
     QueryHCMRequest, TwoLaneHighwaysInput, SegmentAnalysisRequest,
@@ -322,6 +324,55 @@ async def chapter15_segment_analysis(
         }
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
+# Per-method HCM analysis surface (hcm_mcp_server.functions.methods)
+#
+# One route per HCM method, generated from the METHODS table so a new method is
+# a single table entry rather than a route plus a registry entry plus a handler.
+# The operation ids are `hcm_<method>`, matching the registry names, and every
+# one of them is new: nothing above this line changes name, schema or behaviour.
+def _method_route(tool_name: str, summary: str, description: str):
+    async def handler(
+        request: Dict[str, Any],
+        registry: FunctionRegistry = Depends(get_function_registry),
+    ) -> Dict[str, Any]:
+        function_impl = registry.get_function(tool_name)
+        if function_impl is None:
+            raise HTTPException(status_code=404, detail=f"{tool_name} not available")
+        try:
+            return function_impl(request)
+        except Exception as e:
+            raise HTTPException(status_code=500, detail=str(e))
+
+    handler.__name__ = tool_name
+    handler.__doc__ = description
+    router.post(
+        f"/analysis/hcm/{tool_name.removeprefix('hcm_').replace('_', '-')}",
+        tags=["hcm"],
+        operation_id=tool_name,
+        summary=summary,
+    )(handler)
+
+
+for _name, _entry in sorted(METHODS.items(), key=lambda kv: (kv[1]["chapter"], kv[0])):
+    _method_route(
+        f"hcm_{_name}",
+        f"HCM Ch. {_entry['chapter']}: {_entry['title']}",
+        (_entry["function"].__doc__ or "").strip(),
+    )
+
+_method_route(
+    "hcm_describe_method",
+    "Describe an HCM method's inputs and worked example",
+    (describe_method_function.__doc__ or "").strip(),
+)
+
+# The full-coverage tool surface, offered over MCP only when the server opts in.
+# It is deliberately NOT folded into PUBLIC_OPERATIONS: that list is the tool
+# surface the published ablation experiment ran against, and changing what the
+# default MCP mount exposes would change the experiment rather than extend it.
+FULL_COVERAGE_OPERATIONS = [f"hcm_{name}" for name in sorted(METHODS)] + ["hcm_describe_method"]
+
 
 # Utility endpoints
 @router.get("/health", tags=["utility"])

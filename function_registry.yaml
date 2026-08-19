@@ -203,12 +203,477 @@ functions:
             description: 'Optional conditions, e.g. {terrain_type: mountainous, jurisdiction: state}'
         required:
         - design
+  hcm:
+    analyze_freeway_facility:
+      module: hcm_mcp_server.functions.methods
+      function: analyze_freeway_facility_function
+      description: 'HCM Chapter 10 freeway facilities, run through the Chapter 25 computational engine. Input is the library fixture schema; call hcm_describe_method for the shape and a worked example'
+      category: hcm
+      chapter: 10
+      parameters:
+        type: object
+        properties:
+          config:
+            type: object
+            description: Analysis inputs in this method's HCM example-case (fixture) schema
+        required:
+        - config
+    analyze_managed_lanes:
+      module: hcm_mcp_server.functions.methods
+      function: analyze_managed_lanes_function
+      description: 'HCM Chapter 10 managed-lane freeway facility (Steps A-9, A-13, A-14 and A-17 of the Chapter 25 procedure). Input is the library fixture schema; call hcm_describe_method for the shape and a worked example'
+      category: hcm
+      chapter: 10
+      parameters:
+        type: object
+        properties:
+          config:
+            type: object
+            description: Analysis inputs in this method's HCM example-case (fixture) schema
+        required:
+        - config
+    analyze_freeway_reliability:
+      module: hcm_mcp_server.functions.methods
+      function: analyze_freeway_reliability_function
+      description: 'HCM Chapter 11 freeway travel-time reliability. Input is the library fixture schema; call hcm_describe_method for the shape and a worked example'
+      category: hcm
+      chapter: 11
+      parameters:
+        type: object
+        properties:
+          config:
+            type: object
+            description: Analysis inputs in this method's HCM example-case (fixture) schema
+        required:
+        - config
+    analyze_basic_freeway:
+      module: hcm_mcp_server.functions.methods
+      function: analyze_basic_freeway_function
+      description: 'HCM Chapter 12 basic freeway and multilane highway segments. Input is the library fixture schema; call hcm_describe_method for the shape and a worked example'
+      category: hcm
+      chapter: 12
+      parameters:
+        type: object
+        properties:
+          config:
+            type: object
+            description: Analysis inputs in this method's HCM example-case (fixture) schema
+        required:
+        - config
+    analyze_weaving:
+      module: hcm_mcp_server.functions.methods
+      function: analyze_weaving_function
+      description: 'HCM Chapter 13 freeway weaving segments, in both editions the library carries. Input is the library fixture schema; call hcm_describe_method for the shape and a worked example'
+      category: hcm
+      chapter: 13
+      parameters:
+        type: object
+        properties:
+          config:
+            type: object
+            description: Analysis inputs in this method's HCM example-case (fixture) schema
+        required:
+        - config
+    analyze_merge_diverge:
+      module: hcm_mcp_server.functions.methods
+      function: analyze_merge_diverge_function
+      description: 'HCM Chapter 14 freeway merge and diverge (ramp) segments, in both editions the library carries. Input is the library fixture schema; call hcm_describe_method for the shape and a worked example'
+      category: hcm
+      chapter: 14
+      parameters:
+        type: object
+        properties:
+          config:
+            type: object
+            description: Analysis inputs in this method's HCM example-case (fixture) schema
+        required:
+        - config
+    analyze_two_lane_highway:
+      module: hcm_mcp_server.functions.methods
+      function: analyze_two_lane_highway_function
+      description: 'HCM Chapter 15 two-lane highway facilities, taking the library''s fixture schema. Input is the library fixture schema; call hcm_describe_method for the shape and a worked example'
+      category: hcm
+      chapter: 15
+      parameters:
+        type: object
+        properties:
+          config:
+            type: object
+            description: Analysis inputs in this method's HCM example-case (fixture) schema
+        required:
+        - config
+    analyze_urban_facility:
+      module: hcm_mcp_server.functions.methods
+      function: analyze_urban_facility_function
+      description: 'HCM Chapter 16 urban street facilities. Input is the library fixture schema; call hcm_describe_method for the shape and a worked example'
+      category: hcm
+      chapter: 16
+      parameters:
+        type: object
+        properties:
+          config:
+            type: object
+            description: Analysis inputs in this method's HCM example-case (fixture) schema
+          mode:
+            type: string
+            description: aggregate (default, combines supplied per-segment measures) or analyze (runs the Chapter 18 engine per segment first)
+        required:
+        - config
+    analyze_urban_reliability:
+      module: hcm_mcp_server.functions.methods
+      function: analyze_urban_reliability_function
+      description: 'HCM Chapter 17 urban street travel-time reliability. Input is the library fixture schema; call hcm_describe_method for the shape and a worked example'
+      category: hcm
+      chapter: 17
+      parameters:
+        type: object
+        properties:
+          config:
+            type: object
+            description: Analysis inputs in this method's HCM example-case (fixture) schema
+        required:
+        - config
+    analyze_bicycle_segment:
+      module: hcm_mcp_server.functions.methods
+      function: analyze_bicycle_segment_function
+      description: 'HCM Chapter 18, Section 5 bicycle mode on an urban street segment. Input is the library fixture schema; call hcm_describe_method for the shape and a worked example'
+      category: hcm
+      chapter: 18
+      parameters:
+        type: object
+        properties:
+          config:
+            type: object
+            description: Analysis inputs in this method's HCM example-case (fixture) schema
+        required:
+        - config
+    analyze_pedestrian_segment:
+      module: hcm_mcp_server.functions.methods
+      function: analyze_pedestrian_segment_function
+      description: 'HCM Chapter 18, Section 4 pedestrian mode on an urban street segment. Input is the library fixture schema; call hcm_describe_method for the shape and a worked example'
+      category: hcm
+      chapter: 18
+      parameters:
+        type: object
+        properties:
+          config:
+            type: object
+            description: Analysis inputs in this method's HCM example-case (fixture) schema
+        required:
+        - config
+    analyze_transit_segment:
+      module: hcm_mcp_server.functions.methods
+      function: analyze_transit_segment_function
+      description: 'HCM Chapter 18, Section 6 transit mode on an urban street segment. Input is the library fixture schema; call hcm_describe_method for the shape and a worked example'
+      category: hcm
+      chapter: 18
+      parameters:
+        type: object
+        properties:
+          config:
+            type: object
+            description: Analysis inputs in this method's HCM example-case (fixture) schema
+        required:
+        - config
+    analyze_urban_segment:
+      module: hcm_mcp_server.functions.methods
+      function: analyze_urban_segment_function
+      description: 'HCM Chapter 18 urban street segments. Input is the library fixture schema; call hcm_describe_method for the shape and a worked example'
+      category: hcm
+      chapter: 18
+      parameters:
+        type: object
+        properties:
+          config:
+            type: object
+            description: Analysis inputs in this method's HCM example-case (fixture) schema
+        required:
+        - config
+    analyze_signalized:
+      module: hcm_mcp_server.functions.methods
+      function: analyze_signalized_function
+      description: 'HCM Chapter 19 signalized intersections, motorized vehicle mode. Input is the library fixture schema; call hcm_describe_method for the shape and a worked example'
+      category: hcm
+      chapter: 19
+      parameters:
+        type: object
+        properties:
+          config:
+            type: object
+            description: Analysis inputs in this method's HCM example-case (fixture) schema
+        required:
+        - config
+    analyze_signalized_bicycle:
+      module: hcm_mcp_server.functions.methods
+      function: analyze_signalized_bicycle_function
+      description: 'HCM Chapter 19, Section 6 bicycle mode at a signalized intersection. Input is the library fixture schema; call hcm_describe_method for the shape and a worked example'
+      category: hcm
+      chapter: 19
+      parameters:
+        type: object
+        properties:
+          config:
+            type: object
+            description: Analysis inputs in this method's HCM example-case (fixture) schema
+        required:
+        - config
+    analyze_signalized_pedestrian:
+      module: hcm_mcp_server.functions.methods
+      function: analyze_signalized_pedestrian_function
+      description: 'HCM Chapter 19, Section 5 pedestrian mode at a signalized intersection. Input is the library fixture schema; call hcm_describe_method for the shape and a worked example'
+      category: hcm
+      chapter: 19
+      parameters:
+        type: object
+        properties:
+          config:
+            type: object
+            description: Analysis inputs in this method's HCM example-case (fixture) schema
+        required:
+        - config
+    analyze_two_stage_crossing:
+      module: hcm_mcp_server.functions.methods
+      function: analyze_two_stage_crossing_function
+      description: 'HCM Chapter 19 two-stage pedestrian crossing delay at a signalized intersection. Input is the library fixture schema; call hcm_describe_method for the shape and a worked example'
+      category: hcm
+      chapter: 19
+      parameters:
+        type: object
+        properties:
+          config:
+            type: object
+            description: Analysis inputs in this method's HCM example-case (fixture) schema
+        required:
+        - config
+    analyze_twsc:
+      module: hcm_mcp_server.functions.methods
+      function: analyze_twsc_function
+      description: 'HCM Chapter 20 two-way STOP-controlled intersections, vehicular modes. Input is the library fixture schema; call hcm_describe_method for the shape and a worked example'
+      category: hcm
+      chapter: 20
+      parameters:
+        type: object
+        properties:
+          config:
+            type: object
+            description: Analysis inputs in this method's HCM example-case (fixture) schema
+        required:
+        - config
+    analyze_twsc_pedestrian:
+      module: hcm_mcp_server.functions.methods
+      function: analyze_twsc_pedestrian_function
+      description: 'HCM Chapter 20, Section 5 pedestrian mode at a TWSC or midblock crossing (Steps 1 through 7, Equations 20-76 through 20-99). Input is the library fixture schema; call hcm_describe_method for the shape and a worked example'
+      category: hcm
+      chapter: 20
+      parameters:
+        type: object
+        properties:
+          config:
+            type: object
+            description: Analysis inputs in this method's HCM example-case (fixture) schema
+        required:
+        - config
+    analyze_awsc:
+      module: hcm_mcp_server.functions.methods
+      function: analyze_awsc_function
+      description: 'HCM Chapter 21 all-way STOP-controlled intersections. Input is the library fixture schema; call hcm_describe_method for the shape and a worked example'
+      category: hcm
+      chapter: 21
+      parameters:
+        type: object
+        properties:
+          config:
+            type: object
+            description: Analysis inputs in this method's HCM example-case (fixture) schema
+        required:
+        - config
+    analyze_roundabout:
+      module: hcm_mcp_server.functions.methods
+      function: analyze_roundabout_function
+      description: 'HCM Chapter 22 roundabouts. Input is the library fixture schema; call hcm_describe_method for the shape and a worked example'
+      category: hcm
+      chapter: 22
+      parameters:
+        type: object
+        properties:
+          config:
+            type: object
+            description: Analysis inputs in this method's HCM example-case (fixture) schema
+        required:
+        - config
+    analyze_alternative_intersection:
+      module: hcm_mcp_server.functions.methods
+      function: analyze_alternative_intersection_function
+      description: 'HCM Chapter 23, Part C alternative intersections: restricted crossing U-turn (RCUT) and median U-turn (MUT). Input is the library fixture schema; call hcm_describe_method for the shape and a worked example'
+      category: hcm
+      chapter: 23
+      parameters:
+        type: object
+        properties:
+          config:
+            type: object
+            description: Analysis inputs in this method's HCM example-case (fixture) schema
+        required:
+        - config
+    analyze_displaced_left_turn:
+      module: hcm_mcp_server.functions.methods
+      function: analyze_displaced_left_turn_function
+      description: 'HCM Chapter 23, Part C displaced left-turn (DLT) intersections. Input is the library fixture schema; call hcm_describe_method for the shape and a worked example'
+      category: hcm
+      chapter: 23
+      parameters:
+        type: object
+        properties:
+          config:
+            type: object
+            description: Analysis inputs in this method's HCM example-case (fixture) schema
+        required:
+        - config
+    analyze_ramp_terminal:
+      module: hcm_mcp_server.functions.methods
+      function: analyze_ramp_terminal_function
+      description: 'HCM Chapter 23, Part B interchange ramp terminals. Input is the library fixture schema; call hcm_describe_method for the shape and a worked example'
+      category: hcm
+      chapter: 23
+      parameters:
+        type: object
+        properties:
+          config:
+            type: object
+            description: Analysis inputs in this method's HCM example-case (fixture) schema
+        required:
+        - config
+    analyze_offstreet_bicycle:
+      module: hcm_mcp_server.functions.methods
+      function: analyze_offstreet_bicycle_function
+      description: 'HCM Chapter 24 bicycle level of service on an off-street or shared-use path. Input is the library fixture schema; call hcm_describe_method for the shape and a worked example'
+      category: hcm
+      chapter: 24
+      parameters:
+        type: object
+        properties:
+          config:
+            type: object
+            description: Analysis inputs in this method's HCM example-case (fixture) schema
+        required:
+        - config
+    analyze_pedestrian_walkway:
+      module: hcm_mcp_server.functions.methods
+      function: analyze_pedestrian_walkway_function
+      description: 'HCM Chapter 24 exclusive pedestrian facilities: walkways and stairwells. Input is the library fixture schema; call hcm_describe_method for the shape and a worked example'
+      category: hcm
+      chapter: 24
+      parameters:
+        type: object
+        properties:
+          config:
+            type: object
+            description: Analysis inputs in this method's HCM example-case (fixture) schema
+        required:
+        - config
+    analyze_shared_use_path_pedestrian:
+      module: hcm_mcp_server.functions.methods
+      function: analyze_shared_use_path_pedestrian_function
+      description: 'HCM Chapter 24 pedestrian level of service on a shared-use path. Input is the library fixture schema; call hcm_describe_method for the shape and a worked example'
+      category: hcm
+      chapter: 24
+      parameters:
+        type: object
+        properties:
+          config:
+            type: object
+            description: Analysis inputs in this method's HCM example-case (fixture) schema
+        required:
+        - config
+    analyze_composite_grade:
+      module: hcm_mcp_server.functions.methods
+      function: analyze_composite_grade_function
+      description: 'HCM Chapter 25 mixed-flow model for a composite grade. Input is the library fixture schema; call hcm_describe_method for the shape and a worked example'
+      category: hcm
+      chapter: 25
+      parameters:
+        type: object
+        properties:
+          config:
+            type: object
+            description: Analysis inputs in this method's HCM example-case (fixture) schema
+        required:
+        - config
+    analyze_planning_facility:
+      module: hcm_mcp_server.functions.methods
+      function: analyze_planning_facility_function
+      description: 'HCM Chapter 25, Section 6 planning-level freeway facility method. Input is the library fixture schema; call hcm_describe_method for the shape and a worked example'
+      category: hcm
+      chapter: 25
+      parameters:
+        type: object
+        properties:
+          config:
+            type: object
+            description: Analysis inputs in this method's HCM example-case (fixture) schema
+        required:
+        - config
+    analyze_mixed_flow:
+      module: hcm_mcp_server.functions.methods
+      function: analyze_mixed_flow_function
+      description: 'HCM Chapter 26 mixed-flow model for a single grade. Input is the library fixture schema; call hcm_describe_method for the shape and a worked example'
+      category: hcm
+      chapter: 26
+      parameters:
+        type: object
+        properties:
+          config:
+            type: object
+            description: Analysis inputs in this method's HCM example-case (fixture) schema
+        required:
+        - config
+    analyze_weaving_service_volumes:
+      module: hcm_mcp_server.functions.methods
+      function: analyze_weaving_service_volumes_function
+      description: 'HCM Chapter 27 service flow rates, service volumes and daily service volumes for a weaving segment. Input is the library fixture schema; call hcm_describe_method for the shape and a worked example'
+      category: hcm
+      chapter: 27
+      parameters:
+        type: object
+        properties:
+          config:
+            type: object
+            description: Analysis inputs in this method's HCM example-case (fixture) schema
+        required:
+        - config
+    analyze_ramp_service_volumes:
+      module: hcm_mcp_server.functions.methods
+      function: analyze_ramp_service_volumes_function
+      description: 'HCM Chapter 28 service flow rates and service volumes for a merge or diverge segment. Input is the library fixture schema; call hcm_describe_method for the shape and a worked example'
+      category: hcm
+      chapter: 28
+      parameters:
+        type: object
+        properties:
+          config:
+            type: object
+            description: Analysis inputs in this method's HCM example-case (fixture) schema
+        required:
+        - config
+    describe_method:
+      module: hcm_mcp_server.functions.methods
+      function: describe_method_function
+      description: 'Describe an HCM method: with a method name, its input schema sketch, result-field meanings and the example-problem fixture that validates it; without one, every method with its chapter'
+      category: hcm
+      parameters:
+        type: object
+        properties:
+          method:
+            type: string
+            description: Method name, e.g. analyze_weaving or hcm_analyze_weaving; omit to list every method
+        required: []
 categories:
   transportation: Transportation analysis and capacity calculations
   research: Documentation search and research functions
   reasoning: 'Graph reasoning over the executable knowledge graph: repair, reconcile, inverse design, chaining'
   validation: Full-corpus rule validation with citations and clarifications, in-process
   utility: General utility and helper functions
+  hcm: 'Per-method HCM analysis: one tool per method the compute library implements, taking the library''s own example-case (fixture) JSON schema'
   analysis: 'General facility analysis: one dispatching tool over every library-backed HCM facility, plus discovery tools'
 config:
   auto_load_modules: true

@@ -1,0 +1,13 @@
+{
+  "_source": "HCM 7th Edition, Chapter 31, Example Problem 3 (bicycle LOS at a signalized intersection). Transcribed from transportations-library tests/test_chapter19_integration.py; the library ships no fixture file for this example problem.",
+  "saturation_flow": 2000.0,
+  "effective_green_s": 48.0,
+  "cycle_length_s": 120.0,
+  "bicycle_flow": 120.0,
+  "cross_street_width_ft": 70.0,
+  "total_width_ft": 17.0,
+  "v_left": 85.0,
+  "v_through": 924.0,
+  "v_right": 77.0,
+  "num_through_lanes": 2.0
+}

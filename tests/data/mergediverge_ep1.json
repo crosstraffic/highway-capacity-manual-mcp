@@ -1,0 +1,18 @@
+{
+    "ramp_type": "OnRamp",
+    "ramp_side": "Right",
+    "ramp_lanes": "OneLane",
+    "freeway_lanes": 2,
+    "freeway_ffs": 60.0,
+    "ramp_ffs": 45.0,
+    "accel_lane_length": 740.0,
+    "freeway_demand": 2500.0,
+    "ramp_demand": 535.0,
+    "phf": 0.90,
+    "heavy_vehicle_pct": 0.05,
+    "terrain": "Level",
+    "adjacent_upstream": "None",
+    "adjacent_downstream": "None",
+    "caf": 1.0,
+    "saf": 1.0
+}

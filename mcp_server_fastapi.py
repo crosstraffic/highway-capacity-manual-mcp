@@ -365,6 +365,15 @@ if _include_ops:
     _mcp_kwargs["include_operations"] = [op.strip() for op in _include_ops.split(",") if op.strip()]
 else:
     _mcp_kwargs["include_operations"] = list(PUBLIC_OPERATIONS)
+    # HCM_MCP_FULL_COVERAGE=true appends the per-method hcm_analyze_* tools (one
+    # per HCM method the compute library implements) to the default surface.
+    # It defaults OFF because this server is the `ct` ablation arm: the ten
+    # PUBLIC_OPERATIONS above are the tool surface the published experiment ran
+    # against, and silently offering thirty more would change what that arm
+    # measures. The tools stay reachable over REST and through /tools/call
+    # either way; this flag only decides what the MCP mount advertises.
+    if os.getenv("HCM_MCP_FULL_COVERAGE", "false").lower() == "true":
+        _mcp_kwargs["include_operations"] += list(endpoints.FULL_COVERAGE_OPERATIONS)
 
 mcp = FastApiMCP(app, **_mcp_kwargs)
 

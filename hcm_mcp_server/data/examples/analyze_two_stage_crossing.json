@@ -1,0 +1,10 @@
+{
+  "_source": "HCM 7th Edition, Chapter 31, Example Problem 4 (two-stage pedestrian crossing delay). Transcribed from transportations-library tests/test_chapter19_integration.py; the library ships no fixture file for this example problem.",
+  "cycle_length_s": 140.0,
+  "walk_setting_x_s": 5.0,
+  "walk_setting_y_s": 5.0,
+  "first_stage_distance_ft": 56.0,
+  "walk_speed_fps": 3.3,
+  "walk_start_x_s": 78.0,
+  "walk_start_y_s": 112.0
+}

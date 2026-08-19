@@ -1,0 +1,18 @@
+{
+  "_source": "HCM 7th Edition, Chapter 30, Example Problem 3 (bicycle LOS on an urban street segment). Transcribed from transportations-library tests/test_chapter18_integration.py; the library ships no fixture file for this example problem.",
+  "length_ft": 1320.0,
+  "num_through_lanes": 2.0,
+  "midseg_flow_rate": 940.0,
+  "pct_heavy_vehicles": 8.0,
+  "prop_parking_occupied": 0.2,
+  "width_outside_lane_ft": 12.0,
+  "width_bike_lane_ft": 5.0,
+  "width_parking_lane_ft": 9.5,
+  "curb_present": true,
+  "num_access_points_right": 3.0,
+  "pavement_condition": 2.0,
+  "motor_running_speed": 33.0,
+  "bicycle_running_speed": 15.0,
+  "bicycle_control_delay": 40.0,
+  "bicycle_los_score_intersection": 0.08
+}

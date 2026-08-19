@@ -1,0 +1,20 @@
+{
+  "_comment": "HCM 7th Edition, Chapter 25, Example Problem 6: Planning-Level Analysis of a Freeway Facility (Exhibits 25-88 through 25-96). Seven freeway sections derived from the Example Problem 1 geometry, analyzed from directional AADT over four 15-min analysis periods. inflow_aadt/outflow_aadt give the on-/off-ramp (or entry) AADT at each section's upstream boundary; the weave section carries the volume ratio V_r used by Equation 25-46.",
+  "sections": [
+    { "sec_type": "Basic", "length_mi": 1.0, "lanes": 3, "inflow_aadt": 55000.0 },
+    { "sec_type": "Ramp",  "length_mi": 1.0, "lanes": 3, "inflow_aadt": 4500.0 },
+    { "sec_type": "Basic", "length_mi": 1.0, "lanes": 3, "outflow_aadt": 2700.0 },
+    { "sec_type": "Weave", "length_mi": 0.5, "lanes": 4, "inflow_aadt": 5400.0, "weave_vr": 0.164 },
+    { "sec_type": "Basic", "length_mi": 1.0, "lanes": 3, "outflow_aadt": 3600.0 },
+    { "sec_type": "Ramp",  "length_mi": 0.5, "lanes": 3, "inflow_aadt": 4500.0 },
+    { "sec_type": "Basic", "length_mi": 1.0, "lanes": 3, "outflow_aadt": 2700.0 }
+  ],
+  "ffs": 60.0,
+  "k_factor": 0.09,
+  "growth_factor": 1.0,
+  "phf": 0.9,
+  "pct_sut": 0.0,
+  "pct_tt": 0.0,
+  "terrain": "Level",
+  "city_type": "Urban"
+}

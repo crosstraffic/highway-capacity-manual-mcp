@@ -1,0 +1,45 @@
+{
+  "_source": "HCM 7th Edition, Chapter 34 (Interchange Ramp Terminals: Supplemental), Example Problem 13: Three-Legged Restricted Crossing U-Turn Intersection with STOP signs (Exhibits 34-126 through 34-129, 269_Ch34_02b.xhtml). Rural RCUT, main street N-S with two through lanes each direction, minor stem EB. Distance main-junction-to-U-turn-crossover = 700 ft (D_t = D_f), storage bays 400 ft, PHF = 0.90, FFS = 60 mi/h, 6% trucks, 2% grade on the EB approach. All junction control delays are COMPUTED by this fixture with the Chapter 20 gap-acceptance procedure (Equation 20-18 potential capacity + Equation 20-61 control delay), reproducing Exhibit 34-128 (main EB R d = 22.9 s, main NB L d = 13.0 s, U-turn crossover SB U d = 16.3 s). Conflicting flows and adjusted headways are the Exhibit 34-128 values; the U-turn crossover uses the Chapter 23 default critical headway 4.4 s / follow-up 2.6 s. EDTT = (700+700)/(1.47*60) = 15.9 s (Equation 23-59). Published ETT/LOS from Exhibit 34-129: EB L 55.2/E, EB R 22.9/C, NB L 13.0/B, NB T 0/A, SB T 0/A, SB R 0/A. Computed EB L ETT = 22.9+16.3+15.9 = 55.1 (0.1 s below the published 55.2 from intermediate rounding); LOS E either way.",
+  "form": "RcutThreeLeg",
+  "movements": [
+    {
+      "label": "EB L",
+      "approach": "Eb",
+      "demand_veh_h": 167.0,
+      "edtt_s": 15.9,
+      "junctions": [
+        { "type": "stop", "flow_veh_h": 344.0, "conflicting_flow_veh_h": 444.0, "critical_headway_s": 7.22, "followup_headway_s": 3.36 },
+        { "type": "stop", "flow_veh_h": 167.0, "conflicting_flow_veh_h": 1189.0, "critical_headway_s": 4.4, "followup_headway_s": 2.6, "storage_ft": 400.0, "queue_spacing_ft": 26.2 }
+      ]
+    },
+    {
+      "label": "EB R",
+      "approach": "Eb",
+      "demand_veh_h": 178.0,
+      "edtt_s": 0.0,
+      "junctions": [
+        { "type": "stop", "flow_veh_h": 344.0, "conflicting_flow_veh_h": 444.0, "critical_headway_s": 7.22, "followup_headway_s": 3.36 }
+      ]
+    },
+    {
+      "label": "NB L",
+      "approach": "Nb",
+      "demand_veh_h": 189.0,
+      "edtt_s": 0.0,
+      "junctions": [
+        { "type": "stop", "flow_veh_h": 189.0, "conflicting_flow_veh_h": 1044.0, "critical_headway_s": 4.22, "followup_headway_s": 2.26 }
+      ]
+    },
+    { "label": "NB T", "approach": "Nb", "demand_veh_h": 1000.0, "edtt_s": 0.0, "junctions": [] },
+    { "label": "SB T", "approach": "Sb", "demand_veh_h": 889.0, "edtt_s": 0.0, "junctions": [] },
+    { "label": "SB R", "approach": "Sb", "demand_veh_h": 156.0, "edtt_s": 0.0, "junctions": [] }
+  ],
+  "_expected": {
+    "EB L": { "ett_s": 55.2, "los": "E" },
+    "EB R": { "ett_s": 22.9, "los": "C" },
+    "NB L": { "ett_s": 13.0, "los": "B" },
+    "NB T": { "ett_s": 0.0, "los": "A" },
+    "SB T": { "ett_s": 0.0, "los": "A" },
+    "SB R": { "ett_s": 0.0, "los": "A" }
+  }
+}

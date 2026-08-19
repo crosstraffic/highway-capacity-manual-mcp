@@ -1,0 +1,84 @@
+{
+  "_comment": "HCM 7th Edition, Chapter 25, Example Problem 7: Reliability Evaluation of an Existing Freeway Facility (Exhibits 25-97 through 25-105). Same 6-mi, 11-segment facility as Example Problem 1 with the study period extended to 3 h (12 analysis periods, 4-7 p.m.). Demands per Exhibit 25-99; demand ratios per Exhibit 25-100 (seed file: a Tuesday in November); weather probabilities by season per Exhibit 25-101 with CAF/SAF/durations per Exhibit 25-102 (default Exhibits 11-20/11-21 at FFS 60); incidents from a crash rate of 150 per 100 million VMT with an incident-to-crash ratio of 7 (Equations 25-77/25-78), severity distribution per Equation 25-85, durations per Exhibit 25-41. Weaving segment ramp-to-ramp demands for periods 4-8 are the Example Problem 1 values (Exhibit 25-45); the remaining periods use 50 veh/h (not published).",
+  "facility": {
+    "segments": [
+      { "seg_type": "Basic", "length_ft": 5280.0, "lanes": 3 },
+      { "seg_type": "Merge", "length_ft": 1500.0, "lanes": 3, "ramp_ffs": 40.0, "accel_lane_ft": 500.0,
+        "on_ramp_demand": [270.0, 360.0, 360.0, 450.0, 540.0, 630.0, 360.0, 180.0, 180.0, 180.0, 180.0, 180.0] },
+      { "seg_type": "Basic", "length_ft": 2280.0, "lanes": 3 },
+      { "seg_type": "Diverge", "length_ft": 1500.0, "lanes": 3, "ramp_ffs": 40.0, "decel_lane_ft": 500.0,
+        "off_ramp_demand": [180.0, 270.0, 270.0, 270.0, 360.0, 270.0, 270.0, 270.0, 270.0, 270.0, 270.0, 180.0] },
+      { "seg_type": "Basic", "length_ft": 5280.0, "lanes": 3 },
+      { "seg_type": "Weaving", "length_ft": 2640.0, "lanes": 4, "ramp_ffs": 40.0,
+        "short_length_ft": 1640.0, "num_weaving_lanes": 2, "lc_rf": 1, "lc_fr": 1,
+        "on_ramp_demand": [270.0, 360.0, 450.0, 540.0, 720.0, 810.0, 360.0, 270.0, 270.0, 270.0, 180.0, 180.0],
+        "off_ramp_demand": [270.0, 360.0, 360.0, 360.0, 360.0, 360.0, 360.0, 180.0, 180.0, 180.0, 180.0, 180.0],
+        "ramp_to_ramp_demand": [50.0, 50.0, 50.0, 50.0, 100.0, 150.0, 80.0, 50.0, 50.0, 50.0, 50.0, 50.0] },
+      { "seg_type": "Basic", "length_ft": 5280.0, "lanes": 3 },
+      { "seg_type": "Merge", "length_ft": 1140.0, "lanes": 3, "ramp_ffs": 40.0, "accel_lane_ft": 500.0,
+        "on_ramp_demand": [270.0, 360.0, 450.0, 450.0, 540.0, 630.0, 450.0, 270.0, 270.0, 270.0, 180.0, 180.0] },
+      { "seg_type": "OverlappingRamp", "length_ft": 360.0, "lanes": 3 },
+      { "seg_type": "Diverge", "length_ft": 1140.0, "lanes": 3, "ramp_ffs": 40.0, "decel_lane_ft": 500.0,
+        "off_ramp_demand": [180.0, 270.0, 270.0, 270.0, 270.0, 450.0, 270.0, 180.0, 180.0, 180.0, 180.0, 180.0] },
+      { "seg_type": "Basic", "length_ft": 5280.0, "lanes": 3 }
+    ],
+    "mainline_demand": [3095.0, 3595.0, 4175.0, 4505.0, 4955.0, 5225.0, 4685.0, 3785.0, 3305.0, 2805.0, 2455.0, 2405.0],
+    "ffs": 60.0,
+    "heavy_vehicle_pct": 0.0225,
+    "terrain": "Level",
+    "city_type": "Urban",
+    "phf": 1.0,
+    "jam_density_pc": 190.0,
+    "queue_discharge_drop": 0.07,
+    "total_ramp_density": 1.0,
+    "interchange_density": 0.8
+  },
+  "scenario_generation": {
+    "months": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12],
+    "weekdays": ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"],
+    "replications": 4,
+    "seed_month": 11,
+    "seed_weekday": "Tuesday",
+    "demand_multipliers": [
+      [0.822, 0.822, 0.839, 0.864, 0.965, 0.0, 0.0],
+      [0.849, 0.849, 0.866, 0.892, 0.996, 0.0, 0.0],
+      [0.921, 0.921, 0.939, 0.967, 1.080, 0.0, 0.0],
+      [0.976, 0.976, 0.995, 1.025, 1.145, 0.0, 0.0],
+      [0.974, 0.974, 0.993, 1.023, 1.142, 0.0, 0.0],
+      [1.022, 1.022, 1.043, 1.074, 1.199, 0.0, 0.0],
+      [1.133, 1.133, 1.156, 1.191, 1.329, 0.0, 0.0],
+      [1.033, 1.033, 1.054, 1.085, 1.212, 0.0, 0.0],
+      [1.063, 1.063, 1.085, 1.117, 1.248, 0.0, 0.0],
+      [0.995, 0.995, 1.016, 1.046, 1.168, 0.0, 0.0],
+      [0.995, 0.995, 1.016, 1.046, 1.168, 0.0, 0.0],
+      [0.979, 0.979, 0.998, 1.028, 1.148, 0.0, 0.0]
+    ],
+    "weather": {
+      "_comment": "Exhibit 25-101 seasonal probabilities mapped to months (winter = Dec/Jan/Feb, spring = Mar/Apr/May, summer = Jun/Jul/Aug, fall = Sep/Oct/Nov); columns follow SEVERE_WEATHER_TYPES order: medium rain, heavy rain, light snow, light-medium snow, medium-heavy snow, heavy snow, severe cold, low visibility, very low visibility, minimal visibility. Durations per Exhibit 25-102.",
+      "probabilities_by_month": [
+        [0.0080, 0.0047, 0.0091, 0.0029, 0.0004, 0.0, 0.0, 0.0097, 0.0, 0.0044],
+        [0.0080, 0.0047, 0.0091, 0.0029, 0.0004, 0.0, 0.0, 0.0097, 0.0, 0.0044],
+        [0.0101, 0.0081, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0012, 0.0, 0.0010],
+        [0.0101, 0.0081, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0012, 0.0, 0.0010],
+        [0.0101, 0.0081, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0012, 0.0, 0.0010],
+        [0.0071, 0.0133, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0016, 0.0, 0.0],
+        [0.0071, 0.0133, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0016, 0.0, 0.0],
+        [0.0071, 0.0133, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0016, 0.0, 0.0],
+        [0.0086, 0.0068, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0034, 0.0, 0.0003],
+        [0.0086, 0.0068, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0034, 0.0, 0.0003],
+        [0.0086, 0.0068, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0034, 0.0, 0.0003],
+        [0.0080, 0.0047, 0.0091, 0.0029, 0.0004, 0.0, 0.0, 0.0097, 0.0, 0.0044]
+      ],
+      "durations_min": [40.2, 33.7, 93.1, 33.4, 21.7, 7.3, 0.0, 76.2, 0.0, 145.0],
+      "daf": 1.0
+    },
+    "incidents": {
+      "crash_rate_per_100mvmt": 150.0,
+      "incident_to_crash_ratio": 7.0,
+      "severity_distribution": [0.754, 0.196, 0.031, 0.019, 0.0],
+      "daf": 1.0
+    },
+    "rng_seed": 1
+  },
+  "vmt_weighted": true
+}

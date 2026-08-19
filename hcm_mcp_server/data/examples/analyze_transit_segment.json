@@ -1,0 +1,18 @@
+{
+  "_source": "HCM 7th Edition, Chapter 30, Example Problem 4 (transit LOS on an urban street segment). Transcribed from transportations-library tests/test_chapter18_integration.py; the library ships no fixture file for this example problem.",
+  "length_ft": 1320.0,
+  "num_transit_stops": 1.0,
+  "motor_running_speed": 33.0,
+  "dwell_time_s": 20.0,
+  "transit_frequency": 4.0,
+  "g_c_ratio": 0.4729,
+  "near_side_signalized_stop": true,
+  "reentry_delay_s": 16.17,
+  "through_delay_s": 19.4,
+  "passenger_load_factor": 0.83,
+  "prop_stops_bench": 1.0,
+  "passenger_trip_length": 3.7,
+  "on_time_performance": 0.92,
+  "base_travel_time_rate": 4.0,
+  "ped_los_score_link": 3.53
+}

@@ -1,0 +1,73 @@
+{
+  "_source": "HCM 7th Edition, Chapter 34, Example Problem 16: Partial Displaced Left-Turn Intersection (Exhibits 34-139 through 34-145, 269_Ch34_02c.xhtml). Speedway Blvd (E-W) at Campbell Ave (N-S); E-W left turns displaced 350 ft upstream of the main intersection; fully-actuated signals, PHF = 0.92, background cycle C = 65 s. This fixture reproduces the Step 5 offset computation (Equations 23-63 through 23-68: TD_DLT = 350 ft, S_f,DLT = 35 mi/h -> TT_DLT = 6.8 s; LAG_TH = 52 s; O_SUPP = 45.2 s; the example rounds TT_DLT to 7 s and reports 45 s) and the Step 9/10 volume-weighted control-delay aggregation (Equation 23-69: sum of the Exhibit 34-145 flow*delay products = 159,675, sum of O-D demands = 5,594, ETT_DLT = 28.5 s/veh, LOS C from the Chapter 19 thresholds). The per-junction (flow, delay) cells are the Exhibit 34-145 values.",
+  "form": "DltPartial",
+  "total_od_demand_veh_h": 5594.0,
+  "cells": [
+    {
+      "flow_veh_h": 761.0,
+      "control_delay_s": 22.5
+    },
+    {
+      "flow_veh_h": 859.0,
+      "control_delay_s": 0.4
+    },
+    {
+      "flow_veh_h": 437.0,
+      "control_delay_s": 41.9
+    },
+    {
+      "flow_veh_h": 1352.0,
+      "control_delay_s": 2.5
+    },
+    {
+      "flow_veh_h": 422.0,
+      "control_delay_s": 42.5
+    },
+    {
+      "flow_veh_h": 486.0,
+      "control_delay_s": 25.7
+    },
+    {
+      "flow_veh_h": 1397.0,
+      "control_delay_s": 4.0
+    },
+    {
+      "flow_veh_h": 340.0,
+      "control_delay_s": 29.3
+    },
+    {
+      "flow_veh_h": 667.0,
+      "control_delay_s": 0.4
+    },
+    {
+      "flow_veh_h": 328.0,
+      "control_delay_s": 29.7
+    },
+    {
+      "flow_veh_h": 739.0,
+      "control_delay_s": 23.7
+    },
+    {
+      "flow_veh_h": 439.0,
+      "control_delay_s": 19.8
+    },
+    {
+      "flow_veh_h": 425.0,
+      "control_delay_s": 19.8
+    },
+    {
+      "flow_veh_h": 500.0,
+      "control_delay_s": 26.2
+    },
+    {
+      "flow_veh_h": 364.0,
+      "control_delay_s": 23.4
+    },
+    {
+      "flow_veh_h": 353.0,
+      "control_delay_s": 23.5
+    }
+  ],
+  "_expected_ett_s": 28.5,
+  "_expected_los": "C"
+}

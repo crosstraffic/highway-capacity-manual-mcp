@@ -1,0 +1,812 @@
+{
+  "_note": "The published MCP tool surface as it stood when full HCM coverage was added (v0.3.0). These ten public tools and the legacy per-step families are what the ESWA ablation experiment ran against. tests/test_frozen_surface.py compares the live registry against this file; a diff means a tool the paper depends on changed name, schema or description, and the fix is almost always to revert the change rather than to update this snapshot.",
+  "legacy": {
+    "chapter12_calculate_speed": {
+      "category": "transportation",
+      "chapter": 12,
+      "description": "Step 5a: space mean speed via the speed-flow curve",
+      "function": "calculate_speed_function",
+      "module": "hcm_mcp_server.functions.chapter12",
+      "parameters": {
+        "properties": {
+          "freeway_data": {
+            "description": "Basic-freeway segment inputs",
+            "type": "object"
+          }
+        },
+        "required": [
+          "freeway_data"
+        ],
+        "type": "object"
+      },
+      "step": 5
+    },
+    "chapter12_complete_analysis": {
+      "category": "transportation",
+      "chapter": 12,
+      "description": "Perform complete HCM Chapter 12 basic-freeway analysis",
+      "function": "complete_freeway_analysis_function",
+      "module": "hcm_mcp_server.functions.chapter12",
+      "parameters": {
+        "properties": {
+          "freeway_data": {
+            "description": "Basic-freeway segment inputs",
+            "type": "object"
+          }
+        },
+        "required": [
+          "freeway_data"
+        ],
+        "type": "object"
+      },
+      "step": null
+    },
+    "chapter12_determine_free_flow_speed": {
+      "category": "transportation",
+      "chapter": 12,
+      "description": "Step 2: estimate and adjust free-flow speed for a basic freeway segment",
+      "function": "determine_free_flow_speed_function",
+      "module": "hcm_mcp_server.functions.chapter12",
+      "parameters": {
+        "properties": {
+          "freeway_data": {
+            "description": "Basic-freeway segment inputs (bffs, lw, lane_count, demand_flow_i, ...)",
+            "type": "object"
+          }
+        },
+        "required": [
+          "freeway_data"
+        ],
+        "type": "object"
+      },
+      "step": 2
+    },
+    "chapter12_determine_segment_los": {
+      "category": "transportation",
+      "chapter": 12,
+      "description": "Step 6: segment Level of Service (A-F)",
+      "function": "determine_segment_los_function",
+      "module": "hcm_mcp_server.functions.chapter12",
+      "parameters": {
+        "properties": {
+          "freeway_data": {
+            "description": "Basic-freeway segment inputs",
+            "type": "object"
+          }
+        },
+        "required": [
+          "freeway_data"
+        ],
+        "type": "object"
+      },
+      "step": 6
+    },
+    "chapter12_estimate_capacity": {
+      "category": "transportation",
+      "chapter": 12,
+      "description": "Step 3: base and adjusted capacity (pc/h/ln)",
+      "function": "estimate_capacity_function",
+      "module": "hcm_mcp_server.functions.chapter12",
+      "parameters": {
+        "properties": {
+          "freeway_data": {
+            "description": "Basic-freeway segment inputs",
+            "type": "object"
+          }
+        },
+        "required": [
+          "freeway_data"
+        ],
+        "type": "object"
+      },
+      "step": 3
+    },
+    "chapter12_estimate_demand_volume": {
+      "category": "transportation",
+      "chapter": 12,
+      "description": "Step 4: convert directional demand to per-lane flow rate v_p",
+      "function": "estimate_demand_volume_function",
+      "module": "hcm_mcp_server.functions.chapter12",
+      "parameters": {
+        "properties": {
+          "freeway_data": {
+            "description": "Basic-freeway segment inputs",
+            "type": "object"
+          }
+        },
+        "required": [
+          "freeway_data"
+        ],
+        "type": "object"
+      },
+      "step": 4
+    },
+    "chapter12_estimate_density": {
+      "category": "transportation",
+      "chapter": 12,
+      "description": "Step 5b: density D = v_p / S (pc/mi/ln)",
+      "function": "estimate_density_function",
+      "module": "hcm_mcp_server.functions.chapter12",
+      "parameters": {
+        "properties": {
+          "freeway_data": {
+            "description": "Basic-freeway segment inputs",
+            "type": "object"
+          }
+        },
+        "required": [
+          "freeway_data"
+        ],
+        "type": "object"
+      },
+      "step": 5
+    },
+    "chapter15_complete_analysis": {
+      "category": "transportation",
+      "chapter": 15,
+      "description": "Perform complete HCM Chapter 15 analysis",
+      "function": "complete_highway_analysis_function",
+      "module": "hcm_mcp_server.functions.chapter15",
+      "parameters": {
+        "properties": {
+          "highway_data": {
+            "description": "Complete highway facility data",
+            "type": "object"
+          }
+        },
+        "required": [
+          "highway_data"
+        ],
+        "type": "object"
+      },
+      "step": null
+    },
+    "chapter15_determine_adjustment_to_follower_density": {
+      "category": "transportation",
+      "chapter": 15,
+      "description": "Calculate adjustment to follower density for segments",
+      "function": "determine_adjustment_to_follower_density_function",
+      "module": "hcm_mcp_server.functions.chapter15",
+      "parameters": {
+        "properties": {
+          "highway_data": {
+            "description": "Complete highway facility data",
+            "type": "object"
+          },
+          "segment_index": {
+            "description": "Segment index to analyze",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "segment_index",
+          "highway_data"
+        ],
+        "type": "object"
+      },
+      "step": 8.5
+    },
+    "chapter15_determine_demand_flow": {
+      "category": "transportation",
+      "chapter": 15,
+      "description": "Calculate demand flow rates and capacity",
+      "function": "determine_demand_flow_function",
+      "module": "hcm_mcp_server.functions.chapter15",
+      "parameters": {
+        "properties": {
+          "highway_data": {
+            "description": "Complete highway facility data",
+            "type": "object"
+          },
+          "segment_index": {
+            "description": "Segment index to analyze",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "segment_index",
+          "highway_data"
+        ],
+        "type": "object"
+      },
+      "step": 2
+    },
+    "chapter15_determine_facility_los": {
+      "category": "transportation",
+      "chapter": 15,
+      "description": "Determine overall facility Level of Service",
+      "function": "determine_facility_los_function",
+      "module": "hcm_mcp_server.functions.chapter15",
+      "parameters": {
+        "properties": {
+          "highway_data": {
+            "description": "Complete highway facility data",
+            "type": "object"
+          }
+        },
+        "required": [
+          "highway_data"
+        ],
+        "type": "object"
+      },
+      "step": 10
+    },
+    "chapter15_determine_follower_density_pc_pz": {
+      "category": "transportation",
+      "chapter": 15,
+      "description": "Calculate follower density for passing constrained/zone segments",
+      "function": "determine_follower_density_pc_pz_function",
+      "module": "hcm_mcp_server.functions.chapter15",
+      "parameters": {
+        "properties": {
+          "highway_data": {
+            "description": "Complete highway facility data",
+            "type": "object"
+          },
+          "segment_index": {
+            "description": "Segment index to analyze",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "segment_index",
+          "highway_data"
+        ],
+        "type": "object"
+      },
+      "step": 8
+    },
+    "chapter15_determine_follower_density_pl": {
+      "category": "transportation",
+      "chapter": 15,
+      "description": "Calculate follower density for passing lane segments",
+      "function": "determine_follower_density_pl_function",
+      "module": "hcm_mcp_server.functions.chapter15",
+      "parameters": {
+        "properties": {
+          "highway_data": {
+            "description": "Complete highway facility data",
+            "type": "object"
+          },
+          "segment_index": {
+            "description": "Segment index to analyze",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "segment_index",
+          "highway_data"
+        ],
+        "type": "object"
+      },
+      "step": 8
+    },
+    "chapter15_determine_free_flow_speed": {
+      "category": "transportation",
+      "chapter": 15,
+      "description": "Calculate free flow speed for a segment",
+      "function": "determine_free_flow_speed_function",
+      "module": "hcm_mcp_server.functions.chapter15",
+      "parameters": {
+        "properties": {
+          "highway_data": {
+            "description": "Complete highway facility data",
+            "type": "object"
+          },
+          "segment_index": {
+            "description": "Segment index to analyze",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "segment_index",
+          "highway_data"
+        ],
+        "type": "object"
+      },
+      "step": 4
+    },
+    "chapter15_determine_segment_los": {
+      "category": "transportation",
+      "chapter": 15,
+      "description": "Determine Level of Service for a specific segment",
+      "function": "determine_segment_los_function",
+      "module": "hcm_mcp_server.functions.chapter15",
+      "parameters": {
+        "properties": {
+          "capacity": {
+            "description": "Segment capacity",
+            "type": "integer"
+          },
+          "highway_data": {
+            "description": "Complete highway facility data",
+            "type": "object"
+          },
+          "s_pl": {
+            "description": "Average speed for LOS calculation",
+            "type": "number"
+          },
+          "segment_index": {
+            "description": "Segment index to analyze",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "segment_index",
+          "s_pl",
+          "capacity",
+          "highway_data"
+        ],
+        "type": "object"
+      },
+      "step": 9
+    },
+    "chapter15_determine_vertical_alignment": {
+      "category": "transportation",
+      "chapter": 15,
+      "description": "Determine vertical alignment classification",
+      "function": "determine_vertical_alignment_function",
+      "module": "hcm_mcp_server.functions.chapter15",
+      "parameters": {
+        "properties": {
+          "highway_data": {
+            "description": "Complete highway facility data",
+            "type": "object"
+          },
+          "segment_index": {
+            "description": "Segment index to analyze",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "segment_index",
+          "highway_data"
+        ],
+        "type": "object"
+      },
+      "step": 3
+    },
+    "chapter15_estimate_average_speed": {
+      "category": "transportation",
+      "chapter": 15,
+      "description": "Estimate average travel speed for a segment",
+      "function": "estimate_average_speed_function",
+      "module": "hcm_mcp_server.functions.chapter15",
+      "parameters": {
+        "properties": {
+          "highway_data": {
+            "description": "Complete highway facility data",
+            "type": "object"
+          },
+          "segment_index": {
+            "description": "Segment index to analyze",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "segment_index",
+          "highway_data"
+        ],
+        "type": "object"
+      },
+      "step": 5
+    },
+    "chapter15_estimate_percent_followers": {
+      "category": "transportation",
+      "chapter": 15,
+      "description": "Estimate percentage of vehicles following in platoons",
+      "function": "estimate_percent_followers_function",
+      "module": "hcm_mcp_server.functions.chapter15",
+      "parameters": {
+        "properties": {
+          "highway_data": {
+            "description": "Complete highway facility data",
+            "type": "object"
+          },
+          "segment_index": {
+            "description": "Segment index to analyze",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "segment_index",
+          "highway_data"
+        ],
+        "type": "object"
+      },
+      "step": 6
+    },
+    "chapter15_identify_vertical_class": {
+      "category": "transportation",
+      "chapter": 15,
+      "description": "Identify vertical alignment class range for a segment",
+      "function": "identify_vertical_class_function",
+      "module": "hcm_mcp_server.functions.chapter15",
+      "parameters": {
+        "properties": {
+          "highway_data": {
+            "description": "Complete highway facility data",
+            "type": "object"
+          },
+          "segment_index": {
+            "description": "Segment index to analyze",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "segment_index",
+          "highway_data"
+        ],
+        "type": "object"
+      },
+      "step": 1
+    },
+    "get_hcm_section": {
+      "category": "research",
+      "chapter": null,
+      "description": "Retrieve a specific section from the Highway Capacity Manual",
+      "function": "get_hcm_section_function",
+      "module": "hcm_mcp_server.functions.research",
+      "parameters": {
+        "properties": {
+          "chapter": {
+            "description": "Chapter to retrieve section from",
+            "type": "string"
+          },
+          "section": {
+            "description": "Section number to retrieve",
+            "type": "string"
+          }
+        },
+        "required": [
+          "chapter"
+        ],
+        "type": "object"
+      },
+      "step": null
+    },
+    "search_hcm_by_chapter": {
+      "category": "research",
+      "chapter": null,
+      "description": "Search HCM content by chapter",
+      "function": "search_hcm_by_chapter_function",
+      "module": "hcm_mcp_server.functions.research",
+      "parameters": {
+        "properties": {
+          "chapter": {
+            "description": "Chapter to search in HCM database",
+            "type": "string"
+          },
+          "top_k": {
+            "default": 5,
+            "description": "Number of results to return",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "chapter"
+        ],
+        "type": "object"
+      },
+      "step": null
+    },
+    "summarize_hcm_content": {
+      "category": "research",
+      "chapter": null,
+      "description": "Summarize HCM content for a given topic",
+      "function": "summarize_hcm_content_function",
+      "module": "hcm_mcp_server.functions.research",
+      "parameters": {
+        "properties": {
+          "top_k": {
+            "default": 5,
+            "description": "Number of results to return",
+            "type": "integer"
+          },
+          "topic": {
+            "description": "Topic to summarize from HCM content",
+            "type": "string"
+          }
+        },
+        "required": [
+          "topic"
+        ],
+        "type": "object"
+      },
+      "step": null
+    }
+  },
+  "public": {
+    "analyze_facility": {
+      "category": "analysis",
+      "chapter": null,
+      "description": "Run the complete HCM analysis for one facility: pass facility_type plus its inputs; dispatches to the verified transportations-library executor and returns the full result",
+      "function": "analyze_facility_function",
+      "module": "hcm_mcp_server.functions.analysis",
+      "parameters": {
+        "properties": {
+          "facility_type": {
+            "description": "Facility type, e.g. BasicFreeway or TwoLaneHighway; call list_facility_types for the full set and status",
+            "type": "string"
+          },
+          "inputs": {
+            "description": "Facility inputs; call describe_facility_inputs for the schema of this facility_type",
+            "type": "object"
+          }
+        },
+        "required": [
+          "facility_type",
+          "inputs"
+        ],
+        "type": "object"
+      },
+      "step": null
+    },
+    "describe_facility_inputs": {
+      "category": "analysis",
+      "chapter": null,
+      "description": "Describe facility input schemas: with facility_type, the field schema (types, defaults, units) for constructing an analyze_facility request; without it, the list of every library-backed HCM facility type with chapter and adapter status",
+      "function": "describe_facility_inputs_function",
+      "module": "hcm_mcp_server.functions.analysis",
+      "parameters": {
+        "properties": {
+          "facility_type": {
+            "description": "Facility type to describe; omit to list all facility types with status",
+            "type": "string"
+          }
+        },
+        "required": [],
+        "type": "object"
+      },
+      "step": null
+    },
+    "query_hcm": {
+      "category": "research",
+      "chapter": null,
+      "description": "Query the Highway Capacity Manual database",
+      "function": "query_hcm_function",
+      "module": "hcm_mcp_server.functions.research",
+      "parameters": {
+        "properties": {
+          "question": {
+            "description": "Question to search in HCM database",
+            "type": "string"
+          },
+          "top_k": {
+            "default": 5,
+            "description": "Number of results to return",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "question"
+        ],
+        "type": "object"
+      },
+      "step": null
+    },
+    "reasoning_diagnose_failure": {
+      "category": "reasoning",
+      "chapter": null,
+      "description": "Backward-chain: upstream causes of a failed target parameter",
+      "function": "diagnose_failure_function",
+      "module": "hcm_mcp_server.functions.reasoning",
+      "parameters": {
+        "properties": {
+          "facility_type": {
+            "description": "Restrict to a facility (e.g. TwoLaneHighway, BasicFreeway)",
+            "type": "string"
+          },
+          "target": {
+            "description": "The failing parameter (rust_field) to trace causes for",
+            "type": "string"
+          }
+        },
+        "required": [
+          "target"
+        ],
+        "type": "object"
+      },
+      "step": null
+    },
+    "reasoning_inverse_design": {
+      "category": "reasoning",
+      "chapter": null,
+      "description": "Goal-directed synthesis: feasible geometries that reach a target LOS, each validated by forward execution (HCM Ch.15 proof-of-concept)",
+      "function": "inverse_design_function",
+      "module": "hcm_mcp_server.functions.reasoning",
+      "parameters": {
+        "properties": {
+          "bounds": {
+            "description": "Override (min, max) bounds per design parameter",
+            "type": "object"
+          },
+          "design_parameters": {
+            "description": "Levers to discover geometry over (auto-discovered if omitted)",
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "facility_type": {
+            "default": "TwoLaneHighway",
+            "description": "Facility type",
+            "type": "string"
+          },
+          "goal_los": {
+            "default": "C",
+            "description": "Target LOS letter",
+            "type": "string"
+          },
+          "site": {
+            "description": "Fixed site conditions (demand, grade, speed limit, \u2026)",
+            "type": "object"
+          }
+        },
+        "required": [
+          "site"
+        ],
+        "type": "object"
+      },
+      "step": null
+    },
+    "reasoning_propagate_change": {
+      "category": "reasoning",
+      "chapter": null,
+      "description": "Forward-chain: downstream parameters affected by a changed root parameter",
+      "function": "propagate_change_function",
+      "module": "hcm_mcp_server.functions.reasoning",
+      "parameters": {
+        "properties": {
+          "facility_type": {
+            "description": "Restrict to a facility (e.g. TwoLaneHighway, BasicFreeway)",
+            "type": "string"
+          },
+          "root": {
+            "description": "The changed parameter (rust_field) to propagate from",
+            "type": "string"
+          }
+        },
+        "required": [
+          "root"
+        ],
+        "type": "object"
+      },
+      "step": null
+    },
+    "reasoning_reconcile_codes": {
+      "category": "reasoning",
+      "chapter": null,
+      "description": "Defeasible adjudication of overlapping/conflicting code provisions about one parameter, with an argument trace",
+      "function": "reconcile_codes_function",
+      "module": "hcm_mcp_server.functions.reasoning",
+      "parameters": {
+        "properties": {
+          "claims": {
+            "description": "Inline competing rule claims (seed-shaped rule dicts)",
+            "items": {
+              "type": "object"
+            },
+            "type": "array"
+          },
+          "context": {
+            "description": "Applicability conditions (e.g. {jurisdiction: state})",
+            "type": "object"
+          },
+          "parameter": {
+            "description": "The parameter under contention",
+            "type": "string"
+          },
+          "scenario": {
+            "description": "Name of a constructed conflict scenario (alternative to inline claims)",
+            "type": "string"
+          },
+          "value": {
+            "description": "A value to render a compliance verdict for"
+          }
+        },
+        "required": [],
+        "type": "object"
+      },
+      "step": null
+    },
+    "reasoning_repair_design": {
+      "category": "reasoning",
+      "chapter": null,
+      "description": "Abductive repair: minimal compliant fix for a failing Two-Lane Highway (HCM Ch.15), every candidate re-executed and proved compliant",
+      "function": "repair_design_function",
+      "module": "hcm_mcp_server.functions.reasoning",
+      "parameters": {
+        "properties": {
+          "allow_demand_changes": {
+            "default": false,
+            "description": "Also consider demand-side levers",
+            "type": "boolean"
+          },
+          "design": {
+            "description": "Current design inputs (rust_fields: lane_width, shoulder_width, apd, volume, spl, grade, phv, phf, length, passing_type)",
+            "type": "object"
+          },
+          "goal_los": {
+            "default": "C",
+            "description": "Target LOS letter \u2014 repair goal is 'no worse than this'",
+            "type": "string"
+          },
+          "immutable": {
+            "description": "Override which parameters are fixed site conditions",
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          }
+        },
+        "required": [
+          "design"
+        ],
+        "type": "object"
+      },
+      "step": null
+    },
+    "reasoning_repair_freeway": {
+      "category": "reasoning",
+      "chapter": null,
+      "description": "Abductive repair: minimal compliant fix for a failing Basic Freeway (HCM Ch.12). Keep grade/length on the library's heavy-vehicle PCE grid.",
+      "function": "repair_freeway_function",
+      "module": "hcm_mcp_server.functions.reasoning",
+      "parameters": {
+        "properties": {
+          "allow_demand_changes": {
+            "default": false,
+            "description": "Also consider demand-side levers",
+            "type": "boolean"
+          },
+          "design": {
+            "description": "Current design inputs (rust_fields: bffs, lw, lane_count, demand_flow_i, lc_r, trd, grade, length, p_t, phf)",
+            "type": "object"
+          },
+          "goal_los": {
+            "default": "D",
+            "description": "Target LOS letter \u2014 repair goal is 'no worse than this'",
+            "type": "string"
+          },
+          "immutable": {
+            "description": "Override which parameters are fixed site conditions",
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          }
+        },
+        "required": [
+          "design"
+        ],
+        "type": "object"
+      },
+      "step": null
+    },
+    "validation_validate_design_full": {
+      "category": "validation",
+      "chapter": null,
+      "description": "Validate a design against the FULL rule corpus with citations and clarifications (in-process, no database)",
+      "function": "validate_design_full_function",
+      "module": "hcm_mcp_server.functions.validation",
+      "parameters": {
+        "properties": {
+          "context": {
+            "description": "Optional conditions, e.g. {terrain_type: mountainous, jurisdiction: state}",
+            "type": "object"
+          },
+          "design": {
+            "description": "Flat parameter -> value map, e.g. {lane_width: 9.0, facility_type: TwoLaneHighway}",
+            "type": "object"
+          }
+        },
+        "required": [
+          "design"
+        ],
+        "type": "object"
+      },
+      "step": null
+    }
+  }
+}
