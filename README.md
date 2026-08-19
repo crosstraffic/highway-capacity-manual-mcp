@@ -6,7 +6,7 @@ A FastAPI-based Model Context Protocol (MCP) server for Highway Capacity Manual 
 
 - Semantic search over HCM documentation
 - Complete HCM Chapter 15 (two-lane highway) and Chapter 12 (basic freeway) analysis
-- Full HCM chapter coverage: one `hcm_analyze_*` tool per method the compute library implements, chapters 10 through 28, each taking the library's own example-case JSON and each validated against its published example problem
+- Full HCM chapter coverage, chapters 10 through 28, behind three capability tools (`hcm_analyze`, `hcm_describe`, `hcm_validate`) over 32 methods, each taking the library's own example-case JSON and each validated against its published example problem
 - Input validation gateway against HCM/AASHTO constraints (via `transportations-validator`)
 - Full-corpus validation (300+ rules across HCM/AASHTO/MUTCD/HSM/ADA/...) with citations, terrain/context-gated rules, and clarification requests — runs in-process, no database
 - Knowledge-graph reasoning: abductive design repair (Two-Lane & Basic Freeway), defeasible code reconciliation, inverse design, and forward/backward chaining — every repair candidate re-executed through the verified library
@@ -282,54 +282,58 @@ A different equation family than Chapter 15 — the `lane width -> FFS -> capaci
 - `chapter12_determine_segment_los` - Step 6: Segment Level of Service
 - `chapter12_complete_analysis` - Complete HCM Chapter 12 basic-freeway procedure
 
-### Per-method HCM Functions (full chapter coverage)
+### HCM Analysis Capabilities (full chapter coverage)
 
-One tool per HCM method the compute library implements, named `hcm_analyze_<method>`. Where the Chapter 15 and Chapter 12 families above walk a procedure step by step, and `analyze_facility` dispatches on a `facility_type` argument, these are named per method so the coverage is visible in the tool list itself. All three surfaces call the same verified `transportations-library` executors.
+Every HCM method the compute library implements, chapters 10 through 28, behind **three capability tools**. The method is an argument, not a tool: thirty-two near-identical schemas would cost every caller context and blunt tool selection, and the ten published tools above are already capability-shaped.
+
+- `hcm_analyze` — `{method, config}`. Runs one method. The tool description carries the method catalog, one compact line each, and `method` is an enum of the thirty-two ids.
+- `hcm_describe` — `{method?}`. With a method: its input schema sketch, its result-field meanings and the example-problem fixture that validates it. Without one: the catalog, every method id with its chapter and a one-line summary. Call this first; it is how a caller learns a method's shape without reading the Rust bindings.
+- `hcm_validate` — `{method, config}`. Parses and checks a config **without running the analysis**, returning the library's own validation errors or ok. Iterating on a config costs a parse rather than a full analysis. Twenty-three of the thirty-two methods have a real validation step behind the constructor (serde deserialisation, constructor range checks, and for Chapter 15 the Exhibit 15-8 parameter ranges via `tl.validate_input`); the other nine are single JSON entry points in the library where parsing and computation are one call, and those say so in the response rather than running the analysis and calling it a validation.
 
 The input is always the compute library's own example-case (fixture) JSON, passed as `config` — not a second flattened schema invented for the MCP layer. An example case from `transportations-library/tests/ExampleCases/hcm/` can be handed over unmodified. Requires `transportations-library>=0.3.6`.
 
-- `hcm_describe_method` - With a method name, its input schema sketch, its result-field meanings and the example-problem fixture that validates it. Without one, every method with its chapter. Call this first; it is how a caller learns a method's shape without reading the Rust bindings.
-
-| Chapter | Tool | Method |
+| Chapter | `method` | What it computes |
 | --- | --- | --- |
-| 10 | `hcm_analyze_freeway_facility` | Freeway facility (Chapter 25 engine) |
-| 10 | `hcm_analyze_managed_lanes` | Managed-lane freeway facility |
-| 11 | `hcm_analyze_freeway_reliability` | Freeway travel-time reliability |
-| 12 | `hcm_analyze_basic_freeway` | Basic freeway and multilane segment |
-| 13 | `hcm_analyze_weaving` | Freeway weaving segment (HCM 7 and 7.1) |
-| 14 | `hcm_analyze_merge_diverge` | Freeway merge and diverge segment (HCM 7 and 7.1) |
-| 15 | `hcm_analyze_two_lane_highway` | Two-lane highway facility |
-| 16 | `hcm_analyze_urban_facility` | Urban street facility |
-| 17 | `hcm_analyze_urban_reliability` | Urban street travel-time reliability |
-| 18 | `hcm_analyze_bicycle_segment` | Urban street segment, bicycle mode |
-| 18 | `hcm_analyze_pedestrian_segment` | Urban street segment, pedestrian mode |
-| 18 | `hcm_analyze_transit_segment` | Urban street segment, transit mode |
-| 18 | `hcm_analyze_urban_segment` | Urban street segment, automobile mode |
-| 19 | `hcm_analyze_signalized` | Signalized intersection, automobile mode |
-| 19 | `hcm_analyze_signalized_bicycle` | Signalized intersection, bicycle mode |
-| 19 | `hcm_analyze_signalized_pedestrian` | Signalized intersection, pedestrian mode |
-| 19 | `hcm_analyze_two_stage_crossing` | Two-stage pedestrian crossing delay |
-| 20 | `hcm_analyze_twsc` | Two-way STOP-controlled intersection, vehicular |
-| 20 | `hcm_analyze_twsc_pedestrian` | TWSC and midblock crossing, pedestrian mode |
-| 21 | `hcm_analyze_awsc` | All-way STOP-controlled intersection |
-| 22 | `hcm_analyze_roundabout` | Roundabout |
-| 23 | `hcm_analyze_alternative_intersection` | RCUT and MUT alternative intersections (Part C) |
-| 23 | `hcm_analyze_displaced_left_turn` | Displaced left-turn intersection (Part C) |
-| 23 | `hcm_analyze_ramp_terminal` | Interchange ramp terminals (Part B) |
-| 24 | `hcm_analyze_offstreet_bicycle` | Off-street path, bicycle mode |
-| 24 | `hcm_analyze_pedestrian_walkway` | Exclusive pedestrian walkway or stairwell |
-| 24 | `hcm_analyze_shared_use_path_pedestrian` | Shared-use path, pedestrian mode |
-| 25 | `hcm_analyze_composite_grade` | Mixed-flow model, composite grade |
-| 25 | `hcm_analyze_planning_facility` | Planning-level freeway facility |
-| 26 | `hcm_analyze_mixed_flow` | Mixed-flow model, single grade |
-| 27 | `hcm_analyze_weaving_service_volumes` | Weaving segment service volumes |
-| 28 | `hcm_analyze_ramp_service_volumes` | Merge and diverge service volumes |
+| 10 | `analyze_freeway_facility` | Freeway facility (Chapter 25 engine) |
+| 10 | `analyze_managed_lanes` | Managed-lane freeway facility |
+| 11 | `analyze_freeway_reliability` | Freeway travel-time reliability |
+| 12 | `analyze_basic_freeway` | Basic freeway and multilane segment |
+| 13 | `analyze_weaving` | Freeway weaving segment (HCM 7 and 7.1) |
+| 14 | `analyze_merge_diverge` | Freeway merge and diverge segment (HCM 7 and 7.1) |
+| 15 | `analyze_two_lane_highway` | Two-lane highway facility |
+| 16 | `analyze_urban_facility` | Urban street facility |
+| 17 | `analyze_urban_reliability` | Urban street travel-time reliability |
+| 18 | `analyze_bicycle_segment` | Urban street segment, bicycle mode |
+| 18 | `analyze_pedestrian_segment` | Urban street segment, pedestrian mode |
+| 18 | `analyze_transit_segment` | Urban street segment, transit mode |
+| 18 | `analyze_urban_segment` | Urban street segment, automobile mode |
+| 19 | `analyze_signalized` | Signalized intersection, automobile mode |
+| 19 | `analyze_signalized_bicycle` | Signalized intersection, bicycle mode |
+| 19 | `analyze_signalized_pedestrian` | Signalized intersection, pedestrian mode |
+| 19 | `analyze_two_stage_crossing` | Two-stage pedestrian crossing delay |
+| 20 | `analyze_twsc` | Two-way STOP-controlled intersection, vehicular |
+| 20 | `analyze_twsc_pedestrian` | TWSC and midblock crossing, pedestrian mode |
+| 21 | `analyze_awsc` | All-way STOP-controlled intersection |
+| 22 | `analyze_roundabout` | Roundabout |
+| 23 | `analyze_alternative_intersection` | RCUT and MUT alternative intersections (Part C) |
+| 23 | `analyze_displaced_left_turn` | Displaced left-turn intersection (Part C) |
+| 23 | `analyze_ramp_terminal` | Interchange ramp terminals (Part B) |
+| 24 | `analyze_offstreet_bicycle` | Off-street path, bicycle mode |
+| 24 | `analyze_pedestrian_walkway` | Exclusive pedestrian walkway or stairwell |
+| 24 | `analyze_shared_use_path_pedestrian` | Shared-use path, pedestrian mode |
+| 25 | `analyze_composite_grade` | Mixed-flow model, composite grade |
+| 25 | `analyze_planning_facility` | Planning-level freeway facility |
+| 26 | `analyze_mixed_flow` | Mixed-flow model, single grade |
+| 27 | `analyze_weaving_service_volumes` | Weaving segment service volumes |
+| 28 | `analyze_ramp_service_volumes` | Merge and diverge service volumes |
 
-Each method ships its worked example under `hcm_mcp_server/data/examples/<method>.json`, and `tests/test_methods.py` drives every one of them through the MCP call path against the published values of that example problem, at the tolerances the compute library's own test suite asserts.
+Each method ships its worked example under `hcm_mcp_server/data/examples/<method>.json`, and `tests/test_methods.py` drives every one of them through `hcm_analyze` against the published values of that example problem, at the tolerances the compute library's own test suite asserts.
+
+Each method also keeps a method-shaped REST route at `/analysis/hcm/<method-with-hyphens>` for direct API callers. Routes are not MCP tools, so these cost a caller's context nothing.
 
 Domain refusals carry the library's own message. An un-digitised mixed-flow grade, an off-domain specific-upgrade PCE and a malformed config all come back as `{"success": false, "error": "..."}` in the library's words, because those messages say what the published HCM data covers.
 
-**These tools are not in the default MCP surface.** `mcp_server_fastapi.py` is the `ct` ablation arm, and the ten tools it advertises by default are the surface the published experiment ran against (see `tests/test_frozen_surface.py`). Set `HCM_MCP_FULL_COVERAGE=true` to append the per-method tools to the MCP mount. Without it they are still reachable over REST at `/analysis/hcm/<method>` and through `/tools/call`.
+**These tools are not in the default MCP surface.** `mcp_server_fastapi.py` is the `ct` ablation arm, and the ten tools it advertises by default are the surface the published experiment ran against (see `tests/test_frozen_surface.py`). Set `HCM_MCP_FULL_COVERAGE=true` to append the three capability tools to the MCP mount. Without it they are still reachable over REST and through `/tools/call`.
 
 ### Validation Functions
 - `validation_validate_design_full` - Validate a design against the **full rule corpus** (300+ rules: HCM, AASHTO, MUTCD, HSM, ADA, OpenDRIVE, ...) with citations, terrain/jurisdiction-gated rules, and clarification requests when an input is missing or its context is ambiguous. Runs in-process over the bundled seed corpus — no database. (The Chapter 15/12 tools use a lighter semantic-firewall gateway; this is the complete engine.) Requires `transportations-validator>=0.2.0` + `sqlalchemy`.
@@ -363,11 +367,14 @@ Hit the API endpoints directory to perform analyses or query HCM documentation.
 ### Per-method HCM analysis
 
 ```
-POST /analysis/hcm/analyze-<method>       # one route per method, e.g. /analysis/hcm/analyze-roundabout
-POST /analysis/hcm/describe-method        # input schema sketch + worked example
+POST /analysis/hcm/analyze                # {method, config}
+POST /analysis/hcm/describe               # {method?} - catalog, or one method's schema + worked example
+POST /analysis/hcm/validate               # {method, config} - parse and check, without running
+
+POST /analysis/hcm/<method-with-hyphens>  # method-shaped convenience route, e.g. /analysis/hcm/analyze-roundabout
 ```
 
-Every route takes `{"config": { ... }}` in that method's example-case schema. See **Per-method HCM Functions** above for the full list.
+The per-method routes take `{"config": { ... }}` in that method's example-case schema. See **HCM Analysis Capabilities** above for the full list.
 
 ### Chapter 15 Analysis
 - `POST /analysis/chapter15/complete` - Complete HCM analysis

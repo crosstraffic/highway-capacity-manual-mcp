@@ -251,10 +251,10 @@ class TestDiscovery:
 class TestRegistryLegacySplit:
     REGISTRY = Path(__file__).resolve().parent.parent / "function_registry.yaml"
 
-    def test_default_surface_is_the_ten_general_tools_plus_the_per_method_family(self):
+    def test_default_surface_is_the_ten_general_tools_plus_three_capability_tools(self):
         # The ten general tools are the published ablation surface and are frozen
-        # (tests/test_frozen_surface.py). Everything else in the default registry
-        # is the additive per-method family, which lives under the hcm_ prefix.
+        # (tests/test_frozen_surface.py). The additions are the three hcm_
+        # capability tools covering all 32 HCM methods.
         reg = FunctionRegistry(self.REGISTRY)
         names = set(reg.get_all_functions())
         assert {"analyze_facility", "describe_facility_inputs", "query_hcm"} <= names

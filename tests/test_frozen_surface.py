@@ -57,9 +57,11 @@ class TestPublicSurfaceIsFrozen:
         live = live_surface(include_legacy=False)
         added = set(live) - set(SNAPSHOT["public"])
         assert set(SNAPSHOT["public"]) <= set(live)
-        # Everything new must be in the new namespace, so no addition can collide
-        # with, or be mistaken for, a tool the paper used.
-        assert all(name.startswith("hcm_") for name in added), sorted(added)
+        # Full HCM coverage is three capability tools, matching the capability
+        # shape of the ten frozen ones, not one tool per method. Pinning the
+        # exact set keeps a later change from quietly reintroducing a
+        # method-per-tool surface and tripling every caller's context cost.
+        assert added == {"hcm_analyze", "hcm_describe", "hcm_validate"}, sorted(added)
 
 
 class TestLegacySurfaceIsFrozen:

@@ -12,7 +12,7 @@ Domain refusals are the library's own: an off-domain specific-upgrade grade, a m
 import json
 from functools import wraps
 from pathlib import Path
-from typing import Any, Callable, Dict, List, Optional
+from typing import Any, Callable, Dict, List
 
 import transportations_library as tl
 
@@ -52,10 +52,14 @@ def _config(data: Dict[str, Any]) -> Dict[str, Any]:
     ``_source`` is dropped on the way through. It is the provenance line the shipped examples carry and the describe tool serves, never an engine input, and the mixed-flow configs are ``deny_unknown_fields`` so passing it back would be rejected.
     """
     config = data.get("config")
-    if config is None and any(k for k in data if k not in ("config", "mode")):
-        config = data
+    if config is None:
+        # A bare fixture object, minus the arguments that belong to the tool
+        # rather than to the analysis. `method` has to come out here or it would
+        # ride into a serde config that rejects unknown fields.
+        bare = {k: v for k, v in data.items() if k not in ("config", "mode", "method")}
+        config = bare or None
     if not isinstance(config, dict):
-        raise ValueError("Missing 'config' object in the method's fixture schema. Call hcm_describe_method with this method name for the shape and a worked example fixture.")
+        raise ValueError("Missing 'config' object in the method's fixture schema. Call hcm_describe with this method name for the shape and a worked example fixture.")
     return _strip_provenance(config)
 
 
@@ -1058,7 +1062,125 @@ METHODS: Dict[str, Dict[str, Any]] = {
 }
 
 
-# ── The companion describe tool ──────────────────────────────────────────────
+# ── Dry-run validation ───────────────────────────────────────────────────────
+# A caller iterating on a config should not have to pay for a full analysis to
+# find out a field is wrong. For most methods the library's deserialiser IS the
+# validator: constructing the object runs serde (or the keyword constructor's
+# range checks) and raises with the library's own message, without running a
+# single equation. Methods reached through a bare JSON function have no such
+# split -- validation happens inside the analysis -- and those say so rather
+# than quietly running the analysis and calling it a validation.
+
+
+def _json_class_validator(cls_name: str) -> Callable[[Dict[str, Any]], None]:
+    """Deserialize a JSON-config class without running it. serde rejects unknown shapes, missing fields and bad enum spellings here."""
+    def validate(config: Dict[str, Any]) -> None:
+        getattr(tl, cls_name)(json.dumps(config))
+    return validate
+
+
+def _kwargs_validator(builder: Callable[[Dict[str, Any]], Any]) -> Callable[[Dict[str, Any]], None]:
+    """Build a keyword-constructor object without running it."""
+    def validate(config: Dict[str, Any]) -> None:
+        builder(config)
+    return validate
+
+
+def _validate_basic_freeway(config: Dict[str, Any]) -> None:
+    d = dict(config)
+    d.setdefault("lane_width", d.get("lw"))
+    tl.BasicFreeways(**{k: d[k] for k in _BASIC_FREEWAY_KEYS if d.get(k) is not None})
+
+
+def _validate_two_lane_highway(config: Dict[str, Any]) -> None:
+    """Chapter 15 is the one method with a real rule-level validator behind the constructor. ``tl.validate_input`` returns the Exhibit 15-8 range violations that a constructor would happily accept, which is exactly the class of error that otherwise produces a plausible wrong follower density."""
+    segments = config.get("segments")
+    if not isinstance(segments, list) or not segments:
+        raise ValueError("'segments' must be a non-empty list of Chapter 15 segments")
+    errors: List[str] = []
+    for index, segment in enumerate(segments):
+        _two_lane_segment(segment)
+        reported = tl.validate_input(
+            lane_width=config.get("lane_width"),
+            shoulder_width=config.get("shoulder_width"),
+            passing_type=segment.get("passing_type"),
+            hor_class=segment.get("hor_class"),
+            grade=segment.get("grade"),
+            phf=segment.get("phf"),
+            phv=segment.get("phv"),
+            spl=segment.get("spl"),
+        )
+        errors += [f"segment {index}: {message}" for message in reported]
+    if errors:
+        raise ValueError("; ".join(errors))
+
+
+def _validate_ramp_service_volumes(config: Dict[str, Any]) -> None:
+    _ramp_segment(config["segment"])
+    if (config.get("ramp_fraction") is None) == (config.get("fixed_freeway_vf") is None):
+        raise ValueError("provide exactly one of 'ramp_fraction' (Case 1) or 'fixed_freeway_vf' (Case 2)")
+    for key in ("f_hv", "phf"):
+        if config.get(key) is None:
+            raise ValueError(f"missing required field {key!r}")
+
+
+def _validate_weaving_service_volumes(config: Dict[str, Any]) -> None:
+    _weaving_segment(config["segment"])
+    if len(config.get("split") or ()) != 4:
+        raise ValueError("'split' must be four demand fractions (ff, rf, fr, rr) summing to 1")
+    for key in ("f_hv", "phf", "k_factor", "d_factor"):
+        if config.get(key) is None:
+            raise ValueError(f"missing required field {key!r}")
+
+
+# method -> (validator, what the validator actually checked). A None validator
+# means the library offers no step between "parse" and "compute" for that
+# method, and hcm_validate reports that instead of pretending otherwise.
+_VALIDATORS: Dict[str, Any] = {
+    "analyze_freeway_facility": (_json_class_validator("FreewayFacility"), "serde deserialisation of the facility config"),
+    "analyze_managed_lanes": (_json_class_validator("ManagedLaneFacility"), "serde deserialisation of the managed-lane facility config"),
+    "analyze_planning_facility": (_json_class_validator("PlanningFacility"), "serde deserialisation of the planning facility config"),
+    "analyze_freeway_reliability": (_json_class_validator("FreewayReliability"), "serde deserialisation of the reliability config"),
+    "analyze_basic_freeway": (_validate_basic_freeway, "the BasicFreeways keyword constructor's range and enum checks"),
+    "analyze_weaving": (_kwargs_validator(_weaving_segment), "the WeavingSegment keyword constructor's range and enum checks"),
+    "analyze_merge_diverge": (_kwargs_validator(_ramp_segment), "the RampSegment keyword constructor's range and enum checks"),
+    "analyze_two_lane_highway": (_validate_two_lane_highway, "the Segment/SubSegment constructors plus tl.validate_input's Exhibit 15-8 parameter ranges"),
+    "analyze_urban_facility": (_json_class_validator("UrbanFacility"), "serde deserialisation of the urban facility config"),
+    "analyze_urban_reliability": (_json_class_validator("UrbanReliability"), "serde deserialisation of the urban reliability config"),
+    "analyze_urban_segment": (_json_class_validator("UrbanSegment"), "serde deserialisation of the urban segment config"),
+    "analyze_signalized": (_json_class_validator("SignalizedIntersection"), "serde deserialisation of the intersection config"),
+    "analyze_twsc": (_json_class_validator("Twsc"), "serde deserialisation of the TWSC config"),
+    "analyze_awsc": (_json_class_validator("Awsc"), "serde deserialisation of the AWSC config"),
+    "analyze_roundabout": (_json_class_validator("Roundabouts"), "serde deserialisation of the roundabout config"),
+    "analyze_ramp_terminal": (_json_class_validator("Interchange"), "serde deserialisation of the interchange config"),
+    "analyze_alternative_intersection": (_json_class_validator("AlternativeIntersection"), "serde deserialisation of the alternative-intersection config"),
+    "analyze_displaced_left_turn": (_json_class_validator("DisplacedLeftTurn"), "serde deserialisation of the DLT config"),
+    "analyze_pedestrian_walkway": (_kwargs_validator(lambda c: tl.ExclusivePedestrianFacility(**{
+        k: c[k] for k in ("total_walkway_width", "fixed_object_width", "pedestrian_demand", "peak_15min_volume",
+                          "phf", "pedestrian_speed", "facility_type", "flow_type") if c.get(k) is not None})),
+        "the ExclusivePedestrianFacility keyword constructor"),
+    "analyze_shared_use_path_pedestrian": (_kwargs_validator(lambda c: tl.SharedUsePathPedestrian(**{
+        k: c[k] for k in ("bicycle_demand_same_direction", "bicycle_demand_opposing", "phf", "pedestrian_speed",
+                          "bicycle_speed", "bicycle_flow_rate_same_direction", "bicycle_flow_rate_opposing",
+                          "is_one_way") if c.get(k) is not None})),
+        "the SharedUsePathPedestrian keyword constructor"),
+    "analyze_offstreet_bicycle": (_kwargs_validator(lambda c: tl.OffStreetBicycleFacility(**{
+        k: c[k] for k in ("path_width", "segment_length", "has_centerline", "two_way_demand", "directional_split",
+                          "phf", "subject_demand", "opposing_demand", "is_one_way", "mode_splits", "mode_speeds",
+                          "mode_speed_sds") if c.get(k) is not None})),
+        "the OffStreetBicycleFacility keyword constructor"),
+    "analyze_weaving_service_volumes": (_validate_weaving_service_volumes, "the WeavingSegment constructor plus the split and factor requirements"),
+    "analyze_ramp_service_volumes": (_validate_ramp_service_volumes, "the RampSegment constructor plus the Case 1 / Case 2 basis requirement"),
+}
+
+_NO_SEPARATE_VALIDATION = (
+    "this method is a single JSON entry point in the compute library: parsing, range checking and computation happen "
+    "in one call, so there is no step to run short of the analysis itself. Call hcm_analyze; a bad config comes back "
+    "as the same error message this tool would have returned."
+)
+
+
+# ── Shared helpers for the describe capability ───────────────────────────
 
 def _sketch(value: Any, depth: int = 0) -> Any:
     """Reduce an example config to a key/type sketch. Lists collapse to their first element so a fifty-segment facility describes as one segment, and nesting stops at depth 4 so a deep config stays readable in a tool response."""
@@ -1085,7 +1207,6 @@ def _sketch(value: Any, depth: int = 0) -> Any:
 def _method_row(name: str, entry: Dict[str, Any]) -> Dict[str, Any]:
     row = {
         "method": name,
-        "tool": f"hcm_{name}",
         "chapter": entry["chapter"],
         "title": entry["title"],
         "library_symbol": entry["library"],
@@ -1095,30 +1216,124 @@ def _method_row(name: str, entry: Dict[str, Any]) -> Dict[str, Any]:
     return row
 
 
-def describe_method_function(data: Dict[str, Any]) -> Dict[str, Any]:
-    """Serve a method's input schema sketch and its example-problem fixture; called without a method, list every method with its chapter."""
-    method: Optional[str] = data.get("method")
+# ── The three capability tools ───────────────────────────────────────────────
+# The MCP surface is capability-shaped, matching the ten tools of the published
+# surface: one tool to run a method, one to discover it, one to dry-run a config.
+# The 32 per-method functions above stay as the implementation and keep their
+# REST routes; they are not advertised as separate tools, because 32 near-
+# identical schemas cost every caller context and blunt tool selection.
+
+
+def _resolve(method: Any) -> str:
+    """Accept a method id with or without the tool prefix a caller may have copied from a route or an older tool name."""
+    if not isinstance(method, str) or not method:
+        raise ValueError(
+            f"Missing 'method'. Call hcm_describe with no arguments for the catalog of {len(METHODS)} methods."
+        )
+    name = method[4:] if method.startswith("hcm_") else method
+    name = name.replace("-", "_")
+    if name not in METHODS:
+        raise ValueError(
+            f"Unknown method {method!r}. Call hcm_describe with no arguments for the catalog of {len(METHODS)} methods."
+        )
+    return name
+
+
+def analyze_function(data: Dict[str, Any]) -> Dict[str, Any]:
+    """Run one HCM method. Takes the method id and that method's config in the compute library's example-case (fixture) schema."""
+    try:
+        name = _resolve(data.get("method"))
+    except ValueError as e:
+        return {"success": False, "error": str(e)}
+    entry = METHODS[name]
+    payload = {"config": data.get("config")}
+    if "mode" in data:
+        payload["mode"] = data["mode"]
+    result = entry["function"](payload)
+    if isinstance(result, dict):
+        result.setdefault("method", name)
+        result.setdefault("chapter", entry["chapter"])
+    return result
+
+
+def describe_function(data: Dict[str, Any]) -> Dict[str, Any]:
+    """With a method, its input schema sketch, result-field meanings and worked-example fixture; without one, the catalog."""
+    method = data.get("method")
     if not method:
         return {
             "success": True,
-            "methods": [_method_row(name, entry) for name, entry in sorted(METHODS.items(), key=lambda kv: (kv[1]["chapter"], kv[0]))],
+            "methods": [
+                dict(_method_row(name, entry), summary=entry["title"])
+                for name, entry in sorted(METHODS.items(), key=lambda kv: (kv[1]["chapter"], kv[0]))
+            ],
             "total_count": len(METHODS),
+            "usage": "Pass one of these ids as 'method' to hcm_describe for its input schema and worked example, then to hcm_analyze to run it.",
         }
-    name = method[4:] if method.startswith("hcm_") else method
-    if name not in METHODS:
-        return {
-            "success": False,
-            "error": f"Unknown method {method!r}. Call hcm_describe_method with no arguments for the full list.",
-        }
+    try:
+        name = _resolve(method)
+    except ValueError as e:
+        return {"success": False, "error": str(e)}
     entry = METHODS[name]
     example = _example(name)
     row = _method_row(name, entry)
+    validator = _VALIDATORS.get(name)
     row.update({
         "success": True,
         "docstring": (entry["function"].__doc__ or "").strip(),
-        "input_format": "Pass the example's shape as the tool's 'config' argument. This is the compute library's own fixture schema, the same files its example-problem tests read, so an example case can be handed over unmodified.",
+        "input_format": "Pass the example's shape as hcm_analyze's 'config' argument. This is the compute library's own fixture schema, the same files its example-problem tests read, so an example case can be handed over unmodified.",
         "input_sketch": _sketch(example),
         "example": example,
-        "example_source": example.get("_source") or example.get("description") or "See the library's example cases.",
+        "example_source": example.get("_source") or example.get("_comment") or example.get("description") or "See the library's example cases.",
+        "dry_run_validation": validator[1] if validator else None,
     })
     return row
+
+
+def validate_function(data: Dict[str, Any]) -> Dict[str, Any]:
+    """Parse and validate a config without running the analysis."""
+    try:
+        name = _resolve(data.get("method"))
+        config = _config(data)
+    except ValueError as e:
+        return {"success": False, "error": str(e)}
+    entry = _VALIDATORS.get(name)
+    if entry is None:
+        return {
+            "success": True,
+            "method": name,
+            "chapter": METHODS[name]["chapter"],
+            "valid": None,
+            "validated": False,
+            "reason": _NO_SEPARATE_VALIDATION,
+        }
+    validator, checked = entry
+    try:
+        validator(config)
+    except (KeyboardInterrupt, SystemExit):
+        raise
+    except BaseException as e:  # noqa: BLE001 -- PyO3 raises outside Exception
+        return {
+            "success": True,
+            "method": name,
+            "chapter": METHODS[name]["chapter"],
+            "valid": False,
+            "validated": True,
+            "checked": checked,
+            "error": str(e),
+        }
+    return {
+        "success": True,
+        "method": name,
+        "chapter": METHODS[name]["chapter"],
+        "valid": True,
+        "validated": True,
+        "checked": checked,
+    }
+
+
+def method_catalog_lines() -> List[str]:
+    """The method list as it appears in hcm_analyze's tool description. This text is in every caller's context window, so it is one compact line per method and nothing more."""
+    return [
+        f"{name} (Ch.{entry['chapter']}): {entry['title']}"
+        for name, entry in sorted(METHODS.items(), key=lambda kv: (kv[1]["chapter"], kv[0]))
+    ]

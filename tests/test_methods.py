@@ -1,6 +1,6 @@
-"""The per-method HCM surface: every hcm_analyze_* tool driven through the MCP call path against its example-problem fixture.
+"""The full HCM method coverage, every method driven through the ``hcm_analyze`` capability tool against its example-problem fixture.
 
-Each tool is called the way ``/tools/call`` calls it — ``registry.get_function(name)(arguments)`` — so a test failing here means either the analysis is wrong or the registry wiring is, and the two are not confused.
+The MCP surface is capability-shaped: three tools (``hcm_analyze``, ``hcm_describe``, ``hcm_validate``) over thirty-two methods. Every analysis below therefore goes through ``hcm_analyze`` with a ``method`` argument, which is the path a real caller takes, rather than reaching into the per-method implementation function. Each call is made the way ``/tools/call`` makes it — ``registry.get_function(name)(arguments)`` — so a failure here means the analysis is wrong, the dispatch is wrong, or the registry wiring is, and the three are not confused.
 
 Every expected value and tolerance below is cribbed from the compute library's own test suite for that example problem (``transportations-library/tests/test_chapter*_integration.py`` for the Python-tested chapters, ``tests/chapter*_integration.rs`` for the ones the Rust side pins). Nothing here is an invented tolerance: where the library asserts +-0.5 mi/h, so does this file, and where the library documents a computed-versus-published gap the value asserted is the library's computed one with the published one in the comment. The published-value provenance lives in the fixtures' own ``_source`` lines.
 """
@@ -29,10 +29,16 @@ def call(registry, tool, **arguments):
     return impl(arguments)
 
 
+def analyze(registry, method, config, **extra):
+    """Run one method through the hcm_analyze capability tool -- the path a caller actually takes."""
+    return call(registry, "hcm_analyze", method=method, config=config, **extra)
+
+
 def run_example(registry, method, **extra):
-    """Run a method against its own shipped example-problem fixture."""
-    result = call(registry, f"hcm_{method}", config=methods._example(method), **extra)
+    """Run a method against its own shipped example-problem fixture, through hcm_analyze."""
+    result = analyze(registry, method, methods._example(method), **extra)
     assert result.get("success") is True, result.get("error")
+    assert result["method"] == method
     return result
 
 
@@ -213,7 +219,7 @@ class TestWeaving:
         # 7.1 replaces the single num_weaving_lanes count with per-movement
         # weaving-lane counts, so the 7th-Edition fixture gains nw_rf and nw_fr.
         config = dict(methods._example("analyze_weaving"), version="7.1", nw_rf=2, nw_fr=1)
-        result = call(registry, "hcm_analyze_weaving", config=config)
+        result = analyze(registry, "analyze_weaving", config)
         assert result["success"] is True
         a = result["results"]["analysis_v7_1"]
         assert a["class"] == "Complex"
@@ -229,7 +235,7 @@ class TestWeaving:
     def test_the_two_editions_disagree(self, registry, result):
         """7.1 replaces the weaving equations rather than adjusting them, so the same segment must not land on the same density."""
         config = dict(methods._example("analyze_weaving"), version="7.1", nw_rf=2, nw_fr=1)
-        v71 = call(registry, "hcm_analyze_weaving", config=config)
+        v71 = analyze(registry, "analyze_weaving", config)
         assert abs(result["results"]["density"] - v71["results"]["analysis_v7_1"]["density"]) > 1.0
 
 
@@ -262,7 +268,7 @@ class TestMergeDiverge:
         # Chapter 28 Example Problem 1 (on-ramp), the case the library pins its
         # 7.1 merge/diverge values on.
         config = dict(json.loads((DATA / "mergediverge_ep1.json").read_text()), version="7.1")
-        result = call(registry, "hcm_analyze_merge_diverge", config=config)
+        result = analyze(registry, "analyze_merge_diverge", config)
         assert result["success"] is True
         a = result["results"]["analysis_v7_1"]
         assert a["flow_freeway"] == pytest.approx(2918.0, abs=2.0)
@@ -319,8 +325,8 @@ class TestUrbanFacility:
         assert r["poorest_segment_los"] == "D"
 
     def test_unknown_mode_is_refused(self, registry):
-        result = call(registry, "hcm_analyze_urban_facility",
-                      config=methods._example("analyze_urban_facility"), mode="wishful")
+        result = analyze(registry, "analyze_urban_facility",
+                      methods._example("analyze_urban_facility"), mode="wishful")
         assert result["success"] is False
         assert "aggregate" in result["error"]
 
@@ -640,7 +646,7 @@ class TestMixedFlow:
 
     def test_oversaturation_returns_null_speed(self, registry):
         config = dict(methods._example("analyze_mixed_flow"), v_mix=2000.0)
-        r = call(registry, "hcm_analyze_mixed_flow", config=config)["results"]
+        r = analyze(registry, "analyze_mixed_flow", config)["results"]
         assert r["oversaturated"] is True
         assert r["s_mix"] is None and r["d_mix"] is None
 
@@ -688,7 +694,7 @@ class TestServiceVolumes:
         config.pop("ramp_fraction")
         config["fixed_freeway_vf"] = 4000.0 / (0.87 * config["f_hv"])
         rows = {row["target_density"]: row for row in
-                call(registry, "hcm_analyze_ramp_service_volumes", config=config)["results"]["service_volumes"]}
+                analyze(registry, "analyze_ramp_service_volumes", config)["results"]["service_volumes"]}
         assert rows[20.0]["unachievable"] is True
         assert rows[20.0]["sfi"] is None
         assert rows[28.0]["sfi"] == pytest.approx(772.0, abs=3.0)
@@ -698,7 +704,7 @@ class TestServiceVolumes:
 
     def test_ramp_basis_must_be_exactly_one(self, registry):
         config = dict(methods._example("analyze_ramp_service_volumes"), fixed_freeway_vf=4896.0)
-        result = call(registry, "hcm_analyze_ramp_service_volumes", config=config)
+        result = analyze(registry, "analyze_ramp_service_volumes", config)
         assert result["success"] is False
         assert "exactly one" in result["error"]
 
@@ -721,14 +727,14 @@ class TestRefusals:
     def test_mixed_flow_refuses_an_undigitised_grade(self, registry):
         # The truck speed curves are digitised at -5, 0, 2, 3 and 5% only.
         config = dict(methods._example("analyze_mixed_flow"), grade=7.0)
-        result = call(registry, "hcm_analyze_mixed_flow", config=config)
+        result = analyze(registry, "analyze_mixed_flow", config)
         assert result["success"] is False
         assert "digitised" in result["error"]
         assert "7" in result["error"]
 
     def test_mixed_flow_refuses_off_domain_truck_proportions(self, registry):
         config = dict(methods._example("analyze_mixed_flow"), p_tt=0.99)
-        result = call(registry, "hcm_analyze_mixed_flow", config=config)
+        result = analyze(registry, "analyze_mixed_flow", config)
         assert result["success"] is False
         assert "truck proportions" in result["error"]
 
@@ -736,7 +742,7 @@ class TestRefusals:
         # Reversing the segment order enters a grade at a speed with no curve.
         config = dict(methods._example("analyze_composite_grade"))
         config["segments"] = list(reversed(config["segments"]))
-        result = call(registry, "hcm_analyze_composite_grade", config=config)
+        result = analyze(registry, "analyze_composite_grade", config)
         assert result["success"] is False
         assert "2.5 mi/h" in result["error"]
 
@@ -744,37 +750,37 @@ class TestRefusals:
         # Exhibits 12-26/27/28 stop at 6%; beyond that the HCM sends the analyst
         # to the Chapter 25/26 mixed-flow model instead.
         config = dict(methods._example("analyze_basic_freeway"), grade=8.0, sut_percentage=50, p_t=0.06)
-        result = call(registry, "hcm_analyze_basic_freeway", config=config)
+        result = analyze(registry, "analyze_basic_freeway", config)
         assert result["success"] is False
         assert "mixed-flow model" in result["error"]
 
     def test_basic_freeway_refuses_an_untabulated_truck_mix(self, registry):
         config = dict(methods._example("analyze_basic_freeway"), grade=2.5, sut_percentage=40, p_t=0.06)
-        result = call(registry, "hcm_analyze_basic_freeway", config=config)
+        result = analyze(registry, "analyze_basic_freeway", config)
         assert result["success"] is False
         assert "30%, 50%, and 70%" in result["error"]
 
     def test_malformed_config_is_a_clean_error(self, registry):
-        result = call(registry, "hcm_analyze_roundabout", config={"nonsense": True})
+        result = analyze(registry, "analyze_roundabout", {"nonsense": True})
         assert result["success"] is False
         assert result["error"]
 
     def test_malformed_json_config_is_a_clean_error(self, registry):
-        result = call(registry, "hcm_analyze_signalized", config={"cycle_length_s": "ninety"})
+        result = analyze(registry, "analyze_signalized", {"cycle_length_s": "ninety"})
         assert result["success"] is False
         assert result["error"]
 
     def test_missing_config_names_the_describe_tool(self, registry):
-        result = call(registry, "hcm_analyze_weaving")
+        result = call(registry, "hcm_analyze", method="analyze_weaving")
         assert result["success"] is False
-        assert "hcm_describe_method" in result["error"]
+        assert "hcm_describe" in result["error"]
 
 
 # ── The describe companion ───────────────────────────────────────────────────
 
 class TestDescribeMethod:
     def test_without_a_method_lists_every_method(self, registry):
-        result = call(registry, "hcm_describe_method")
+        result = call(registry, "hcm_describe")
         assert result["success"] is True
         assert result["total_count"] == len(methods.METHODS)
         chapters = {row["chapter"] for row in result["methods"]}
@@ -784,12 +790,13 @@ class TestDescribeMethod:
         assert set(range(10, 25)) <= chapters
         assert {25, 26, 27, 28} <= chapters
         for row in result["methods"]:
-            assert row["tool"] == f"hcm_{row['method']}"
-            assert row["title"] and row["library_symbol"]
+            assert row["title"] and row["library_symbol"] and row["summary"]
+            assert "tool" not in row, "there is one analysis tool; rows must not advertise a per-method one"
+        assert "hcm_analyze" in result["usage"]
 
     def test_every_method_is_describable_and_serves_its_fixture(self, registry):
         for method in methods.METHODS:
-            result = call(registry, "hcm_describe_method", method=method)
+            result = call(registry, "hcm_describe", method=method)
             assert result["success"] is True, method
             assert result["example"], method
             assert result["input_sketch"], method
@@ -797,24 +804,109 @@ class TestDescribeMethod:
             assert "_source" not in result["input_sketch"], method
 
     def test_accepts_the_served_tool_name(self, registry):
-        by_tool = call(registry, "hcm_describe_method", method="hcm_analyze_weaving")
-        by_method = call(registry, "hcm_describe_method", method="analyze_weaving")
+        by_tool = call(registry, "hcm_describe", method="hcm_analyze_weaving")
+        by_method = call(registry, "hcm_describe", method="analyze_weaving")
         assert by_tool == by_method
 
     def test_editions_are_advertised_where_they_exist(self, registry):
-        assert call(registry, "hcm_describe_method", method="analyze_weaving")["hcm_editions"] == ["7", "7.1"]
-        assert call(registry, "hcm_describe_method", method="analyze_merge_diverge")["hcm_editions"] == ["7", "7.1"]
-        assert "hcm_editions" not in call(registry, "hcm_describe_method", method="analyze_signalized")
+        assert call(registry, "hcm_describe", method="analyze_weaving")["hcm_editions"] == ["7", "7.1"]
+        assert call(registry, "hcm_describe", method="analyze_merge_diverge")["hcm_editions"] == ["7", "7.1"]
+        assert "hcm_editions" not in call(registry, "hcm_describe", method="analyze_signalized")
 
     def test_unknown_method_is_a_clean_error(self, registry):
-        result = call(registry, "hcm_describe_method", method="analyze_teleportation")
+        result = call(registry, "hcm_describe", method="analyze_teleportation")
         assert result["success"] is False
-        assert "hcm_describe_method" in result["error"]
+        assert "hcm_describe" in result["error"]
 
     def test_the_sketch_collapses_long_lists(self, registry):
-        sketch = call(registry, "hcm_describe_method", method="analyze_freeway_facility")["input_sketch"]
+        sketch = call(registry, "hcm_describe", method="analyze_freeway_facility")["input_sketch"]
         segments = sketch["segments"]
         assert len(segments) == 2 and segments[1].startswith("... ")
+
+
+class TestValidateCapability:
+    """hcm_validate: parse and check a config without running the analysis.
+
+    The point is that a caller iterating on a config does not pay for a full analysis to learn a field is wrong, and that a method with no validation step separate from its analysis says so rather than running the analysis and calling the result a validation.
+    """
+
+    def test_every_shipped_example_validates(self, registry):
+        for method in methods.METHODS:
+            r = call(registry, "hcm_validate", method=method, config=methods._example(method))
+            assert r["success"] is True, method
+            assert r["valid"] in (True, None), (method, r.get("error"))
+            assert r["chapter"] == methods.METHODS[method]["chapter"], method
+
+    def test_validation_does_not_run_the_analysis(self, registry):
+        """A valid response carries no results: it is a parse, not a computation."""
+        r = call(registry, "hcm_validate", method="analyze_freeway_facility",
+                 config=methods._example("analyze_freeway_facility"))
+        assert r["valid"] is True and r["validated"] is True
+        assert "results" not in r and "level_of_service" not in r
+        assert r["checked"]
+
+    def test_a_malformed_config_is_reported_with_the_library_message(self, registry):
+        r = call(registry, "hcm_validate", method="analyze_roundabout", config={"nonsense": True})
+        assert r["success"] is True
+        assert r["valid"] is False
+        assert r["validated"] is True
+        assert r["error"]
+
+    def test_two_lane_reports_the_exhibit_15_8_range_violation(self, registry):
+        """Chapter 15 is the one method with a rule-level validator behind the constructor, and it is the one whose out-of-range inputs otherwise produce a plausible wrong answer instead of an error."""
+        config = dict(methods._example("analyze_two_lane_highway"), lane_width=8.0)
+        r = call(registry, "hcm_validate", method="analyze_two_lane_highway", config=config)
+        assert r["valid"] is False
+        assert "lane_width = 8 ft is outside valid range [9, 12]" in r["error"]
+        assert "Exhibit 15-8" in r["error"]
+        # ... and the same config still analyses, so this really is a separate check.
+        assert analyze(registry, "analyze_two_lane_highway", config)["success"] is True
+
+    def test_methods_without_a_separate_validator_say_so(self, registry):
+        """The nine bare JSON entry points parse and compute in one call. Reporting 'valid' for them would be a lie about what was checked."""
+        unvalidatable = set(methods.METHODS) - set(methods._VALIDATORS)
+        assert unvalidatable, "expected the JSON-function methods to have no separate validate step"
+        for method in unvalidatable:
+            r = call(registry, "hcm_validate", method=method, config=methods._example(method))
+            assert r["valid"] is None, method
+            assert r["validated"] is False, method
+            assert "hcm_analyze" in r["reason"], method
+
+    def test_validation_catches_what_analysis_would_reject(self, registry):
+        """A config that hcm_analyze refuses must not validate clean."""
+        config = dict(methods._example("analyze_ramp_service_volumes"), fixed_freeway_vf=4896.0)
+        assert call(registry, "hcm_validate", method="analyze_ramp_service_volumes", config=config)["valid"] is False
+        assert analyze(registry, "analyze_ramp_service_volumes", config)["success"] is False
+
+    def test_unknown_method_and_missing_config_are_clean_errors(self, registry):
+        assert call(registry, "hcm_validate", method="analyze_teleportation", config={})["success"] is False
+        r = call(registry, "hcm_validate", method="analyze_roundabout")
+        assert r["success"] is False and "config" in r["error"].lower()
+
+
+class TestAnalyzeDispatch:
+    def test_unknown_method_points_at_the_catalog(self, registry):
+        r = call(registry, "hcm_analyze", method="analyze_teleportation", config={})
+        assert r["success"] is False
+        assert "hcm_describe" in r["error"]
+
+    def test_missing_method_points_at_the_catalog(self, registry):
+        r = call(registry, "hcm_analyze", config={})
+        assert r["success"] is False
+        assert "hcm_describe" in r["error"]
+
+    def test_a_prefixed_or_hyphenated_id_still_resolves(self, registry):
+        """A caller who copied an id off a REST route or an older tool name should not be stuck on punctuation."""
+        config = methods._example("analyze_roundabout")
+        plain = analyze(registry, "analyze_roundabout", config)
+        for variant in ("hcm_analyze_roundabout", "analyze-roundabout"):
+            assert analyze(registry, variant, config) == plain, variant
+
+    def test_every_response_carries_its_method_and_chapter(self, registry):
+        for method, entry in methods.METHODS.items():
+            r = analyze(registry, method, methods._example(method))
+            assert r["method"] == method
+            assert r["chapter"] == entry["chapter"]
 
 
 class TestMethodTableIntegrity:
@@ -824,15 +916,28 @@ class TestMethodTableIntegrity:
             assert path.exists(), f"{method} has no example fixture"
             json.loads(path.read_text())
 
-    def test_every_method_is_registered_and_routed(self, registry):
+    def test_the_mcp_surface_is_three_capability_tools(self, registry):
+        """One tool per method would put thirty-two near-identical schemas in every caller's context. The method is an argument."""
+        names = {n for n in registry.get_all_functions() if n.startswith("hcm_")}
+        assert names == {"hcm_analyze", "hcm_describe", "hcm_validate"}
+
+    def test_every_method_keeps_its_rest_route(self, registry):
+        """Routes are not MCP tools. A readable URL per method stays for direct API callers."""
         import mcp_server_fastapi as srv
 
         operations = {getattr(route, "operation_id", None) for route in srv.app.routes}
+        paths = {route.path for route in srv.app.routes}
         for method in methods.METHODS:
-            assert registry.get_function(f"hcm_{method}") is not None, method
-            assert f"hcm_{method}" in operations, method
-        assert registry.get_function("hcm_describe_method") is not None
-        assert "hcm_describe_method" in operations
+            assert f"hcm_method_{method}" in operations, method
+            assert f"/analysis/hcm/{method.replace('_', '-')}" in paths, method
+        assert {"hcm_analyze", "hcm_describe", "hcm_validate"} <= operations
+
+    def test_the_analyze_schema_advertises_every_method(self, registry):
+        """The enum and the description's catalog are what a caller selects from, so both must cover the table."""
+        info = registry.get_function_info("hcm_analyze")
+        assert set(info["parameters"]["properties"]["method"]["enum"]) == set(methods.METHODS)
+        for method in methods.METHODS:
+            assert method in info["description"], method
 
     def test_every_method_documents_its_chapter_and_results(self):
         for method, entry in methods.METHODS.items():
