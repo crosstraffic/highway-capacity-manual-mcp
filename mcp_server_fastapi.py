@@ -328,7 +328,9 @@ mcp = FastApiMCP(
     describe_full_response_schema=True  
 )
 
-mcp.mount()
+# Streamable HTTP is the current MCP transport and the one hosted clients such as Microsoft Copilot Studio require (they open with POST /mcp). The legacy SSE transport stays available at /sse for clients that have not moved yet.
+mcp.mount_http()
+mcp.mount_sse(mount_path="/sse")
 
 if __name__ == "__main__":
     import uvicorn
